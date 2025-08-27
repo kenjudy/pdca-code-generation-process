@@ -19,34 +19,34 @@ The approach establishes clear intervention points where humans must stop AI exe
 
 ### Before Your First Session
 
-1. **Establish Working Agreements**: Review and customize the [Human Working Agreements](https://claude.ai/chat/Human%20Working%20Agreements.md) for your context
+1. **Establish Working Agreements**: Review and customize the [Human Working Agreements](Human%20Working%20Agreements.md) for your context
 2. **Set Up Environment**: Ensure AI has codebase access and you can run tests quickly
 3. **Choose Engagement Level**: Decide on your supervision intensity (high/moderate/light)
 
 ### First Session Workflow
 
-**Step 1: Analysis** (2-5 min) - Use [template 1a](https://claude.ai/chat/1a%20-%20Analyze%20to%20determine%20approach%20for%20achieving%20the%20goal.md)
+**Step 1: Analysis** (2-5 min) - Use [template 1a](1.%20Plan/1a%20Analyze%20to%20determine%20approach%20for%20achieving%20the%20goal.md)
 
 - Describe your goal clearly
 - Let AI discover existing architectural patterns
 - Get complexity assessment and approach recommendations
 
-**Step 2: Planning** (2-5 min) - Use [template 1b](https://claude.ai/chat/1b%20-%20Create%20a%20detailed%20implementation%20plan.md)
+**Step 2: Planning** (2-5 min) - Use [template 1b](1.%20Plan/1b%20Create%20a%20detailed%20implementation%20plan.md)
 
 - AI creates atomic, testable implementation steps
 - Review and adjust scope if needed
 
-**Step 3: Test-Drive Implementation** (Variable) - Use [template 2](https://claude.ai/chat/2.%20Test%20Drive%20the%20Change.md)
+**Step 3: Test-Drive Implementation** (Variable) - Use [template 2](2.%20Do/2.%20Test%20Drive%20the%20Change.md)
 
 - **Watch for TDD violations** - interrupt immediately when you see them
 - Use intervention phrases: "Where's the failing test first?" "You're fixing multiple things. Focus on one failing test?"
 
-**Step 4: Check Completeness** (2-5 min) - Use [template 3](https://claude.ai/chat/3.%20Completeness%20Check.md)
+**Step 4: Check Completeness** (2-5 min) - Use [template 3](3.%20Check/3.%20Completeness%20Check.md)
 
 - Verify tests pass and goals met
 - Audit TDD process adherence
 
-**Step 5: Retrospect** (5-10 min) - Use [template 4](https://claude.ai/chat/4.%20Retrospect%20for%20continuous%20improvement.md)
+**Step 5: Retrospect** (5-10 min) - Use [template 4](4.%20Act/4.%20Retrospect%20for%20continuous%20improvement.md)
 
 - Analyze what worked and what didn't
 - Update working agreements based on learnings

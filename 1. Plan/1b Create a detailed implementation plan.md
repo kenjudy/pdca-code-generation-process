@@ -15,14 +15,6 @@ Based on our analysis, provide a coherent plan incorporating our refinements tha
 
 **Execution Context:** This plan will be implemented by [Claude 3.5 Haiku|Claude 4 Sonnet depending on findings of analysis] where practical following TDD discipline with human supervision.
 
-[DELETE PLAN OP]
-**Plan Optimization for Haiku:**
-- Provide explicit context and architectural patterns for each step
-- Break work into smaller, clearly bounded increments
-- Specify exact files/methods to modify
-- Include clear stop conditions and validation points
-- Reference existing code patterns by name rather than assuming inference
-
 **Integration Strategy:**
 - Map end-to-end data flow and all touch points
 - Identify required changes to existing methods/interfaces
@@ -56,6 +48,23 @@ Opportunities for Batched TDD
 - Definition of done (tests pass + process followed)
 - Risk areas to monitor
 - Rollback approach if needed
+  
+**Step-Level Delegation Strategy:**
+Based on analysis findings, tag each implementation step:
+- `[S]` - Sonnet required (external systems, pattern establishment, debugging, multi-file coordination)
+- `[H]` - Haiku safe (pattern replication, single-file changes, established test patterns)
+- `[S→H]` - Sonnet establishes pattern, Haiku handles similar steps
+
+**Delegation Decision Criteria:**
+- **Sonnet Required**: First implementation of pattern + External system integration + Error handling design + Debugging likely
+- **Haiku Safe**: After pattern established + Single file scope + Clear template to follow + No external dependencies
+
+**Plan Optimization for Haiku:**
+- Provide explicit context and architectural patterns for each step
+- Break work into smaller, clearly bounded increments
+- Specify exact files/methods to modify
+- Include clear stop conditions and validation points
+- Reference existing code patterns by name rather than assuming inference
 
 **Process Checkpoints:**
 - Verify adherence to chosen testing strategy

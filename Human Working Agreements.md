@@ -9,7 +9,7 @@
 
 ---
 ## **Process Discipline & Intervention**
-**STRICT TDD FOR ALL CHANGES.** I will interrupt immediately with direct questions when I observe process violations:
+**USE TDD FOR CHANGES.** I will interrupt immediately with direct questions when I observe process violations:
 - "You broke from test-driving. Is there adequate test coverage?"
 - "Where's the failing test first?"
 - "You're fixing multiple things. Focus on one failing test?"

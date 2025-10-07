@@ -34,6 +34,7 @@ Execute these searches BEFORE any analysis. Do not proceed until completed:
 - Document the established architectural layers (which namespaces, which interfaces)
 - Map the integration touch points (which existing methods will need modification)
 - List the abstractions already available (FileProvider, interfaces, base classes)
+- **Solution Constraint**: State which existing abstractions the solution MUST use (no new ones unless absolutely necessary)
 
 **STOP CONDITION**: Do not proceed to analysis until you have concrete examples of:
 1. How similar features are structured in this codebase
@@ -62,8 +63,6 @@ Based on the problem scope and architectural patterns discovered:
 **Overall Project Delegation Assessment**: [Sonnet-Led/Haiku-Friendly/Mixed] with reasoning
 
 **Output:** Provide a terse and clear understanding of the problem and recommended high level alternative approaches. Keep it at a human readable length and level of detail.
-
-Focus on the "what" and "why" at a high level - we'll do more detailed analysis and planning in later phases.
 
 ```
 

@@ -8,8 +8,11 @@
 **Next step:** Begin TDD implementation (2)
 **Note:** Plan output is verbose and typically not added to ticket tracking
 
+If available run this prompt in "Planning" mode.
+
 ---
 ``` markdown
+
 **Planning Phase** Based on our analysis, provide a coherent plan incorporating our refinements that is optimized for your use as context for the implementation:
 
 **Execution Context:** This plan will be implemented in steps following TDD discipline with human supervision. Each step tagged for optimal model selection within the same thread context.

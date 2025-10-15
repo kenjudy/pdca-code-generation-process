@@ -7,6 +7,8 @@
 **Typical duration:** 2-5 minutes
 **Next step:** Either refine with ramifications analysis (1a-optional) or proceed to planning (1b)
 
+If provided, run this prompt in "Planning mode"
+
 ---
 ``` markdown
 
@@ -59,8 +61,6 @@ Based on the problem scope and architectural patterns discovered:
 - **Context Scope**: [Narrow/Medium/Broad] - How many files/systems need coordination?
 - **Debugging Likelihood**: [Low/Medium/High] - How much investigation vs. implementation?
 - **External System Integration**: [None/Simple/Complex] - Does this require parsing external formats or real-time debugging?
-
-**Overall Project Delegation Assessment**: [Sonnet-Led/Haiku-Friendly/Mixed] with reasoning
 
 **Output:** Provide a terse and clear understanding of the problem and recommended high level alternative approaches. Keep it at a human readable length and level of detail.
 

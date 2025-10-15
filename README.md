@@ -1,131 +1,349 @@
-# Human-AI Collaboration Process
+# Claude Code PDCA Workflow Setup Guide
 
-## Intent & Philosophy
+This guide explains how to configure Claude Code to follow the PDCA (Plan-Do-Check-Act) development workflow with TDD discipline.
 
-This process framework implements a disciplined Plan-Do-Check-Act (PDCA) cycle for human-AI collaborative software development, with Test-Driven Development (TDD) and Retrospection as core methodologies. The framework recognizes that AI coding assistants, while powerful, require structured guidance and process discipline to maintain code quality and avoid common pitfalls like scope creep, inadequate testing, and architectural drift.
+## Overview
 
-The approach establishes clear intervention points where humans must stop AI execution to ensure adherence to established working agreements. This creates a sustainable collaboration pattern that leverages AI capabilities while maintaining engineering rigor.
+The PDCA workflow consists of four phases:
+1. **Plan** - Analysis and detailed planning
+2. **Do** - Test-driven implementation
+3. **Check** - Completeness verification
+4. **Act** - Retrospection and continuous improvement
 
-## Core Principles
+## Prerequisites
 
-- **TDD Discipline**: Every code change must be driven by a failing test first
-- **Small Batch Changes**: One focused change at a time, one failing test at a time
-- **Process Intervention Rights**: Humans interrupt immediately when process violations are observed
-- **Minimal Changes**: Smallest possible changes addressing specific issues
-- **Architectural Respect**: Work within established patterns unless explicitly changing them
-- **Human Working Agreements**: A commitment to stay engaged and own accountability for the process adherence, for architectural decisions, and resulting code
+- Windows 10/11 with Developer Mode enabled (for symlinks without admin rights)
+- Claude Code CLI installed
+- Git configured with `core.symlinks = true`
 
-## Quick Start Guide
+## Project Structure
 
-### Before Your First Session
+After setup, your project should have:
 
-1. **Establish Working Agreements**: Review and customize the [Human Working Agreements](Human%20Working%20Agreements.md) for your context
-2. **Set Up Environment**: Ensure AI has codebase access and you can run tests quickly
-3. **Choose Engagement Level**: Decide on your supervision intensity (high/moderate/light)
+```
+your-project/
+├── .claude/
+│   ├── instructions.md          # Main workflow instructions
+│   ├── prompts/                 # Symlinked phase templates
+│   │   ├── 1a Analyze to determine approach for achieving the goal.md
+│   │   ├── 1b Create a detailed implementation plan.md
+│   │   ├── 2. Test Drive the Change.md
+│   │   ├── 3. Completeness Check.md
+│   │   └── 4. Retrospect for continuous improvement.md
+│   └── validation.md            # Pre-commit checklist
+├── .claudeignore                # Files for Claude to ignore
+└── LinkPrompts.ps1              # Script to create symlinks (optional)
+```
 
-### First Session Workflow
+## Setup Steps
 
-**Step 1: Analysis** (2-5 min) - Use [template 1a](1.%20Plan/1a%20Analyze%20to%20determine%20approach%20for%20achieving%20the%20goal.md)
+### 1. Enable Developer Mode (Windows)
 
-- Describe your goal clearly
-- Let AI discover existing architectural patterns
-- Get complexity assessment and approach recommendations
+To create symlinks without admin rights:
+1. Open Settings → Update & Security → For Developers
+2. Turn on **Developer Mode**
+3. Restart PowerShell/Terminal
 
-**Step 2: Planning** (2-5 min) - Use [template 1b](1.%20Plan/1b%20Create%20a%20detailed%20implementation%20plan.md)
+### 2. Configure Git for Symlinks
 
-- AI creates atomic, testable implementation steps
-- Review and adjust scope if needed
+```bash
+git config core.symlinks true
+```
 
-**Step 3: Test-Drive Implementation** (Variable) - Use [template 2](2.%20Do/2.%20Test%20Drive%20the%20Change.md)
+### 3. Create Directory Structure
 
-- **Watch for TDD violations** - interrupt immediately when you see them
-- Use intervention phrases: "Where's the failing test first?" "You're fixing multiple things. Focus on one failing test?"
+From your project root:
 
-**Step 4: Check Completeness** (2-5 min) - Use [template 3](3.%20Check/3.%20Completeness%20Check.md)
+```powershell
+# Create .claude directory structure
+New-Item -ItemType Directory -Path ".claude\prompts" -Force
+```
 
-- Verify tests pass and goals met
-- Audit TDD process adherence
+### 4. Create Symlinks to Prompt Templates
 
-**Step 5: Retrospect** (5-10 min) - Use [template 4](4.%20Act/4.%20Retrospect%20for%20continuous%20improvement.md)
+**Option A: Manual Creation**
 
-- Analyze what worked and what didn't
-- Update working agreements based on learnings
+```powershell
+# From your project root
+New-Item -ItemType SymbolicLink -Path ".claude\prompts\1a Analyze to determine approach for achieving the goal.md" -Target "C:\Users\Ken Judy\iCloudDrive\iCloud~md~obsidian\PDCA Process\1. Plan\1a Analyze to determine approach for achieving the goal.md"
+New-Item -ItemType SymbolicLink -Path ".claude\prompts\1b Create a detailed implementation plan.md" -Target "C:\Users\Ken Judy\iCloudDrive\iCloud~md~obsidian\PDCA Process\1. Plan\1b Create a detailed implementation plan.md"
+New-Item -ItemType SymbolicLink -Path ".claude\prompts\2. Test Drive the Change.md" -Target "C:\Users\Ken Judy\iCloudDrive\iCloud~md~obsidian\PDCA Process\2. Do\2. Test Drive the Change.md"
+New-Item -ItemType SymbolicLink -Path ".claude\prompts\3. Completeness Check.md" -Target "C:\Users\Ken Judy\iCloudDrive\iCloud~md~obsidian\PDCA Process\3. Check\3. Completeness Check.md"
+New-Item -ItemType SymbolicLink -Path ".claude\prompts\4. Retrospect for continuous improvement.md" -Target "C:\Users\Ken Judy\iCloudDrive\iCloud~md~obsidian\PDCA Process\4. Act\4. Retrospect for continuous improvement.md"
+```
 
-_time estimates assume sessions of 1-3 hours in scope_
-### Red Flags to Watch For
+**Option B: Using Script**
 
-Stop the AI immediately if you see:
+Create `LinkPrompts.ps1` in your project root (or a shared location) and run it from each project directory.
 
-- ❌ Writing production code without a failing test first
-- ❌ "Let me just quickly fix this other thing too..."
-- ❌ Changing test expectations to make tests pass
-- ❌ Working on multiple files/features simultaneously
+### 5. Create `.claudeignore`
 
-## The Plan-Do-Check-Act Process
+Create `.claudeignore` in your project root with appropriate patterns for your C# project (see section below).
 
-### 1a - Analyze to determine approach for achieving the goal
+### 6. Create `.claude/instructions.md`
 
-- High-level design brainstorm and problem understanding
-- Architecture pattern discovery using codebase search
-- Complexity assessment and delegation recommendations
-- Focus on "what" and "why" at a strategic level
+Create the main instructions file that Claude Code will read automatically (see section below).
 
-### 1b - Create a detailed implementation plan
+### 7. Create `.claude/validation.md` (Optional)
 
-- Create trackable, atomic implementation steps
-- Optimize planning for the chosen AI model's capabilities
-- Define testing strategy and integration approach
-- Establish clear acceptance criteria and risk mitigation
+Create a validation checklist for pre-commit checks (see section below).
 
-### 2 - Test Drive the Change
+## Configuration Files
 
-- Strict red-green-refactor discipline
-- Process discipline checkpoints at each step
-- Integration tests with real components over mocks
-- Troubleshooting and regression handling protocols
+### `.claude/instructions.md`
 
-### 3 - Completeness Check
+```markdown
+# Project Development Workflow
 
-- Verify all tests passing and objectives met
-- Test coverage and quality analysis
-- Process audit to ensure TDD discipline was maintained
-- Documentation and regression checks
+This project follows a strict PDCA (Plan-Do-Check-Act) development process with TDD discipline.
 
-### 4 - Retrospect for continuous improvement
+## Workflow Phases
 
-- Session analysis and critical moments review
-- Collaboration pattern effectiveness assessment
-- Actionable insights for process improvement
-- Working agreement refinements for future sessions
+### Phase 1a: Analysis (MANDATORY FIRST)
+- Execute codebase_search to discover existing patterns
+- Validate external system formats before making assumptions
+- Document architectural constraints
+- Assess delegation complexity
 
-## Key Collaboration Patterns
+### Phase 1b: Planning
+- Create numbered, atomic implementation steps
+- Define testing strategy (TDD with red-green-refactor)
+- Identify integration touch points
+- Plan for incremental delivery
 
-**Process Police Intervention**: Humans actively monitor and interrupt AI execution when process violations occur, using direct questions like:
+### Phase 2: Test-Driven Implementation
+**CRITICAL RULES:**
+- ❌ DON'T test interfaces - test concrete implementations
+- ❌ DON'T use compilation errors as RED phase
+- ✅ DO write failing behavioral tests FIRST
+- ✅ DO use real components over mocks
+- Max 3 iterations per red-green cycle
 
-- "You broke from test-driving. Is there adequate test coverage?"
-- "Where's the failing test first?"
-- "This feels like scope creep. Are we still on step [N]?"
+### Phase 3: Completeness Check
+- Verify all objectives met
+- Audit process discipline
+- Confirm no TODOs remain
 
-**Complexity Management**: The framework includes guidance for assessing when work is appropriate for different AI model tiers and how to structure complex problems for effective delegation.
+### Phase 4: Retrospection
+- Analyze critical moments
+- Extract actionable insights
+- Update working agreements
 
-**Context Drift Prevention**: Clear protocols for recognizing when AI agents lose context and need to be reined back in with explicit process reminders.
+## Testing Conventions
+- NUnit with Assert.That syntax
+- Leverage TestUtils.cs and fixtures directory
+- Add tests to existing fixtures when coherent
+- Avoid proliferating new test files
 
-## Templates & Implementation
+## Process Checkpoints
+Before proceeding with implementation:
+- [ ] Have I searched for similar implementations?
+- [ ] Have I validated external system formats?
+- [ ] Have I written a FAILING test first?
+- [ ] Am I implementing ONLY enough to pass the test?
 
-This README provides the conceptual framework. The actual implementation uses separate template files for each phase, allowing for:
+## Detailed Phase Instructions
+See `.claude/prompts/` directory for detailed instructions for each phase.
+```
 
-- Customization based on project needs
-- Iterative improvement of prompts based on retrospective findings
-- Maintenance of working agreements between human and AI collaborators
+### `.claudeignore`
 
-## Related Resources
+```gitignore csharp project
+# Build outputs
+**/bin
+obj
+**/obj
 
-For broader context on code quality metrics and practices, see the [Code Quality Metrics Repository](https://github.com/kenjudy/code-quality-metrics).
+# IDE and editor files
+**/.vs
+**/.idea
+**/.vscode
+**/*.DotSettings
+**/*.user
+**/*.suo
+
+# OS files
+**/.DS_Store
+**/Thumbs.db
+**/._.DS_Store
+**/._*.*
+**/._*
+
+# Test outputs
+**/test-output
+**/TestResults
+**/*.trx
+**/*.dcvr
+
+**/fixtures/output
+
+# Logs
+*.log
+
+# NuGet
+packages/
+.nuget/
+
+# Git
+.git/
+
+# Config
+.lfsconfig
+
+# Binaries
+*.dll
+*.exe
+*.pdb
+*.cache
+```
+
+### `.claude/validation.md`
+
+```markdown
+## Pre-Commit Validation Checklist
+
+Before each commit, verify:
+
+- [ ] Test was written and failed FIRST (true RED phase)
+- [ ] Implementation makes test pass with minimal code
+- [ ] No compilation-only reds (compilation errors don't count as RED)
+- [ ] Using real components where possible (avoid unnecessary mocks)
+- [ ] Following existing codebase patterns discovered in analysis
+- [ ] TDD discipline maintained throughout (max 3 red-green iterations)
+- [ ] Code is clean and refactored
+- [ ] No TODOs or placeholder implementations remain
+```
+
+## Usage Workflow
+
+### Starting a New Feature
+
+Always work through phases sequentially:
+
+#### Phase 1a: Analysis
+
+```bash
+claude-code "Following .claude/prompts/1a: Analyze implementing [feature description]. 
+Search codebase for similar patterns before proposing approach. 
+STOP after analysis and wait for approval."
+```
+
+**Review the analysis before proceeding.**
+
+#### Phase 1b: Planning
+
+```bash
+claude-code "Based on approved analysis, create detailed implementation plan 
+following .claude/prompts/1b. Break into atomic TDD steps."
+```
+
+**Review the plan and approve specific steps.**
+
+#### Phase 2: Implementation (Step by Step)
+
+```bash
+# For each planned step:
+claude-code "Test-drive step [N]: [specific requirement]. 
+Follow .claude/prompts/2 TDD discipline strictly. 
+Write failing test FIRST, then minimal implementation."
+```
+
+**Key points:**
+- One step at a time
+- Always RED (failing test) before GREEN (implementation)
+- Review after each step before proceeding
+- Maximum 3 red-green iterations per step
+
+#### Phase 3: Completeness Check
+
+```bash
+claude-code "Run completeness check per .claude/prompts/3. 
+Verify all planned steps complete and process followed."
+```
+
+#### Phase 4: Retrospection
+
+```bash
+claude-code "Retrospect on this implementation session following .claude/prompts/4. 
+Identify what worked well and what to improve."
+```
+
+## Best Practices
+
+### 1. Explicit Phase References
+Always mention `.claude/prompts/[phase].md` in your commands so Claude knows where to look.
+
+### 2. One Phase at a Time
+Don't ask Claude to "implement feature X end-to-end". Break it into discrete phases.
+
+### 3. Stop and Review
+Use explicit STOP instructions after analysis and planning phases for human review.
+
+### 4. Context Preservation
+Use the same Claude Code conversation/task thread to maintain context across phases.
+
+### 5. TDD Discipline Enforcement
+If Claude strays from TDD discipline:
+- Stop the task immediately
+- Point out the specific violation
+- Repost the relevant phase instructions
+- Resume with corrected approach
+
+### 6. Small, Testable Increments
+Each implementation step should be:
+- Completable in one TDD cycle
+- Testable in isolation
+- Additive (doesn't break existing tests)
+
+## Troubleshooting
+
+### Symlinks Not Working
+- Verify Developer Mode is enabled
+- Check that `git config core.symlinks` is true
+- Ensure you're running PowerShell from project root
+- Try creating one symlink manually to test permissions
+
+### Claude Not Following Process
+- Explicitly reference `.claude/prompts/[phase].md` in commands
+- Break requests into smaller, phase-specific chunks
+- Add "STOP and wait for approval" to prevent Claude from jumping ahead
+- Review `.claude/instructions.md` - ensure it's clear and concise
+
+### Tests Not Following TDD
+- Verify you're requesting "failing test FIRST"
+- Check that RED phase is behavioral failure, not compilation error
+- Limit to 3 red-green iterations per step
+- Reference `.claude/prompts/2` explicitly in implementation requests
+
+### Context Loss Over Long Sessions
+- Start new Claude Code task after 8-10 implementation steps
+- Reference previous work: "Based on previous implementation of [X]..."
+- Keep `.claude/instructions.md` concise so it's always in context
+
+## Advanced: Multi-Project Setup
+
+To use these prompts across multiple projects:
+
+1. Keep your master prompts in a central location (e.g., iCloud/Obsidian)
+2. Create a shared `LinkPrompts.ps1` script that takes project path as parameter
+3. Run the script once per project to set up symlinks
+4. All projects stay in sync with your master PDCA templates
+
+```powershell
+# Shared script usage
+& "C:\Users\Ken Judy\.claude\LinkPrompts.ps1" -ProjectPath "C:\path\to\project"
+```
+
+## Resources
+
+- [Claude Code Documentation](https://docs.claude.com/en/docs/claude-code)
+- [PDCA Process Repository](https://github.com/kenjudy/human-ai-collaboration-process)
+- Project-specific testing conventions: See `TestUtils.cs` and `fixtures/` directory
 
 ## License
 
-This framework is released under Creative Commons licensing terms. You are free to use, modify, and distribute this process framework with appropriate attribution.
+This setup guide is part of the Human-AI PDCA Collaboration Process framework, licensed under CC BY 4.0.
 
 ---
 
-_Process framework developed by [Ken Judy](https://github.com/kenjudy) with Claude Anthropic 4_
+*Last Updated: 2025*

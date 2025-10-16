@@ -1,0 +1,11 @@
+{
+  "copy-document-as-html:copy-selection-as-html": [
+    {
+      "modifiers": [
+        "Mod",
+        "Shift"
+      ],
+      "key": "C"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+New-Item -ItemType SymbolicLink -Path ".claude\prompts\1a Analyze to determine approach for achieving the goal.md" -Target "C:\Users\Ken Judy\iCloudDrive\iCloud~md~obsidian\PDCA Process\1. Plan\1a Analyze to determine approach for achieving the goal.md"
+New-Item -ItemType SymbolicLink -Path ".claude\prompts\1b Create a detailed implementation plan.md" -Target "C:\Users\Ken Judy\iCloudDrive\iCloud~md~obsidian\PDCA Process\1. Plan\1b Create a detailed implementation plan.md"
+New-Item -ItemType SymbolicLink -Path ".claude\prompts\2. Test Drive the Change.md" -Target "C:\Users\Ken Judy\iCloudDrive\iCloud~md~obsidian\PDCA Process\2. Do\2. Test Drive the Change.md"
+New-Item -ItemType SymbolicLink -Path ".claude\prompts\3. Completeness Check.md" -Target "C:\Users\Ken Judy\iCloudDrive\iCloud~md~obsidian\PDCA Process\3. Check\3. Completeness Check.md"
+New-Item -ItemType SymbolicLink -Path ".claude\prompts\4. Retrospect for continuous improvement.md" -Target "C:\Users\Ken Judy\iCloudDrive\iCloud~md~obsidian\PDCA Process\4. Act\4. Retrospect for continuous improvement.md"

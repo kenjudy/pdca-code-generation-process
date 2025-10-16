@@ -1,0 +1,10 @@
+{
+  "id": "harper",
+  "name": "Harper",
+  "version": "0.62.0",
+  "minAppVersion": "1.7.7",
+  "description": "The Grammar Checker for Developers",
+  "author": "Elijah Potter",
+  "authorUrl": "https://elijahpotter.dev",
+  "isDesktopOnly": false
+}

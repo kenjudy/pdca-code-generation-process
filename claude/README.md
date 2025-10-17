@@ -230,55 +230,157 @@ Before each commit, verify:
 
 ### Starting a New Feature
 
-Always work through phases sequentially:
+Always work through phases sequentially. Use **Planning Mode** for analysis and planning, then switch to **Edit Mode** for implementation.
 
-#### Phase 1a: Analysis
+---
 
-```bash
-claude-code "Following .claude/prompts/1a: Analyze implementing [feature description]. 
-Search codebase for similar patterns before proposing approach. 
-STOP after analysis and wait for approval."
+#### Phase 1a: Analysis (Planning Mode)
+
+**Mode:** Use Planning Mode
+**Purpose:** Understand problem scope and discover architectural patterns
+**Critical:** Do NOT proceed to planning (1b) until you explicitly trigger it in a separate prompt
+
+**Short Prompt:**
+```
+Perform analysis per .claude/prompts/1a for: [brief feature description]
+
+Do NOT create the implementation plan yet. STOP after analysis.
 ```
 
-**Review the analysis before proceeding.**
+**Example:**
+```
+Perform analysis per .claude/prompts/1a for: Add CSV export feature for dependency graph
 
-#### Phase 1b: Planning
-
-```bash
-claude-code "Based on approved analysis, create detailed implementation plan 
-following .claude/prompts/1b. Break into atomic TDD steps."
+Do NOT create the implementation plan yet. STOP after analysis.
 ```
 
-**Review the plan and approve specific steps.**
+**What happens:**
+- Claude searches codebase for similar patterns
+- Validates external system formats if needed
+- Assesses delegation complexity
+- Provides alternative approaches
+- **STOPS and waits for your review**
 
-#### Phase 2: Implementation (Step by Step)
+**Review the analysis before proceeding to Phase 1b.**
 
-```bash
-# For each planned step:
-claude-code "Test-drive step [N]: [specific requirement]. 
-Follow .claude/prompts/2 TDD discipline strictly. 
-Write failing test FIRST, then minimal implementation."
+---
+
+#### Phase 1b: Planning (Planning Mode)
+
+**Mode:** Use Planning Mode
+**Purpose:** Create atomic, testable implementation steps
+**Prerequisites:** Approved analysis from Phase 1a
+
+**Short Prompt:**
+```
+Create implementation plan per .claude/prompts/1b based on approved analysis.
+```
+
+**What happens:**
+- Claude creates numbered, atomic steps
+- Defines TDD strategy for each step
+- Identifies integration touch points
+- Plans for incremental delivery
+- Provides complete plan for review
+
+**Review and approve the plan before proceeding to Phase 2.**
+
+---
+
+#### Phase 2: Implementation (Edit/Agent Mode)
+
+**Mode:** Switch to Edit Mode or Agent Mode
+**Purpose:** Test-drive implementation step by step
+**Prerequisites:** Approved implementation plan from Phase 1b
+
+**Short Prompt (for single step):**
+```
+Test-drive step [N] per .claude/prompts/2: [specific step description]
+
+RED phase: Write failing test first
+GREEN phase: Minimal implementation to pass
+```
+
+**Example:**
+```
+Test-drive step 3 per .claude/prompts/2: Add CsvExporter class with Write method
+
+RED phase: Write failing test first
+GREEN phase: Minimal implementation to pass
+```
+
+**Short Prompt (for batch of related steps):**
+```
+Test-drive steps [N-M] per .claude/prompts/2 using batched TDD:
+- [Step N description]
+- [Step M description]
+
+RED phase: Write all failing tests first
+GREEN phase: Implement to pass all tests
 ```
 
 **Key points:**
-- One step at a time
+- **Always** work in Edit/Agent mode for implementation
+- One step (or small batch) at a time
 - Always RED (failing test) before GREEN (implementation)
-- Review after each step before proceeding
+- Review after each step/batch before proceeding
 - Maximum 3 red-green iterations per step
 
-#### Phase 3: Completeness Check
+**If Claude strays from TDD discipline:**
+1. Stop immediately
+2. Point out the violation
+3. Repost .claude/prompts/2 guidance
+4. Resume with corrected approach
 
-```bash
-claude-code "Run completeness check per .claude/prompts/3. 
-Verify all planned steps complete and process followed."
+---
+
+#### Phase 3: Completeness Check (Any Mode)
+
+**Mode:** Any mode
+**Purpose:** Verify all objectives met and process followed
+
+**Short Prompt:**
+```
+Run completeness check per .claude/prompts/3
 ```
 
-#### Phase 4: Retrospection
+**What happens:**
+- Verifies all tests passing
+- Audits TDD discipline maintenance
+- Confirms no TODOs remain
+- Checks documentation updates
+- Provides completion status
 
-```bash
-claude-code "Retrospect on this implementation session following .claude/prompts/4. 
-Identify what worked well and what to improve."
+---
+
+#### Phase 4: Retrospection (Any Mode)
+
+**Mode:** Any mode
+**Purpose:** Extract learnings and improve process
+**When:** At end of every session, regardless of outcome
+
+**Short Prompt:**
 ```
+Retrospect on this session per .claude/prompts/4
+```
+
+**What happens:**
+- Analyzes critical moments
+- Identifies what worked/didn't work
+- Provides 3 actionable insights
+- Suggests next session improvements
+
+---
+
+### Quick Reference: Mode Selection
+
+| Phase | Mode | Why |
+|-------|------|-----|
+| 1a - Analysis | Planning | High-level thinking, no code changes |
+| 1b - Planning | Planning | Strategy and step definition, no code changes |
+| 2 - Implementation | Edit/Agent | Writing and modifying code with TDD |
+| 3 - Completeness | Any | Simple verification |
+| 4 - Retrospection | Any | Reflection and learning |
 
 ## Best Practices
 

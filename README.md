@@ -1,14 +1,62 @@
-# Claude Code PDCA Workflow Setup Guide
+# Human-AI PDCA Collaboration Framework
 
-This guide explains how to configure Claude Code to follow the PDCA (Plan-Do-Check-Act) development workflow with TDD discipline.
+A disciplined framework for AI-assisted code generation using Plan-Do-Check-Act methodology with strict TDD discipline.
 
-## Overview
+## Two Ways to Use This Framework
+
+### Option 1: Claude Skill (Recommended for Regular Use)
+**Install once, auto-triggers when coding**
+
+- **Best for:** Consistent workflow across all coding sessions
+- **Setup:** One-click installation in Claude.ai or Claude Code
+- **Experience:** Automatic prompt loading, progressive disclosure
+- **Token efficiency:** Loads only what's needed in background
+- **Maintenance:** Update once, improves everywhere
+
+📦 **[Get started with the Claude Skill →](claude-skill/README.md)**
+
+### Option 2: Manual Prompts (Best for Customization)
+**Copy/paste prompts as needed for each session**
+
+- **Best for:** Customizing prompts for specific contexts
+- **Setup:** Create symlinks or copy files to `.claude/` directory
+- **Experience:** 100% visible in conversation, full control
+- **Flexibility:** Easy to customize per-session
+- **Portability:** Works with any AI tool, not just Claude
+
+📝 **[Get started with Manual Prompts →](claude-code/README.md)**
+
+---
+
+## Which Option Should I Choose?
+
+| Use Case | Recommended Approach |
+|----------|---------------------|
+| Learning the framework | Start with **Manual Prompts** to understand each phase |
+| Regular coding sessions | Use the **Claude Skill** for convenience |
+| Team standardization | **Claude Skill** ensures consistency |
+| Custom workflows | **Manual Prompts** for full flexibility |
+| Non-Claude AI tools | **Manual Prompts** (skill is Claude-specific) |
+
+**You can use both!** Many users install the skill for daily work and keep manual prompts for special cases.
+
+---
+
+## PDCA Framework Overview
 
 The PDCA workflow consists of four phases:
 1. **Plan** - Analysis and detailed planning
 2. **Do** - Test-driven implementation
 3. **Check** - Completeness verification
 4. **Act** - Retrospection and continuous improvement
+
+---
+
+# Manual Prompt Setup (Claude Code)
+
+The rest of this document describes how to set up the manual prompt workflow in Claude Code using symlinked files.
+
+For the Claude Skill setup, see **[claude-skill/README.md](claude-skill/README.md)** instead.
 
 ## Prerequisites
 

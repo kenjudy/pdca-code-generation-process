@@ -113,11 +113,14 @@ New-Item -ItemType Directory -Path ".claude\prompts" -Force
 
 ```powershell
 # From your project root
-New-Item -ItemType SymbolicLink -Path ".claude\prompts\1a Analyze to determine approach for achieving the goal.md" -Target "C:\Users\Ken Judy\iCloudDrive\iCloud~md~obsidian\PDCA Process\1. Plan\1a Analyze to determine approach for achieving the goal.md"
-New-Item -ItemType SymbolicLink -Path ".claude\prompts\1b Create a detailed implementation plan.md" -Target "C:\Users\Ken Judy\iCloudDrive\iCloud~md~obsidian\PDCA Process\1. Plan\1b Create a detailed implementation plan.md"
-New-Item -ItemType SymbolicLink -Path ".claude\prompts\2. Test Drive the Change.md" -Target "C:\Users\Ken Judy\iCloudDrive\iCloud~md~obsidian\PDCA Process\2. Do\2. Test Drive the Change.md"
-New-Item -ItemType SymbolicLink -Path ".claude\prompts\3. Completeness Check.md" -Target "C:\Users\Ken Judy\iCloudDrive\iCloud~md~obsidian\PDCA Process\3. Check\3. Completeness Check.md"
-New-Item -ItemType SymbolicLink -Path ".claude\prompts\4. Retrospect for continuous improvement.md" -Target "C:\Users\Ken Judy\iCloudDrive\iCloud~md~obsidian\PDCA Process\4. Act\4. Retrospect for continuous improvement.md"
+# Replace $TEMPLATES_PATH with your actual path to the PDCA templates
+$TEMPLATES_PATH = "C:\path\to\pdca-templates"
+
+New-Item -ItemType SymbolicLink -Path ".claude\prompts\1a Analyze to determine approach for achieving the goal.md" -Target "$TEMPLATES_PATH\1. Plan\1a Analyze to determine approach for achieving the goal.md"
+New-Item -ItemType SymbolicLink -Path ".claude\prompts\1b Create a detailed implementation plan.md" -Target "$TEMPLATES_PATH\1. Plan\1b Create a detailed implementation plan.md"
+New-Item -ItemType SymbolicLink -Path ".claude\prompts\2. Test Drive the Change.md" -Target "$TEMPLATES_PATH\2. Do\2. Test Drive the Change.md"
+New-Item -ItemType SymbolicLink -Path ".claude\prompts\3. Completeness Check.md" -Target "$TEMPLATES_PATH\3. Check\3. Completeness Check.md"
+New-Item -ItemType SymbolicLink -Path ".claude\prompts\4. Retrospect for continuous improvement.md" -Target "$TEMPLATES_PATH\4. Act\4. Retrospect for continuous improvement.md"
 ```
 
 **Option B: Using Script**
@@ -378,8 +381,8 @@ To use these prompts across multiple projects:
 4. All projects stay in sync with your master PDCA templates
 
 ```powershell
-# Shared script usage
-& "C:\Users\Ken Judy\.claude\LinkPrompts.ps1" -ProjectPath "C:\path\to\project"
+# Shared script usage (adjust path to your script location)
+& "C:\path\to\your\LinkPrompts.ps1" -ProjectPath "C:\path\to\project"
 ```
 
 ## Resources

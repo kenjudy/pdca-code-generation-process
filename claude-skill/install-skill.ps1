@@ -13,9 +13,10 @@ $ErrorActionPreference = "Stop"
 function Write-ColorOutput {
     param(
         [string]$Message,
-        [string]$Color = "White"
+        [string]$Color = "White",
+        [switch]$NoNewline
     )
-    Write-Host $Message -ForegroundColor $Color
+    Write-Host $Message -ForegroundColor $Color -NoNewline:$NoNewline
 }
 
 # Determine installation type
@@ -111,7 +112,7 @@ if ($InstallType -in "personal", "p") {
     Write-ColorOutput "3. Claude will use the skill when appropriate"
     Write-ColorOutput ""
     Write-ColorOutput "Test it:" "Cyan"
-    Write-ColorOutput "   claude-code 'Show me the PDCA analysis phase prompt'"
+    Write-ColorOutput '   claude-code "Show me the PDCA analysis phase prompt"'
 }
 else {
     Write-ColorOutput "Next Steps:" "Cyan"
@@ -123,14 +124,15 @@ else {
     Write-ColorOutput "3. Team members who pull will get the skill automatically"
     Write-ColorOutput ""
     Write-ColorOutput "Test it:" "Cyan"
-    Write-ColorOutput "   claude-code 'Show me the PDCA analysis phase prompt'"
+    Write-ColorOutput '   claude-code "Show me the PDCA analysis phase prompt"'
 }
 
 Write-ColorOutput ""
-Write-ColorOutput "Documentation:" "Cyan"
-Write-ColorOutput "  README: $ScriptDir\README.md"
-Write-ColorOutput "  Build:  $ScriptDir\BUILD.md"
-Write-ColorOutput ""
-Write-ColorOutput "Uninstall:" "Cyan"
-Write-ColorOutput "  Remove-Item -Path '$InstallDir' -Recurse -Force"
-Write-ColorOutput ""
+Write-Host "Documentation:" -ForegroundColor Cyan
+Write-Host "  README: $ScriptDir\README.md"
+Write-Host "  Build:  $ScriptDir\BUILD.md"
+Write-Host ""
+Write-Host "Uninstall:" -ForegroundColor Cyan
+Write-Host "  Remove-Item -Recurse -Force -Path:"
+Write-Host "    $InstallDir"
+Write-Host ""

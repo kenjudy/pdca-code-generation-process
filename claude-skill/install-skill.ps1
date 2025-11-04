@@ -9,130 +9,97 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# Colors for output
-function Write-ColorOutput {
-    param(
-        [string]$Message,
-        [string]$Color = "White",
-        [switch]$NoNewline
-    )
-    Write-Host $Message -ForegroundColor $Color -NoNewline:$NoNewline
-}
+Write-Host "`nPDCA Framework Skill Installer for Claude Code" -ForegroundColor Cyan
+Write-Host ""
 
-# Determine installation type
+# Get script directory and skill file path
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $SkillFile = Join-Path $ScriptDir "pdca-framework.skill"
 
-Write-ColorOutput "`nPDCA Framework Skill Installer for Claude Code" "Cyan"
-Write-ColorOutput ""
-
 # Validate skill file exists
 if (-not (Test-Path $SkillFile)) {
-    Write-ColorOutput "Error: Skill file not found: $SkillFile" "Red"
-    Write-ColorOutput "Please run .\build-skill.sh first to create the skill package." "Yellow"
+    Write-Host "Error: Skill file not found: $SkillFile" -ForegroundColor Red
+    Write-Host "Please run build-skill.sh first to create the skill package." -ForegroundColor Yellow
     exit 1
 }
 
 # Determine installation directory
-switch ($InstallType) {
-    { $_ -in "personal", "p" } {
-        $InstallDir = Join-Path $env:USERPROFILE ".claude\skills\pdca-framework"
-        $Scope = "Personal"
-        $ScopeDesc = "Available across all your projects"
-    }
-    { $_ -in "project", "proj" } {
-        $InstallDir = Join-Path (Get-Location) ".claude\skills\pdca-framework"
-        $Scope = "Project"
-        $ScopeDesc = "Available in current project, shared via git"
-    }
+if ($InstallType -in "personal", "p") {
+    $InstallDir = Join-Path $env:USERPROFILE ".claude\skills\pdca-framework"
+    $Scope = "Personal (available across all projects)"
+} else {
+    $InstallDir = Join-Path (Get-Location) ".claude\skills\pdca-framework"
+    $Scope = "Project (available in current project only)"
 }
 
-Write-ColorOutput "Installation Type: " "Cyan" -NoNewline
-Write-ColorOutput $Scope
-Write-ColorOutput "Installation Path: " "Cyan" -NoNewline
-Write-ColorOutput $InstallDir
-Write-ColorOutput "Scope: " "Cyan" -NoNewline
-Write-ColorOutput $ScopeDesc
-Write-ColorOutput ""
+Write-Host "Installation Type: $Scope" -ForegroundColor Cyan
+Write-Host "Installation Path: $InstallDir" -ForegroundColor Cyan
+Write-Host ""
 
 # Check if already installed
 if (Test-Path $InstallDir) {
-    Write-ColorOutput "Warning: Skill already installed at $InstallDir" "Yellow"
+    Write-Host "Warning: Skill already installed at $InstallDir" -ForegroundColor Yellow
     $response = Read-Host "Overwrite existing installation? (y/N)"
     if ($response -notmatch "^[Yy]$") {
-        Write-ColorOutput "Installation cancelled."
+        Write-Host "Installation cancelled."
         exit 0
     }
-    Write-ColorOutput "Removing existing installation..." "Cyan"
+    Write-Host "Removing existing installation..." -ForegroundColor Cyan
     Remove-Item -Path $InstallDir -Recurse -Force
 }
 
 # Create installation directory
-Write-ColorOutput "Creating installation directory..." "Cyan"
+Write-Host "Creating installation directory..." -ForegroundColor Cyan
 New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
 
 # Extract skill package
-Write-ColorOutput "Extracting skill package..." "Cyan"
+Write-Host "Extracting skill package..." -ForegroundColor Cyan
 try {
-    # Use .NET to extract (works on all PowerShell versions)
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     [System.IO.Compression.ZipFile]::ExtractToDirectory($SkillFile, $InstallDir)
-}
-catch {
-    Write-ColorOutput "Error: Failed to extract skill package" "Red"
-    Write-ColorOutput $_.Exception.Message "Red"
+} catch {
+    Write-Host "Error: Failed to extract skill package" -ForegroundColor Red
+    Write-Host $_.Exception.Message -ForegroundColor Red
     exit 1
 }
 
 # Verify installation
 if (-not (Test-Path (Join-Path $InstallDir "SKILL.md"))) {
-    Write-ColorOutput "Error: Installation failed - SKILL.md not found" "Red"
+    Write-Host "Error: Installation failed - SKILL.md not found" -ForegroundColor Red
     exit 1
 }
 
-Write-ColorOutput "`n✓ Installation complete!" "Green"
-Write-ColorOutput ""
+Write-Host "`nInstallation complete!" -ForegroundColor Green
+Write-Host ""
 
-# Show what was installed
-Write-ColorOutput "Installed files:" "Cyan"
+# Show installed files
+Write-Host "Installed files:" -ForegroundColor Cyan
 Get-ChildItem -Path $InstallDir -Recurse -File | ForEach-Object {
     $relativePath = $_.FullName.Replace($InstallDir, "")
-    Write-ColorOutput "  $relativePath"
+    Write-Host "  $relativePath"
 }
 
-Write-ColorOutput ""
-Write-ColorOutput "Success! The PDCA framework skill is now available in Claude Code." "Green"
-Write-ColorOutput ""
+Write-Host ""
+Write-Host "Success! The PDCA framework skill is now available in Claude Code." -ForegroundColor Green
+Write-Host ""
 
-# Provide scope-specific next steps
-if ($InstallType -in "personal", "p") {
-    Write-ColorOutput "Next Steps:" "Cyan"
-    Write-ColorOutput "1. The skill is automatically discovered by Claude Code"
-    Write-ColorOutput "2. Start a coding session: claude-code"
-    Write-ColorOutput "3. Claude will use the skill when appropriate"
-    Write-ColorOutput ""
-    Write-ColorOutput "Test it:" "Cyan"
-    Write-ColorOutput '   claude-code "Show me the PDCA analysis phase prompt"'
-}
-else {
-    Write-ColorOutput "Next Steps:" "Cyan"
-    Write-ColorOutput "1. Commit the skill to share with your team:"
-    Write-ColorOutput "   git add .claude/skills/"
-    Write-ColorOutput "   git commit -m 'Add PDCA framework skill'"
-    Write-ColorOutput ""
-    Write-ColorOutput "2. The skill is automatically discovered by Claude Code"
-    Write-ColorOutput "3. Team members who pull will get the skill automatically"
-    Write-ColorOutput ""
-    Write-ColorOutput "Test it:" "Cyan"
-    Write-ColorOutput '   claude-code "Show me the PDCA analysis phase prompt"'
-}
+# Next steps
+Write-Host "Next Steps:" -ForegroundColor Cyan
+Write-Host "1. The skill is automatically discovered by Claude Code"
+Write-Host "2. Start a coding session: claude-code"
+Write-Host "3. Claude will use the skill when appropriate"
+Write-Host ""
+Write-Host "Test it:" -ForegroundColor Cyan
+Write-Host "  claude-code 'Show me the PDCA analysis phase prompt'"
+Write-Host ""
 
-Write-ColorOutput ""
+# Documentation
 Write-Host "Documentation:" -ForegroundColor Cyan
 Write-Host "  README: $ScriptDir\README.md"
 Write-Host "  Build:  $ScriptDir\BUILD.md"
 Write-Host ""
-Write-Host "Uninstall:" -ForegroundColor Cyan
-Write-Host "  Remove-Item -Recurse -Force -Path:"
-Write-Host "    $InstallDir"
+
+# Uninstall instructions
+Write-Host "To uninstall:" -ForegroundColor Cyan
+Write-Host "  Remove-Item -Path `"$InstallDir`" -Recurse -Force"
 Write-Host ""

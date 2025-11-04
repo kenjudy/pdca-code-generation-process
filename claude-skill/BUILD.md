@@ -12,10 +12,15 @@ This document explains how to build and install the PDCA Framework skill package
 # Build the skill package
 ./build-skill.sh
 
-# Install for Claude Code
+# Install for Claude Code (macOS/Linux)
 ./install-skill.sh personal   # Available across all projects
 # or
 ./install-skill.sh project    # Available in current project only
+
+# Install for Claude Code (Windows)
+.\install-skill.ps1 personal   # Available across all projects
+# or
+.\install-skill.ps1 project    # Available in current project only
 ```
 
 ## Overview

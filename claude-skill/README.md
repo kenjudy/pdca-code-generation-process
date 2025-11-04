@@ -49,6 +49,7 @@ Claude Code uses a **directory-based** skill format, not the `.skill` package fi
 
 Use the installation script for automatic setup:
 
+**macOS/Linux (Bash):**
 ```bash
 # From the claude-skill directory
 ./install-skill.sh
@@ -56,6 +57,16 @@ Use the installation script for automatic setup:
 # Or specify installation type:
 ./install-skill.sh personal   # Install to ~/.claude/skills/ (default)
 ./install-skill.sh project    # Install to current project's .claude/skills/
+```
+
+**Windows (PowerShell):**
+```powershell
+# From the claude-skill directory
+.\install-skill.ps1
+
+# Or specify installation type:
+.\install-skill.ps1 personal   # Install to ~/.claude/skills/ (default)
+.\install-skill.ps1 project    # Install to current project's .claude/skills/
 ```
 
 #### Manual Install - Personal Skill (Available Across All Projects)

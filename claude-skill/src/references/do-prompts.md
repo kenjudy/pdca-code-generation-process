@@ -1,16 +1,18 @@
-# DO Phase Prompts
-
-## TDD Implementation Checklist
+# Implementation Phase: TDD Execution
 
 **Purpose:** Execute planned changes using strict Test-Driven Development discipline
-**Duration:** Variable (15 minutes to several hours depending on scope)
+**When to use:** After completing planning phase, for each implementation step
 **Prerequisites:** Detailed implementation plan with atomic steps defined
+**Expected output:** Working, tested code changes following red-green-refactor cycle
+**Typical duration:** Variable (15 minutes to several hours depending on scope)
 **Next step:** Completeness check (3) when all planned steps complete
 **Critical:** Human must intervene immediately when TDD discipline breaks
 
 If possible, rather than trigger a build, switch to agent mode and use this prompt to provide guidance to the build.
 
+---
 ```markdown
+
 Try to add tests to existing fixtures where the tests fit coherently into the concerns of that fixture rather than proliferate new test files.
 
 **TDD Implementation**
@@ -36,15 +38,16 @@ Try to add tests to existing fixtures where the tests fit coherently into the co
 - [ ] Build end-to-end scaffolding early, not as an afterthought
 - [ ] Test against real data/systems before optimizing unit tests
       
-**When Unit Tests Can't Replicate Production Bugs:**
-If you have production evidence (logs, metrics) proving a bug exists but unit tests pass:
-- **Diagnosis:** Testing at wrong scope - unit test fixtures too small to trigger scale-dependent behavior
-- **Solution 1 (PREFERRED):** Write integration test with realistic data scale (accept slower execution)
-- **Solution 2 (ACCEPTABLE):** Write unit-level regression test AND document production evidence in test comments
-- **Anti-pattern:** Never call it RED phase if test passes - be honest it's a regression test
-- **Required:** Commit message must include production metrics showing bug before/after (node counts, file sizes, performance data)
+  **When Unit Tests Can't Replicate Production Bugs:**
+  If you have production evidence (logs, metrics) proving a bug exists but unit tests pass:
+  - **Diagnosis:** Testing at wrong scope - unit test fixtures too small to trigger scale-dependent behavior
+  - **Solution 1 (PREFERRED):** Write integration test with realistic data scale (accept slower execution)
+  - **Solution 2 (ACCEPTABLE):** Write unit-level regression test AND document production evidence in test comments
+  - **Anti-pattern:** Never call it RED phase if test passes - be honest it's a regression test
+  - **Required:** Commit message must include production metrics showing bug before/after (node counts, file sizes, performance data)
     
 **AI Command Transparency:**
+
 - [ ] Show reasoning, particularly when you need to deviate from plan.
 
 **Current step:** 
@@ -66,58 +69,29 @@ If you have production evidence (logs, metrics) proving a bug exists but unit te
 - [ ] Commit message ready
 
 **Next:** What's the next smallest testable piece?
-**⚠️ Process Police Alert:** User should intervene if TDD discipline breaks!
+																	**⚠️ Process Police Alert:** User should intervene if TDD discipline breaks!
+															
 ```
 
-**Human's Commitment:** Follow the agent's internal conversation as it proceeds. Intervene and ask questions as soon and as often as needed. This reduces wasted tokens and code that needs to be reverted.
 
-## Context Drift Recovery
+If you notice the agent making changes without test driving, making sprawling edits, or otherwise breaking the rules of engagement then the model has lost context and you need to stop it and reign it back in.
 
-If you notice the agent making changes without test driving, making sprawling edits, or breaking rules of engagement:
+Stop the thread. Tell it what you observe happening. Repost the 3 prompts. Tell it to proceed.
 
-**Steps:**
-1. Stop the thread immediately
-2. Tell it what you observe happening
-3. Repost the relevant DO phase prompts
-4. Tell it to proceed with renewed focus
 
-**Example intervention:**
-"You're making changes across multiple files without writing tests first. Let's stop and refocus. We need to follow our TDD discipline. Please review the implementation guidelines and continue with step [X], starting with a failing test."
+---
 
-## Handling Test Regressions
+## License & Attribution
 
-When existing tests break due to recent changes:
+This template is part of the Human-AI PDCA Collaboration Process framework.
 
-```markdown
-We have failing tests in [Reference Test Fixture]. These failures may be due to recent changes that introduced regressions. 
+**License:** [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)
 
-**Regression Analysis First:**
-- Analyze ALL failing tests together before starting fixes to identify common patterns
-- Understand what changed in the production code that caused these failures
-- Determine if tests expect old behavior or if production behavior changed intentionally
+**Attribution:** Process framework developed by [Ken Judy](https://github.com/kenjudy) with Claude Anthropic 4
 
-**Change Discipline:**
-Be careful not to change both production code and test expectations in one pass as that might change behavior. So, you are free to adjust test setup. But stop and ask permission to change production code or expectations. So that we can agree on the changes. 
+**Usage:** You are free to use, modify, and distribute this template with appropriate attribution. 
 
-**Batch Processing:**
-- When you identify a common pattern across multiple failing tests, propose batching similar fixes
-- Apply TDD discipline: one test or logical batch at a time, red/green/refactor
+**Source:** [Human-AI Collaboration Process Repository](https://github.com/kenjudy/human-ai-collaboration-process)
 
-**Validation:**
-When a broken test goes green, re-run the fixture to ensure no further regressions.
-
-**Focus Areas:**
-- Implementation details vs. behavior: Are tests failing due to logging levels, error messages, or actual behavior changes?
-- Configuration thresholds: Are failures due to environment-specific settings (timeouts, limits, etc.)?
-- Expected failure modes: Do tests expect certain exceptions/failures that no longer occur?
-```
-
-## Code Reuse Opportunities
-
-After completing a section of work:
-
-```markdown
-Review the code we have generated to meet this objective. Suggest opportunities to improve supportability through code reuse. Do not change code.
-```
-
-This identifies refactoring opportunities without triggering premature optimization.
+---
+*2025*

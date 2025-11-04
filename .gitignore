@@ -1,4 +1,14 @@
+# Obsidian metadata
 .obsidian/**
+
+# PowerShell scripts (may contain user-specific paths)
 claude-code/*.ps1
+
+# macOS files
 .DS_Store
 _DS_Store
+
+# Build artifacts (currently tracked - see claude-skill/BUILD.md for options)
+# Uncomment these lines if you want to build locally and not commit generated files:
+# claude-skill/src/references/
+# claude-skill/pdca-framework.skill

@@ -1,14 +1,15 @@
-# ACT Phase Prompts
-
-## Retrospective
+# Act Phase: Session Analysis & Process Improvement
 
 **Purpose:** Analyze collaboration effectiveness and identify process improvements
-**Duration:** 5-10 minutes
+**When to use:** At the end of every coding session, regardless of scope
 **Prerequisites:** Completed work session (successful or not)
+**Expected output:** Critical moments analysis, actionable insights, working agreement updates
+**Typical duration:** 5-10 minutes
 **Next step:** Update working agreements and process templates based on learnings
 **Critical:** Capture learnings while session details are fresh
 
-Use the agent to help brainstorm ways to improve human/agent interaction:
+---
+## 5. Retrospection
 
 ```markdown
 Let's retrospect on our coding session. Please address whichever of these areas seem most relevant:
@@ -34,6 +35,7 @@ Let's retrospect on our coding session. Please address whichever of these areas 
 2. **Stop doing:** What setup/intervention approach should you eliminate?  
 3. **Keep doing:** What guidance pattern was most valuable and should be protected?
 
+
 **Next Session Setup Decisions:**
 - **Process boundaries:** What rules should be non-negotiable vs. flexible?
 - **Intervention triggers:** What specific behaviors should prompt immediate correction?  
@@ -42,68 +44,24 @@ Let's retrospect on our coding session. Please address whichever of these areas 
 - **Discipline balance:** How can we maintain discipline while staying flexible?
 
 Finally, **If you could only change ONE thing about our collaboration approach, what would it be and why?**
+
 ```
 
-**Human's Commitment:** Review the results and determine no more than 1-3 small, incremental changes you might want to make to existing prompts or your behavior. Make the changes and follow through on them, then evaluate if they actually improve your output over the next few cycles.
+---
 
-## Framework Improvement Suggestions
+## License & Attribution
 
-Ask the agent to suggest targeted improvements to your prompts:
+This template is part of the Human-AI PDCA Collaboration Process framework.
 
-```markdown
-Based on learnings would you suggest changes to this interaction framework. 
+**License:** [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)
 
-[paste in all or part of your template framework]
+**Attribution:** Process framework developed by [Ken Judy](https://github.com/kenjudy) with Claude Anthropic 4
 
-Only suggest targeted, specific and highly relevant changes.
-```
+**Usage:** You are free to use, modify, and distribute this template with appropriate attribution. 
 
-## Skeptical Review
+**Source:** [Human-AI Collaboration Process Repository](https://github.com/kenjudy/human-ai-collaboration-process)
 
-Filter suggestions to avoid unnecessary complexity:
+---
+*2025*
 
-```markdown
-Review these suggested changes skeptically and remove any that are not going to materially improve outcomes.
-```
 
-## Implementation Guidelines Review
-
-Periodically review working agreements:
-
-```markdown
-Implementation guidelines should not change much between sessions, but anything to consider changing here?
-
-[paste your current working agreements]
-```
-
-## Continuous Improvement Process
-
-**Keep track of:**
-- Retrospective notes from each session
-- Human context insights (what intervention timing worked best)
-- Patterns in what prompting approaches are most effective
-- Common failure modes and how to prevent them
-
-**Summarize learnings into:**
-- Updated working agreements
-- Refined prompt templates
-- New intervention triggers
-- Better process checkpoints
-
-**Iterate on:**
-- Prompt templates based on what works
-- Working agreements to reflect new insights
-- Definition of done criteria
-- Testing strategies
-
-The point is what _you can do to better elicit desired behavior from the LLM next time._ Focus on your actions and prompts, not trying to change the fundamental nature of the AI agent.
-
-## When to Run Retrospective
-
-- After successful completion of a coding session
-- After encountering significant challenges
-- When you notice recurring patterns (good or bad)
-- Before starting a new, complex feature
-- At least once per day when actively using the framework
-
-Regular retrospectives enable rapid evolution of your practices and prompts based on real feedback from actual usage.

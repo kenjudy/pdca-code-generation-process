@@ -1,15 +1,14 @@
-# CHECK Phase Prompts
-
-## Completeness Check
+# Check Phase: Implementation Verification & Quality Audit
 
 **Purpose:** Verify all objectives met and process discipline maintained
-**Duration:** 2-5 minutes
+**When to use:** After completing all planned implementation steps
 **Prerequisites:** All planned work completed, tests passing
+**Expected output:** Verification checklist, process audit results, outstanding items list
+**Typical duration:** 2-5 minutes
 **Next step:** Retrospection (4) for continuous improvement
 
-Review work against original goal and plan:
-
-```markdown
+---
+```
 **Completeness Check**
 
 Review our original goal outcome and plan against our execution.
@@ -28,33 +27,29 @@ Review our original goal outcome and plan against our execution.
 - [ ] No untested implementation was committed
 - [ ] Simple test scenarios were effective
 
+
 **Status:** [Complete/Needs work]
 **Outstanding items:** [any remaining tasks]
 **Ready to close:** [Yes/No with reasoning]
+
 ```
 
-**Add Results to Ticket.**
+Add Results to Ticket.
 
-**Human's Commitment:** Take accountability for whether the code will achieve the intended outcome as best you understand it and meets your professional standard of quality. _This is your code._
 
-**Note:** The author's current prompt is a 10-item checklist of 679 characters.
+---
 
-## Definition of Done
+## License & Attribution
 
-Define explicit completion criteria that include:
-- Delivering the outputs defined in the analysis
-- Meeting your personal and team quality standards
-- All tests passing with no regressions
-- Code follows established patterns and conventions
-- Documentation is complete and accurate
+This template is part of the Human-AI PDCA Collaboration Process framework.
 
-This validation provides data for the retrospective phase.
+**License:** [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)
 
-## When to Run the Check
+**Attribution:** Process framework developed by [Ken Judy](https://github.com/kenjudy) with Claude Anthropic 4
 
-- After completing all planned steps
-- Before committing code to version control
-- When uncertain if work is truly complete
-- Before moving to the next feature or task
+**Usage:** You are free to use, modify, and distribute this template with appropriate attribution. 
 
-The check phase prevents premature closure and ensures quality standards are met consistently.
+**Source:** [Human-AI Collaboration Process Repository](https://github.com/kenjudy/human-ai-collaboration-process)
+
+---
+*2025*

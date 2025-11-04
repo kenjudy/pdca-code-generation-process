@@ -1,17 +1,26 @@
-# PLAN Phase Prompts
+# PLAN Phase: Analysis & Detailed Planning
 
-## 1. Analyze: High-Level Design Brainstorm
+This file contains prompts for both analysis (1a) and planning (1b) phases.
 
-**Purpose:** High-level design brainstorm to understand problem scope and identify viable approaches
-**Duration:** 2-5 minutes
-**Next step:** Either refine with ramifications analysis or proceed to planning (1b)
+---
+
+# Analysis Phase: Problem Understanding & Approach Selection
+
+**Purpose:** High-level design brainstorm to understand the problem scope and identify viable approaches
+**When to use:** Start of any new feature, bug fix, or significant change
+**Prerequisites:** Clear problem statement or user story
+**Expected output:** Problem understanding, architectural pattern discovery, complexity assessment
+**Typical duration:** 2-5 minutes
+**Next step:** Either refine with ramifications analysis (1a-optional) or proceed to planning (1b)
 
 If provided, run this prompt in "Planning mode"
 
-```markdown
+---
+``` markdown
+
 I need to do a high level design brainstorm. 
 
-The overall goal is to [describe the overall goal as best I understand it. High-level design considerations, questions, concerns]
+The overall goal is to [describe the overall goal as best I understand it. Highlevel design considerations, questions, concerns]
 
 **Analysis needed:**
 - Understand the problem and its scope
@@ -60,86 +69,78 @@ Based on the problem scope and architectural patterns discovered:
 - **External System Integration**: [None/Simple/Complex] - Does this require parsing external formats or real-time debugging?
 
 **Output:** Provide a terse and clear understanding of the problem and recommended high level alternative approaches. Keep it at a human readable length and level of detail.
+
 ```
 
 **Refine the analysis with questions**
+
 **Add analysis to the story**
 
-**Human's Commitment:** Define an achievable value-based objective of small enough scope to complete in the 3 hour window. Evaluate the alternative approaches proposed by the agent and select one.
+---
 
-## 2. Analyze Ramifications of Selected Approach
+## License & Attribution
 
-After selecting an approach, dig deeper into the implications:
+This template is part of the Human-AI PDCA Collaboration Process framework.
 
-```markdown
-**Analyze the Ramifications of the Selected Approach**
+**License:** [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)
 
-Please analyze this work request and explore the approach:
+**Attribution:** Process framework developed by [Ken Judy](https://github.com/kenjudy) with Claude Anthropic 4
 
-**Request:** [describe the feature/change/bug fix]
+**Usage:** You are free to use, modify, and distribute this template with appropriate attribution. 
 
-**Current Context:** [attach or reference relevant code, files, or system state]
+**Source:** [Human-AI Collaboration Process Repository](https://github.com/kenjudy/human-ai-collaboration-process)
 
-**Pattern Discovery (do this first):**
-- Examine existing similar implementations in the codebase
-- Identify architectural patterns and design decisions  
-- Document key conventions (naming, ID generation, file organization)
-- Note integration points and data flow patterns
+---
+*2025*
+---
 
-**Problem Analysis:**
-- Understand the problem and its scope
-- Explore different approaches or solutions
-- Identify potential challenges, dependencies, or unknowns
-- Consider architectural implications or patterns
-- Assess complexity and effort (rough estimate)
-- Note any assumptions or clarifications needed
-
-**Architecture Alignment Check:**
-- [ ] For complex systems: verify intended design matches current implementation
-- [ ] Identify architectural inconsistencies before building on them
-
-**Output:** Provide a clear understanding of the problem and recommended approach. Focus on the "what" and "why" - we'll create the actionable "how" in the planning phase.
-```
-
-## 3. Detailed Planning
+# Planning Phase: Detailed Implementation Strategy
 
 **Purpose:** Create trackable, atomic implementation steps optimized for AI execution
-**Duration:** 2-5 minutes
+**When to use:** After completing analysis phase(s)
 **Prerequisites:** Clear problem understanding and chosen approach from analysis
+**Expected output:** Numbered implementation steps, testing strategy, process checkpoints
+**Typical duration:** 2-5 minutes
 **Next step:** Begin TDD implementation (2)
 **Note:** Plan output is verbose and typically not added to ticket tracking
 
-If available, run this prompt in "Planning" mode.
+If available run this prompt in "Planning" mode.
 
-```markdown
+---
+``` markdown
+
 **Planning Phase** Based on our analysis, provide a coherent plan incorporating our refinements that is optimized for your use as context for the implementation:
 
 **Execution Context:** This plan will be implemented in steps following TDD discipline with human supervision. Each step tagged for optimal model selection within the same thread context.
 
 **Integration Strategy:**
+
 - Map end-to-end data flow and all touch points
 - Identify required changes to existing methods/interfaces
-- Plan backward compatibility approach  
+- Plan backward compatibility approach
 - Consider file organization and naming consistency
 
 **Testing Strategy:** Test Drive atomic changes to production code using red/green strategy
 
- - Break the work into atomic, incremental changes
- - For each task or batch: write failing test(s) with clear behavioral expectations that drive code changes needed
- - Compilation ≠ Red phase - Write compiling stubs first, then test actual behavior expectations, not symbol existence
- - Implement minimal code to pass tests. Max 3 iterations to green
- - Summarize outcome and refactoring needs providing a commit message. Wait for approval before proceeding
+- Break the work into atomic, incremental changes
+- For each task or batch: write failing test(s) with clear behavioral expectations that drive code changes needed
+- Compilation ≠ Red phase - Write compiling stubs first, then test actual behavior expectations, not symbol existence
+- Implement minimal code to pass tests. Max 3 iterations to green
+- Summarize outcome and refactoring needs providing a commit message. Wait for approval before proceeding
 
 **Opportunities for Batched TDD:**
- - Group related functionality into logical batches for pattern reuse
- - Write failing tests for batch components together
- - Implement batch while maintaining red/green discipline
+
+- Group related functionality into logical batches for pattern reuse
+- Write failing tests for batch components together
+- Implement batch while maintaining red/green discipline
 
 **Multi-System Work:**
+
 - [ ] Logical architecture identical across systems
 - [ ] System-specific constraints checked (reserved keywords, etc.)
- 
+
 **Create actionable plan with:**
+
 - Numbered implementation steps (small, testable increments)
 - ONE file/component per step when possible
 - Acceptance criteria for each step
@@ -148,12 +149,30 @@ If available, run this prompt in "Planning" mode.
 - Rollback approach if needed
 
 **Process Checkpoints:**
+
 - Verify adherence to chosen testing strategy
 - Each step: Confirm appropriate test coverage exists
 - Complexity check: If tests become complex, simplify the step
 - Model match verification: Is the tagged model appropriate for actual complexity encountered?
+
 ```
 
-**Human's Commitment:** Scan and understand the contours of the plan enough to hold the agent accountable for following it and intervene if the plan needs to change based on new information or challenges.
+_Plan is verbose and I don't add it to any tracking_
 
-**Note:** This is an abbreviated example. Customize with your team's specific architectural concerns and testing patterns. The author's current planning prompt is 2,023 characters.
+
+---
+
+## License & Attribution
+
+This template is part of the Human-AI PDCA Collaboration Process framework.
+
+**License:** [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)
+
+**Attribution:** Process framework developed by [Ken Judy](https://github.com/kenjudy) with Claude Anthropic 4
+
+**Usage:** You are free to use, modify, and distribute this template with appropriate attribution. 
+
+**Source:** [Human-AI Collaboration Process Repository](https://github.com/kenjudy/human-ai-collaboration-process)
+
+---
+*2025*

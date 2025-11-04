@@ -16,10 +16,14 @@ This skill provides a disciplined framework for AI-assisted code generation that
 
 ## Installation
 
+**Important:** Claude.ai (web/desktop) and Claude Code (CLI) use different installation methods.
+
 ### For Claude.ai Web/Desktop App
 
+The `.skill` file format is designed for Claude.ai:
+
 1. **Download the skill file**
-   - Locate `pdca-framework.skill` (provided by the skill creator)
+   - Get `pdca-framework.skill` from this repository
 
 2. **Open Claude Settings**
    - Click your profile icon (top right)
@@ -39,10 +43,68 @@ This skill provides a disciplined framework for AI-assisted code generation that
 
 ### For Claude Code (Command Line)
 
+Claude Code uses a **directory-based** skill format, not the `.skill` package file.
+
+#### Quick Install (Recommended)
+
+Use the installation script for automatic setup:
+
 ```bash
-# Skills are automatically available in Claude Code
-# No manual installation needed - skills in your account sync automatically
+# From the claude-skill directory
+./install-skill.sh
+
+# Or specify installation type:
+./install-skill.sh personal   # Install to ~/.claude/skills/ (default)
+./install-skill.sh project    # Install to current project's .claude/skills/
 ```
+
+#### Manual Install - Personal Skill (Available Across All Projects)
+
+```bash
+# Create the directory
+mkdir -p ~/.claude/skills/pdca-framework
+
+# Extract the skill package
+unzip pdca-framework.skill -d ~/.claude/skills/pdca-framework
+
+# Result:
+# ~/.claude/skills/pdca-framework/
+#   ├── SKILL.md
+#   └── references/
+#       ├── plan-prompts.md
+#       ├── do-prompts.md
+#       ├── check-prompts.md
+#       ├── act-prompts.md
+#       └── working-agreements.md
+```
+
+#### Manual Install - Project Skill (Shared with Team via Git)
+
+```bash
+# From your project directory
+mkdir -p .claude/skills/pdca-framework
+
+# Extract the skill package
+unzip /path/to/pdca-framework.skill -d .claude/skills/pdca-framework
+
+# Commit to share with team
+git add .claude/skills/
+git commit -m "Add PDCA framework skill"
+```
+
+#### Verify Installation
+
+```bash
+# For personal skills
+ls ~/.claude/skills/pdca-framework/
+
+# For project skills
+ls .claude/skills/pdca-framework/
+
+# Should show: SKILL.md and references/
+```
+
+**Note:** Skills are automatically discovered by Claude Code. No restart needed.
 
 ---
 

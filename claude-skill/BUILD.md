@@ -1,20 +1,39 @@
 # Building the PDCA Framework Skill
 
-This document explains how to build the `pdca-framework.skill` package from the master source files.
+This document explains how to build and install the PDCA Framework skill package.
+
+## Quick Start
+
+**Just want to use the skill?** See [README.md](README.md) for installation instructions.
+
+**Building from source:**
+
+```bash
+# Build the skill package
+./build-skill.sh
+
+# Install for Claude Code
+./install-skill.sh personal   # Available across all projects
+# or
+./install-skill.sh project    # Available in current project only
+```
 
 ## Overview
 
 The skill package is automatically composed from your master prompt files located in the repository root:
 
 ```
-Master Sources → Build Script → Skill Package
+Master Sources → Build Script → Skill Package → Installation
 ├── 1. Plan/1a...md       ─┐
 ├── 1. Plan/1b...md       ─┤→ src/references/plan-prompts.md  ─┐
 ├── 2. Do/2...md          ─┤→ src/references/do-prompts.md     │
 ├── 3. Check/3...md       ─┤→ src/references/check-prompts.md  ├→ pdca-framework.skill
-├── 4. Act/4...md         ─┤→ src/references/act-prompts.md    │
-└── Human Working Agr...  ─┤→ src/references/working-agr...md  │
-                          └→ src/SKILL.md (manually maintained) ─┘
+├── 4. Act/4...md         ─┤→ src/references/act-prompts.md    │                         │
+└── Human Working Agr...  ─┤→ src/references/working-agr...md  │                         │
+                          └→ src/SKILL.md (manually maintained) ─┘                         │
+                                                                                            │
+For Claude.ai: Upload .skill file ←───────────────────────────────────────────────────────┘
+For Claude Code: Extract to ~/.claude/skills/pdca-framework/ ←────────────────────────────┘
 ```
 
 ## Prerequisites

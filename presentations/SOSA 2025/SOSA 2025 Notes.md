@@ -85,7 +85,7 @@ skill, analyze the best approach to doing this that minimizes redundant code and
 best preserves coherence and cohesion.
 ```
 
-**Response:** [[analysis response]]
+**Response:** [Analysis Response](https://github.com/kenjudy/pdca-code-generation-process/blob/main/presentations/SOSA%202025/analysis%20response.md)
 
 ---
 
@@ -101,7 +101,7 @@ https://github.com/kenjudy/pdca-code-generation-process/blob/main/1.%20Plan/1b%2
 Per PDCA skill, create your plan for implementing Mermaid.js diagrams.
 ```
 
-**Response:** [[detailed planning response]]
+**Response:** [detailed planning response](https://github.com/kenjudy/pdca-code-generation-process/blob/main/presentations/SOSA%202025/detailed%20planning%20response.md)
 
 ---
 
@@ -183,7 +183,7 @@ https://github.com/kenjudy/pdca-code-generation-process/blob/main/3.%20Check/3.%
 
 **Note:** Completion check performed as part of implementation checklist per the skill
 
-**Response:** [[check response]]
+**Response:** [check response](https://github.com/kenjudy/pdca-code-generation-process/blob/main/presentations/SOSA%202025/check%20response.md)
 
 ---
 
@@ -199,7 +199,7 @@ https://github.com/kenjudy/pdca-code-generation-process/blob/main/4.%20Act/4.%20
 Per PDCA skill, retrospect so I can act on what we've learned to improve the next session.
 ```
 
-**Response:** [[retrospective response]]
+**Response:** [retrospective response](https://github.com/kenjudy/pdca-code-generation-process/blob/main/presentations/SOSA%202025/retrospective%20response.md)
 
 ---
 

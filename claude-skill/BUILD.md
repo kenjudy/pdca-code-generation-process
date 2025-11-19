@@ -8,16 +8,23 @@ This document explains how to build and install the PDCA Framework skill package
 
 **Building from source:**
 
+**macOS/Linux (Bash):**
 ```bash
 # Build the skill package
 ./build-skill.sh
 
-# Install for Claude Code (macOS/Linux)
+# Install for Claude Code
 ./install-skill.sh personal   # Available across all projects
 # or
 ./install-skill.sh project    # Available in current project only
+```
 
-# Install for Claude Code (Windows)
+**Windows (PowerShell):**
+```powershell
+# Build the skill package
+.\build-skill.ps1
+
+# Install for Claude Code
 .\install-skill.ps1 personal   # Available across all projects
 # or
 .\install-skill.ps1 project    # Available in current project only
@@ -43,8 +50,13 @@ For Claude Code: Extract to ~/.claude/skills/pdca-framework/ ←─────�
 
 ## Prerequisites
 
-- Bash shell (macOS/Linux built-in)
-- `zip` command (pre-installed on macOS/Linux)
+**macOS/Linux:**
+- Bash shell (built-in)
+- `zip` command (pre-installed)
+- Master source files in their expected locations
+
+**Windows:**
+- PowerShell 5.1 or later (built-in on Windows 10+)
 - Master source files in their expected locations
 
 ## Building the Skill
@@ -53,9 +65,16 @@ For Claude Code: Extract to ~/.claude/skills/pdca-framework/ ←─────�
 
 From the repository root:
 
+**macOS/Linux:**
 ```bash
 cd claude-skill
 ./build-skill.sh
+```
+
+**Windows:**
+```powershell
+cd claude-skill
+.\build-skill.ps1
 ```
 
 ### What the Build Script Does
@@ -71,7 +90,10 @@ cd claude-skill
 
 ```
 claude-skill/
-├── build-skill.sh              # The build script
+├── build-skill.sh              # The build script (macOS/Linux)
+├── build-skill.ps1             # The build script (Windows)
+├── install-skill.sh            # Installation script (macOS/Linux)
+├── install-skill.ps1           # Installation script (Windows)
 ├── pdca-framework.skill       # Generated (can be committed or ignored)
 └── src/                        # Generated source files
     ├── SKILL.md               # Manually maintained
@@ -106,10 +128,18 @@ Rebuild the skill whenever you update any of these master files:
 **Cons:**
 - Generated files tracked in git
 
-**Setup:**
+**Setup (macOS/Linux):**
 ```bash
 # Build and commit
 ./build-skill.sh
+git add src/references/ pdca-framework.skill
+git commit -m "Rebuild skill from updated master prompts"
+```
+
+**Setup (Windows):**
+```powershell
+# Build and commit
+.\build-skill.ps1
 git add src/references/ pdca-framework.skill
 git commit -m "Rebuild skill from updated master prompts"
 ```
@@ -130,11 +160,18 @@ Add to `.gitignore`:
 # Build artifacts
 claude-skill/src/references/
 claude-skill/pdca-framework.skill
+claude-skill/temp_package/
 ```
 
-Then build locally:
+Then build locally (macOS/Linux):
 ```bash
 ./build-skill.sh
+# Use the skill but don't commit it
+```
+
+Or build locally (Windows):
+```powershell
+.\build-skill.ps1
 # Use the skill but don't commit it
 ```
 
@@ -142,11 +179,19 @@ Then build locally:
 
 ### Change Master File Locations
 
-Edit `build-skill.sh` and update these variables:
+**For macOS/Linux:** Edit `build-skill.sh` and update these variables:
 
 ```bash
 MASTER_1A="$REPO_ROOT/1. Plan/1a Analyze..."
 MASTER_1B="$REPO_ROOT/1. Plan/1b Create..."
+# etc.
+```
+
+**For Windows:** Edit `build-skill.ps1` and update these variables:
+
+```powershell
+$Master1A = Join-Path (Join-Path $RepoRoot "1. Plan") "1a Analyze..."
+$Master1B = Join-Path (Join-Path $RepoRoot "1. Plan") "1b Create..."
 # etc.
 ```
 
@@ -155,14 +200,21 @@ MASTER_1B="$REPO_ROOT/1. Plan/1b Create..."
 To include more files in the skill package:
 
 1. Add the source to `src/references/`
-2. Update the `zip` command in `build-skill.sh`:
-   ```bash
-   zip -r "$SKILL_FILE" \
-       SKILL.md \
-       references/plan-prompts.md \
-       references/your-new-file.md \  # Add here
-       ...
-   ```
+2. Update the packaging command:
+
+**In `build-skill.sh`:**
+```bash
+zip -r "$SKILL_FILE" \
+    SKILL.md \
+    references/plan-prompts.md \
+    references/your-new-file.md \  # Add here
+    ...
+```
+
+**In `build-skill.ps1`:**
+```powershell
+Copy-Item $YourNewFile -Destination $tempReferencesDir -Force
+```
 
 ### Customize the Package Structure
 
@@ -198,7 +250,7 @@ After building:
 
 **Cause:** Master files moved or renamed
 
-**Solution:** Update the paths in `build-skill.sh`
+**Solution:** Update the paths in `build-skill.sh` (macOS/Linux) or `build-skill.ps1` (Windows)
 
 ### Build succeeds but skill doesn't work
 
@@ -206,7 +258,7 @@ After building:
 
 **Solution:** Check that `SKILL.md` references the correct file paths
 
-### Permission denied when running script
+### Permission denied when running script (macOS/Linux)
 
 **Cause:** Script not executable
 
@@ -215,13 +267,46 @@ After building:
 chmod +x build-skill.sh
 ```
 
+### Execution policy error (Windows)
+
+**Cause:** PowerShell execution policy blocks scripts
+
+**Solution:**
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+Or run with bypass:
+```powershell
+powershell -ExecutionPolicy Bypass -File .\build-skill.ps1
+```
+
+### "NotSupportedArchiveFileExtension" error (Windows)
+
+**Cause:** Old version of the script trying to create .skill directly
+
+**Solution:** Update to the latest `build-skill.ps1` which creates .zip first, then renames
+
+### Path not found errors (Windows)
+
+**Cause:** Spaces in paths not properly quoted
+
+**Solution:** The script handles this automatically, but ensure you're using the latest version
+
 ### ZIP file seems wrong
 
 **Cause:** Working directory issue in script
 
 **Solution:** Ensure script runs from `claude-skill/` directory:
+
+**macOS/Linux:**
 ```bash
 cd claude-skill && ./build-skill.sh
+```
+
+**Windows:**
+```powershell
+cd claude-skill; .\build-skill.ps1
 ```
 
 ## Automation Ideas
@@ -256,7 +341,7 @@ jobs:
           path: claude-skill/pdca-framework.skill
 ```
 
-### Makefile
+### Makefile (macOS/Linux)
 
 Add to repository root:
 
@@ -272,6 +357,19 @@ skill-clean:
 ```
 
 Usage: `make skill`
+
+### Build Script (Windows)
+
+Create `build.bat` in repository root:
+
+```batch
+@echo off
+cd claude-skill
+powershell -ExecutionPolicy Bypass -File .\build-skill.ps1
+cd ..
+```
+
+Usage: `build.bat`
 
 ## Version Management
 
@@ -296,7 +394,9 @@ git push --tags
 When submitting PRs that modify master prompts:
 
 1. Update the master files in their original locations
-2. Run `./build-skill.sh` to regenerate the skill
+2. Run the build script to regenerate the skill:
+   - macOS/Linux: `./build-skill.sh`
+   - Windows: `.\build-skill.ps1`
 3. Commit both the masters and the regenerated files
 4. Note in PR: "Skill rebuilt from updated masters"
 

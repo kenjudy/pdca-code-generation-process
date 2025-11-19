@@ -13,13 +13,13 @@ Write-Host "`nPDCA Framework Skill Installer for Claude Code" -ForegroundColor C
 Write-Host ""
 
 # Get script directory and skill file path
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$ScriptDir = $PSScriptRoot
 $SkillFile = Join-Path $ScriptDir "pdca-framework.skill"
 
 # Validate skill file exists
 if (-not (Test-Path $SkillFile)) {
     Write-Host "Error: Skill file not found: $SkillFile" -ForegroundColor Red
-    Write-Host "Please run build-skill.sh first to create the skill package." -ForegroundColor Yellow
+    Write-Host "Please run build-skill.ps1 first to create the skill package." -ForegroundColor Yellow
     exit 1
 }
 

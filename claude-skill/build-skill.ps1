@@ -114,8 +114,14 @@ Copy-Item $OutputCheck -Destination $tempReferencesDir -Force
 Copy-Item $OutputAct -Destination $tempReferencesDir -Force
 Copy-Item $OutputWorkingAgreements -Destination $tempReferencesDir -Force
 
-# Create ZIP with .skill extension
-Compress-Archive -Path "$tempDir\*" -DestinationPath $SkillFile -Force
+# Create ZIP first (Compress-Archive only supports .zip extension)
+$tempZipFile = Join-Path $ScriptDir "pdca-framework.zip"
+Compress-Archive -Path "$tempDir\*" -DestinationPath $tempZipFile -Force
+
+# Rename to .skill extension
+if (Test-Path $tempZipFile) {
+    Move-Item $tempZipFile $SkillFile -Force
+}
 
 # Clean up temp directory
 Remove-Item $tempDir -Recurse -Force

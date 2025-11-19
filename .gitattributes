@@ -1,0 +1,7 @@
+# Shell scripts should always use LF line endings
+*.sh text eol=lf
+
+# Windows scripts should use CRLF
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf

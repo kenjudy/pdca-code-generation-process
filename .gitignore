@@ -11,7 +11,7 @@ claude-code/*.ps1
 .DS_Store
 _DS_Store
 
-# Build artifacts (currently tracked - see claude-skill/BUILD.md for options)
-# Uncomment these lines if you want to build locally and not commit generated files:
-# claude-skill/src/references/
-# claude-skill/pdca-framework.skill
+# Build artifacts (generated files - not committed)
+claude-skill/src/references/
+claude-skill/pdca-framework.skill
+claude-skill/temp_package/

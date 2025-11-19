@@ -3,7 +3,6 @@
 This file contains prompts for both analysis (1a) and planning (1b) phases.
 
 ---
-
 # Analysis Phase: Problem Understanding & Approach Selection
 
 **Purpose:** High-level design brainstorm to understand the problem scope and identify viable approaches

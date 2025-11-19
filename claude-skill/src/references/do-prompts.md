@@ -15,6 +15,12 @@ If possible, rather than trigger a build, switch to agent mode and use this prom
 
 Try to add tests to existing fixtures where the tests fit coherently into the concerns of that fixture rather than proliferate new test files.
 
+  **🚨 BEFORE STARTING STEP - ARCHITECTURAL SAFETY CHECK 🚨**
+  - [ ] Creating new files? Run `Glob **/[area]*.cs` - does namespace fit conceptually?
+  - [ ] Modifying existing code? Run `Grep <class/function>` - if >2 usages, justify why modify vs. adapt
+  - [ ] Moving files? Use `git mv` (not `mv`) to preserve history
+  - [ ] Present file locations + modifications to user for approval BEFORE writing code
+
 **TDD Implementation**
 
 1. ❌ DON'T test interfaces - test concrete implementations

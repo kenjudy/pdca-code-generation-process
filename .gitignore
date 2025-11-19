@@ -4,6 +4,9 @@
 # PowerShell scripts (may contain user-specific paths)
 claude-code/*.ps1
 
+# Temp directories
+**/temp*
+
 # macOS files
 .DS_Store
 _DS_Store

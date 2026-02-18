@@ -1,0 +1,122 @@
+---
+name: pdca-framework-beads
+description: Human-supervised PDCA (Plan-Do-Check-Act) framework for AI-assisted code generation with beads integration for persistent task tracking. Use when generating production code with AI agents to maintain quality, reduce technical debt, and keep humans engaged. Applies structured analysis, planning, test-driven development, validation, and retrospection to AI coding sessions. Includes beads for cross-session continuity and git-backed memory.
+---
+
+# PDCA Framework for AI-Assisted Code Generation (with Beads Integration)
+
+A disciplined approach to AI-assisted code generation that employs agile practices organized in the Plan-Do-Check-Act cycle. This framework occurs within individual code generation sessions as a nested loop, with full cycles taking 1-3 hours.
+
+**Enhanced with Beads**: This version includes optional beads integration for persistent task tracking across sessions.
+
+## Core Philosophy
+
+This framework addresses the sustainability crisis in AI code generation where research shows:
+- 10x increase in duplicated code blocks (GitClear 2024)
+- 7.2% decrease in delivery stability per 25% AI adoption increase (Google DORA 2024)
+- 19% slower development with AI tools vs. without (METR research)
+
+The solution keeps humans actively engaged, empowered, and accountable while using structured prompts to regulate agent behavior toward transparency and discipline.
+
+## Beads Integration
+
+**Optional Enhancement**: Beads provides persistent, git-backed memory for PDCA cycles:
+
+- **Cross-session continuity**: Resume PDCA cycles days/weeks later with full context
+- **Task dependency tracking**: Link Plan → Do → Check → Act formally
+- **Searchable retrospectives**: Find past learnings easily
+- **Git-backed audit trail**: Full history of decisions and implementations
+
+See `references/beads-integration.md` for setup instructions and detailed workflow examples.
+
+**Important**: All beads commands in the prompts are **optional**. The framework works with or without beads installed.
+
+## Working Agreements
+
+Commitments you hold yourself accountable to when interacting with coding agents. See `references/working-agreements.md` for complete list and examples.
+
+**Core principles:**
+- Enforce strict TDD: one failing test at a time, no exceptions
+- Respect existing architecture: work within established patterns
+- Intervene immediately on process violations
+- Explicitly establish methodology, scope, and intervention rights before coding
+
+## PDCA Cycle Overview
+
+Each step has distinct prompts and human commitments:
+
+### 1. PLAN: Analyze & Plan (7-15 min)
+- **Analysis**: Examine codebase, define achievable objectives, explore approaches
+- **Planning**: Create detailed execution plan with numbered steps and checkpoints
+- **Beads (Optional)**: Create epic to capture analysis and decisions
+- See `references/plan-prompts.md` for complete templates
+
+### 2. DO: Code Generation (30 min - 2.5 hrs)
+- **TDD Implementation**: Red-green-refactor with checklist-based guidance
+- **Active Oversight**: Follow agent's work, intervene early and often
+- **Beads (Optional)**: Track TDD steps as subtasks with dependencies
+- See `references/do-prompts.md` for implementation checklists
+
+### 3. CHECK: Validate (2-5 min)
+- **Completeness**: Verify against analysis, plan, and quality standards
+- **Definition of Done**: Explicit checklist for delivery readiness
+- **Beads (Optional)**: Validate against beads task graph
+- See `references/check-prompts.md` for validation templates
+
+### 4. ACT: Retrospect (5-10 min)
+- **Process Review**: Identify what worked and what to improve
+- **Continuous Improvement**: Update 1-3 small things for next cycle
+- **Beads (Optional)**: Store retrospectives for future reference
+- See `references/act-prompts.md` for retrospective guides
+
+## When to Use Each Phase
+
+**Start with PLAN when:**
+- Beginning a new feature or significant change
+- Scope is unclear or could expand
+- Multiple approaches are possible
+
+**Use DO iteratively:**
+- After completing plan
+- For each step in the implementation plan
+- When context drift occurs, restart with updated plan
+
+**CHECK after:**
+- Completing all planned steps
+- Before committing code
+- When uncertain if work is complete
+
+**ACT at end of session:**
+- After successful completion
+- After encountering significant challenges
+- To refine prompts and practices
+
+## Context Drift Recovery
+
+If agent makes sprawling edits, breaks TDD, or ignores working agreements:
+1. Stop the thread immediately
+2. Describe what you observe
+3. Repost the relevant phase prompts
+4. Direct agent to proceed with renewed focus
+
+## Prompt Customization
+
+All prompts are starting templates. Adapt them to:
+- Your specific model and version
+- Your team's practices and conventions
+- Your codebase architecture
+- Lessons from retrospectives
+
+The PDCA cycle itself provides rapid feedback for incremental prompt evolution.
+
+---
+
+## License & Attribution
+
+**License:** [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)
+
+**Attribution:** Process framework developed by [Ken Judy](https://github.com/kenjudy) with Claude Anthropic 4
+
+**Source:** [Human-AI Collaboration Process Repository](https://github.com/kenjudy/human-ai-collaboration-process)
+
+**Living Framework:** These prompts and working agreements should be continuously refined based on retrospective learnings from each collaboration session.

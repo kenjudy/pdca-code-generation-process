@@ -14,6 +14,33 @@ This skill provides a disciplined framework for AI-assisted code generation that
 
 ---
 
+## 📦 Two Skill Packages Available
+
+Choose the package that matches your workflow:
+
+### Standard Package (`pdca-framework.skill`)
+**Recommended for most users**
+- ✅ Core PDCA framework (Plan→Do→Check→Act)
+- ✅ Strict TDD discipline and working agreements
+- ✅ Works out of the box, no additional setup
+- ✅ Perfect for single-session work (1-3 hours)
+- 📦 **Size**: 16K
+
+### Beads Package (`pdca-framework-beads.skill`)
+**For long-running work with persistent tracking**
+- ✅ Everything in Standard package
+- ✅ **Plus**: Persistent task tracking across sessions
+- ✅ **Plus**: Git-backed memory (resumes work days/weeks later)
+- ✅ **Plus**: Dependency graphs and searchable retrospectives
+- ⚙️ **Requires**: beads CLI + MCP server (see [Beads Integration](#beads-integration))
+- 📦 **Size**: 20K
+
+**Decision guide:**
+- **Use Standard** if: Bug fixes, quick features, learning the framework
+- **Use Beads** if: Multi-day features, complex epics, want searchable history
+
+---
+
 ## Installation
 
 **Important:** Claude.ai (web/desktop) and Claude Code (CLI) use different installation methods.
@@ -419,6 +446,143 @@ HUMAN COMMITMENTS
 ```
 
 Print this card and keep it visible during coding sessions!
+
+---
+
+## Beads Integration
+
+**For users of `pdca-framework-beads.skill` only**
+
+The beads-enhanced skill adds persistent task tracking across sessions. All beads commands in the prompts are **optional** - the skill works with or without beads installed.
+
+### Prerequisites
+
+**System Requirements:**
+```bash
+# Required
+brew install go icu4c dolt
+
+# Verify versions
+go version    # Should be 1.23+
+dolt version  # Should be 1.80+
+```
+
+### Installation Steps
+
+#### 1. Install Beads CLI
+
+```bash
+# Set ICU paths for compilation
+ICU_PATH=$(brew --prefix icu4c@78)
+export CGO_CFLAGS="-I${ICU_PATH}/include"
+export CGO_CXXFLAGS="-I${ICU_PATH}/include"
+export CGO_LDFLAGS="-L${ICU_PATH}/lib"
+
+# Install beads with CGO support
+CGO_ENABLED=1 go install github.com/steveyegge/beads/cmd/bd@latest
+
+# Add to PATH (add to ~/.bashrc or ~/.zshrc)
+export PATH="$HOME/go/bin:$PATH"
+
+# Verify installation
+bd --version
+```
+
+#### 2. Install Beads MCP Server (Optional but Recommended)
+
+```bash
+# Install beads MCP server
+pip3 install beads-mcp
+
+# Configure in Claude Desktop/Code
+# Add to ~/Library/Application Support/Claude/claude_desktop_config.json:
+{
+  "mcpServers": {
+    "beads": {
+      "command": "beads-mcp"
+    }
+  }
+}
+
+# Restart Claude Desktop/Code after configuration
+```
+
+#### 3. Initialize Beads in Your Project
+
+```bash
+# Navigate to your project
+cd /path/to/your/project
+
+# Initialize beads
+bd init
+
+# Created: .beads/ directory (git-ignored by default)
+```
+
+#### 4. Add .beads/ to .gitignore
+
+```bash
+# Add to your project's .gitignore
+echo ".beads/" >> .gitignore
+```
+
+### Using Beads with PDCA
+
+Each PDCA phase includes optional beads sections in the prompts. Example workflow:
+
+**PLAN Phase:**
+```bash
+# Create epic for this PDCA cycle
+bd create "Feature: Add user authentication" --type epic
+# Returns: myproject-a1b2
+```
+
+**DO Phase:**
+```bash
+# Track each TDD step
+bd create "Step 1: Write failing test for JWT middleware" --parent myproject-a1b2
+bd update myproject-a1b2.1 --claim --status in_progress
+
+# After tests pass
+bd close myproject-a1b2.1 --message "✓ Tests pass, committed abc123"
+```
+
+**CHECK Phase:**
+```bash
+# Verify all tasks complete
+bd list --parent myproject-a1b2 --status open,in_progress
+```
+
+**ACT Phase:**
+```bash
+# Store retrospective
+bd update myproject-a1b2 --add-message "Retrospective: TDD kept scope focused..."
+bd close myproject-a1b2
+```
+
+### Benefits of Beads Integration
+
+- **Cross-session continuity**: Resume work days/weeks later with `bd show <epic-id>`
+- **Dependency tracking**: `bd dep add <task> <blocker> blocks`
+- **Searchable retrospectives**: `bd list --closed --type epic | grep auth`
+- **Git-backed audit trail**: All task data stored in `.beads/dolt/` (version controlled SQL)
+
+### Troubleshooting Beads
+
+**"bd: command not found"**
+- Add `$HOME/go/bin` to your PATH
+- Verify installation: `ls ~/go/bin/bd`
+
+**"dolt: this binary was built without CGO support"**
+- Reinstall beads with CGO flags (see Installation Step 1)
+- Ensure ICU headers are installed: `brew install icu4c`
+
+**MCP server not showing**
+- Verify `claude_desktop_config.json` has `mcpServers.beads`
+- Restart Claude Desktop/Code completely
+- Check for MCP errors in Claude logs
+
+For detailed beads integration guide, see: `references/beads-integration.md` in the beads skill package.
 
 ---
 

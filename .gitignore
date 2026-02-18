@@ -15,3 +15,6 @@ _DS_Store
 claude-skill/src/references/
 claude-skill/pdca-framework.skill
 claude-skill/temp_package/
+
+# Beads database (local task tracking - not committed)
+.beads/

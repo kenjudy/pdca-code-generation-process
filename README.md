@@ -2,20 +2,31 @@
 
 A disciplined framework for AI-assisted code generation using Plan-Do-Check-Act methodology with strict TDD discipline.
 
-## Two Ways to Use This Framework
+## Three Ways to Use This Framework
 
-### Option 1: Claude Skill (Recommended for Regular Use)
+### Option 1: Claude Skill - Standard (Recommended for Most Users)
 **Install once, auto-triggers when coding**
 
-- **Best for:** Consistent workflow across all coding sessions
+- **Best for:** Consistent PDCA workflow across all coding sessions
 - **Setup:** One-click installation in Claude.ai or Claude Code
 - **Experience:** Automatic prompt loading, progressive disclosure
 - **Token efficiency:** Loads only what's needed in background
 - **Maintenance:** Update once, improves everywhere
 
-📦 **[Get started with the Claude Skill →](claude-skill/README.md)**
+📦 **[Get started with Standard Skill →](claude-skill/README.md)**
 
-### Option 2: Manual Prompts (Best for Customization)
+### Option 2: Claude Skill - with Beads (For Long-Running Work)
+**Standard skill + persistent task tracking across sessions**
+
+- **Best for:** Complex features spanning multiple days/weeks
+- **Additional features:** Git-backed memory, cross-session continuity, searchable retrospectives
+- **Requirements:** Install beads CLI and MCP server (Go 1.23+, ICU headers)
+- **Works like:** Standard skill with optional beads commands in each phase
+- **Backward compatible:** All beads commands are optional, skip them if beads not installed
+
+🎯 **[Get started with Beads Skill →](claude-skill/README.md#beads-integration)**
+
+### Option 3: Manual Prompts (Best for Customization)
 **Copy/paste prompts as needed for each session**
 
 - **Best for:** Customizing prompts for specific contexts
@@ -33,12 +44,19 @@ A disciplined framework for AI-assisted code generation using Plan-Do-Check-Act 
 | Use Case | Recommended Approach |
 |----------|---------------------|
 | Learning the framework | Start with **Manual Prompts** to understand each phase |
-| Regular coding sessions | Use the **Claude Skill** for convenience |
-| Team standardization | **Claude Skill** ensures consistency |
+| Quick bug fix (single session) | **Standard Skill** for convenience |
+| Regular coding sessions | **Standard Skill** for consistent workflow |
+| Multi-day features | **Beads Skill** for cross-session continuity |
+| Complex epics with dependencies | **Beads Skill** for task graph tracking |
+| Team standardization | **Standard Skill** ensures consistency |
+| Want searchable retrospectives | **Beads Skill** for git-backed learnings |
 | Custom workflows | **Manual Prompts** for full flexibility |
 | Non-Claude AI tools | **Manual Prompts** (skill is Claude-specific) |
 
-**You can use both!** Many users install the skill for daily work and keep manual prompts for special cases.
+**You can mix and match!** Many users:
+- Install Standard Skill for daily work
+- Keep Manual Prompts for special cases
+- Add Beads Skill when starting complex, long-running features
 
 ---
 

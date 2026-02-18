@@ -49,24 +49,30 @@ Choose the package that matches your workflow:
 
 The `.skill` file format is designed for Claude.ai:
 
-1. **Download the skill file**
-   - Get `pdca-framework.skill` from this repository
+1. **Choose your package**
+   - `pdca-framework.skill` - Standard (recommended for most users)
+   - `pdca-framework-beads.skill` - With beads integration (requires setup)
 
-2. **Open Claude Settings**
+2. **Download the skill file**
+   - Get your chosen package from this repository
+
+3. **Open Claude Settings**
    - Click your profile icon (top right)
    - Select "Settings" or "Preferences"
 
-3. **Navigate to Skills**
+4. **Navigate to Skills**
    - Find the "Skills" or "Custom Skills" section
    - Click "Add Skill" or "Upload Skill"
 
-4. **Upload the skill**
-   - Select the `pdca-framework.skill` file
+5. **Upload the skill**
+   - Select your downloaded `.skill` file
    - Confirm the upload
 
-5. **Verify installation**
+6. **Verify installation**
    - The skill should appear in your skills list
    - Status should show as "Active" or "Enabled"
+
+**Note:** If you chose the beads package, see [Beads Integration](#beads-integration) for additional setup steps.
 
 ### For Claude Code (Command Line)
 
@@ -74,14 +80,18 @@ Claude Code uses a **directory-based** skill format, not the `.skill` package fi
 
 #### Quick Install (Recommended)
 
-Use the installation script for automatic setup:
+Use the installation script for automatic setup. The script will ask you to choose between Standard and Beads packages:
 
 **macOS/Linux (Bash):**
 ```bash
 # From the claude-skill directory
 ./install-skill.sh
 
-# Or specify installation type:
+# The script will prompt:
+# 1. Which package? (1 for Standard, 2 for Beads)
+# 2. Installation scope (automatically detects, or specify below)
+
+# Optional: Specify scope as argument
 ./install-skill.sh personal   # Install to ~/.claude/skills/ (default)
 ./install-skill.sh project    # Install to current project's .claude/skills/
 ```
@@ -91,7 +101,9 @@ Use the installation script for automatic setup:
 # From the claude-skill directory
 .\install-skill.ps1
 
-# Or specify installation type:
+# The script will prompt for package selection
+
+# Optional: Specify scope as argument
 .\install-skill.ps1 personal   # Install to ~/.claude/skills/ (default)
 .\install-skill.ps1 project    # Install to current project's .claude/skills/
 ```

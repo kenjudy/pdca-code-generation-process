@@ -467,6 +467,35 @@ Print this card and keep it visible during coding sessions!
 
 The beads-enhanced skill adds persistent task tracking across sessions. All beads commands in the prompts are **optional** - the skill works with or without beads installed.
 
+### Understanding Global Skill vs. Per-Project Beads
+
+**Important distinction:**
+
+| Component | Location | Scope | Purpose |
+|-----------|----------|-------|---------|
+| **Skill Installation** | `~/.claude/skills/pdca-framework-beads/` | Global | PDCA prompts available in all projects |
+| **Beads Database** | `.beads/` in each project root | Per-Project | Task tracking for THAT project only |
+
+**You install the skill once globally, but initialize beads separately in each project.**
+
+**Why per-project beads?**
+- PDCA cycles are project-specific (features, bugs, experiments for that codebase)
+- Retrospectives make sense in project context ("How did auth work in THIS app?")
+- Searching is more relevant: `bd list --closed` shows THIS project's history
+- Team collaboration: Commit `.beads/` to share retrospectives with teammates
+- Clean separation: No mixing dashboard tasks with unrelated projects
+
+**Why NOT one global beads database?**
+- Searching "authentication retrospectives" would return ALL projects (too noisy)
+- Epic/task organization becomes confusing across codebases
+- Can't scope queries to relevant work
+- Can't share project-specific retrospectives via git
+
+**The architecture:**
+1. Install skill globally (once) → prompts available everywhere
+2. Initialize beads per-project → task tracking scoped to that project
+3. When working in a project, the global skill prompts guide you to use that project's local `.beads/` database
+
 ### Prerequisites
 
 **System Requirements:**
@@ -519,17 +548,28 @@ pip3 install beads-mcp
 # Restart Claude Desktop/Code after configuration
 ```
 
-#### 3. Initialize Beads in Your Project
+#### 3. Initialize Beads Per-Project (Repeat for Each Project)
+
+**Important:** Run this in EACH project where you want beads tracking, not just once globally.
 
 ```bash
 # Navigate to your project
 cd /path/to/your/project
 
-# Initialize beads
+# Initialize beads (creates .beads/ in THIS project)
 bd init
 
-# Created: .beads/ directory (git-ignored by default)
+# Created: .beads/ directory (local to this project)
 ```
+
+**Example:** If you work on 3 projects:
+```bash
+cd ~/Projects/dashboard && bd init      # Creates ~/Projects/dashboard/.beads/
+cd ~/Projects/api && bd init            # Creates ~/Projects/api/.beads/
+cd ~/Projects/frontend && bd init       # Creates ~/Projects/frontend/.beads/
+```
+
+Each project gets its own independent beads database for tracking its PDCA cycles.
 
 #### 4. Add .beads/ to .gitignore
 

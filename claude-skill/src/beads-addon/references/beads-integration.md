@@ -211,15 +211,23 @@ bd show PDCA Process-a1b2
 
 ## Git Integration
 
-Beads stores all data in `.beads/dolt/` (version-controlled SQL database):
+Beads stores task data in `.beads/` in your project root. The `.beads/` directory contains both the dolt SQL database (binary) and an `issues.jsonl` export file (text). For git tracking, commit the text files and exclude the binary database:
 
 ```bash
-# Beads data is automatically tracked
-git status
-# Shows: .beads/ directory with changes
+# Add to your project's .gitignore
+# Track issues.jsonl and config.yaml, exclude binary dolt database
+echo ".beads/*" >> .gitignore
+echo "!.beads/issues.jsonl" >> .gitignore
+echo "!.beads/config.yaml" >> .gitignore
+```
 
+**Why `.beads/*` instead of `.beads/`?**
+
+Git cannot re-include files inside a directory excluded with a trailing slash. Using `.beads/*` ignores the directory *contents* while allowing negation rules to selectively track specific files.
+
+```bash
 # Commit beads state with code
-git add .beads/
+git add .beads/issues.jsonl .beads/config.yaml
 git commit -m "Complete authentication epic (PDCA Process-a1b2)"
 
 # Beads state travels with git repo
@@ -344,6 +352,43 @@ bd init --verbose
 
 # Check for permission issues
 ls -la .beads/
+```
+
+### "could not export to JSONL: exit status 1" on git commit
+
+**Problem:** The beads pre-commit hook fails to export issues after a PR merge or rebase. The hook uses a dolt branch-per-commit pattern that creates a dolt branch for each git commit hash. After a PR merge creates a new merge commit, the export-state file references the old commit hash — a dolt branch that no longer exists.
+
+**Diagnosis:** Check if a stale export-state file exists:
+
+```bash
+ls .beads/export-state/
+# Shows files like: d09c71ac4cf6bb48.json
+```
+
+**Solution A (recommended):** Delete the stale export-state file:
+
+```bash
+rm .beads/export-state/*.json
+# Next commit will create a fresh export-state entry
+```
+
+**Solution B (alternative):** Use `no-db` mode to skip the dolt branch tracking entirely and use `issues.jsonl` as the primary data store:
+
+```bash
+# Add to .beads/config.yaml
+echo "no-db: true" >> .beads/config.yaml
+```
+
+In `no-db` mode, beads reads/writes directly to `issues.jsonl` without dolt branch tracking. This avoids the stale-state problem but removes the SQL query capabilities of the dolt database.
+
+### "Error 1105: branch not found: \<hash\>"
+
+**Problem:** Same root cause as the JSONL export error above — a stale commit hash in `.beads/export-state/` references a dolt branch that was deleted after a PR merge.
+
+**Solution:** Same as above — delete the stale export-state file:
+
+```bash
+rm .beads/export-state/*.json
 ```
 
 ---

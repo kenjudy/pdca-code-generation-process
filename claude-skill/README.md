@@ -482,7 +482,7 @@ The beads-enhanced skill adds persistent task tracking across sessions. All bead
 - PDCA cycles are project-specific (features, bugs, experiments for that codebase)
 - Retrospectives make sense in project context ("How did auth work in THIS app?")
 - Searching is more relevant: `bd list --closed` shows THIS project's history
-- Team collaboration: Commit `.beads/` to share retrospectives with teammates
+- Team collaboration: Commit `.beads/issues.jsonl` to share retrospectives with teammates
 - Clean separation: No mixing dashboard tasks with unrelated projects
 
 **Why NOT one global beads database?**
@@ -574,9 +574,13 @@ Each project gets its own independent beads database for tracking its PDCA cycle
 #### 4. Add .beads/ to .gitignore
 
 ```bash
-# Add to your project's .gitignore
-echo ".beads/" >> .gitignore
+# Track issues.jsonl and config.yaml, exclude binary dolt database
+echo ".beads/*" >> .gitignore
+echo "!.beads/issues.jsonl" >> .gitignore
+echo "!.beads/config.yaml" >> .gitignore
 ```
+
+**Note:** Use `.beads/*` (not `.beads/`) so git negation rules can selectively track specific files inside the directory.
 
 ### Using Beads with PDCA
 
@@ -617,7 +621,7 @@ bd close myproject-a1b2
 - **Cross-session continuity**: Resume work days/weeks later with `bd show <epic-id>`
 - **Dependency tracking**: `bd dep add <task> <blocker> blocks`
 - **Searchable retrospectives**: `bd list --closed --type epic | grep auth`
-- **Git-backed audit trail**: All task data stored in `.beads/dolt/` (version controlled SQL)
+- **Git-backed audit trail**: Issues committed as `.beads/issues.jsonl` (travels with your repo)
 
 ### Troubleshooting Beads
 

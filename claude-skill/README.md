@@ -14,6 +14,33 @@ This skill provides a disciplined framework for AI-assisted code generation that
 
 ---
 
+## 📦 Two Skill Packages Available
+
+Choose the package that matches your workflow:
+
+### Standard Package (`pdca-framework.skill`)
+**Recommended for most users**
+- ✅ Core PDCA framework (Plan→Do→Check→Act)
+- ✅ Strict TDD discipline and working agreements
+- ✅ Works out of the box, no additional setup
+- ✅ Perfect for single-session work (1-3 hours)
+- 📦 **Size**: 16K
+
+### Beads Package (`pdca-framework-beads.skill`)
+**For long-running work with persistent tracking**
+- ✅ Everything in Standard package
+- ✅ **Plus**: Persistent task tracking across sessions
+- ✅ **Plus**: Git-backed memory (resumes work days/weeks later)
+- ✅ **Plus**: Dependency graphs and searchable retrospectives
+- ⚙️ **Requires**: beads CLI + MCP server (see [Beads Integration](#beads-integration))
+- 📦 **Size**: 20K
+
+**Decision guide:**
+- **Use Standard** if: Bug fixes, quick features, learning the framework
+- **Use Beads** if: Multi-day features, complex epics, want searchable history
+
+---
+
 ## Installation
 
 **Important:** Claude.ai (web/desktop) and Claude Code (CLI) use different installation methods.

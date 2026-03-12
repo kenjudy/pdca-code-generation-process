@@ -41,6 +41,24 @@ Choose the package that matches your workflow:
 
 ---
 
+## Building from Source
+
+**Required before installation.** The `.skill` files are not included in the repository and must be built locally first.
+
+**macOS/Linux:**
+```bash
+cd claude-skill
+./build-skill.sh
+```
+
+**Windows:**
+```powershell
+cd claude-skill
+.\build-skill.ps1
+```
+
+This generates `pdca-framework.skill` and `pdca-framework-beads.skill` from the source prompts. See [BUILD.md](BUILD.md) for full details, including troubleshooting and CI/CD automation.
+
 ## Installation
 
 **Important:** Claude.ai (web/desktop) and Claude Code (CLI) use different installation methods.

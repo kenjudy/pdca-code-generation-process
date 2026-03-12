@@ -18,3 +18,9 @@ claude-skill/temp_package/
 
 # Beads database (local task tracking - not committed)
 .beads/
+
+# Dolt database files (added by bd init)
+.dolt/
+*.db
+
+

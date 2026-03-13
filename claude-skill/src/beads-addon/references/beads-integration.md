@@ -304,9 +304,9 @@ Before each TDD step:
 
 ### "dolt: this binary was built without CGO support"
 
-**Problem:** Beads installed via npm lacks CGO.
+**Problem:** Beads installed via `curl | bash` (or npm) installs a prebuilt binary without CGO support. The `bd doctor` upgrade suggestion also uses this prebuilt binary — **do not use it**.
 
-**Solution:** Install via Go with ICU headers:
+**Solution:** Always install and upgrade via Go with ICU headers:
 
 ```bash
 brew install go icu4c
@@ -315,6 +315,26 @@ export CGO_CFLAGS="-I${ICU_PATH}/include"
 export CGO_CXXFLAGS="-I${ICU_PATH}/include"
 export CGO_LDFLAGS="-L${ICU_PATH}/lib"
 CGO_ENABLED=1 go install github.com/steveyegge/beads/cmd/bd@latest
+```
+
+### "invalid database name: beads_Your Project" (spaces in path)
+
+**Problem:** Beads v0.59+ rejects database names with spaces. The Dolt database name is derived from the project directory name, so a directory like `My Project/` creates an invalid database name `beads_My Project`.
+
+**Solution:**
+
+```bash
+# 1. Rename the Dolt database directory (replace spaces with underscores)
+mv .beads/dolt/"beads_My Project" .beads/dolt/beads_My_Project
+
+# 2. Update .beads/metadata.json — change "dolt_database" to match
+#    e.g. "beads_My Project" → "beads_My_Project"
+
+# 3. Restart the Dolt server
+bd dolt stop && bd dolt start
+
+# 4. Clean up any remaining issues
+bd doctor --fix
 ```
 
 ### "bd: command not found"

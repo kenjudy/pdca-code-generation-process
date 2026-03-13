@@ -547,6 +547,8 @@ export PATH="$HOME/go/bin:$PATH"
 bd --version
 ```
 
+**⚠️ Always use this CGO build method to upgrade beads.** The `curl | bash` install script that `bd doctor` recommends installs a prebuilt binary *without* CGO support. That binary cannot open the Dolt database and will break beads entirely. To upgrade: re-run the `CGO_ENABLED=1 go install` command above.
+
 #### 2. Install Beads MCP Server (Optional but Recommended)
 
 ```bash
@@ -650,6 +652,13 @@ bd close myproject-a1b2
 **"dolt: this binary was built without CGO support"**
 - Reinstall beads with CGO flags (see Installation Step 1)
 - Ensure ICU headers are installed: `brew install icu4c`
+
+**"invalid database name: beads_Your Project" (spaces in project path)**
+- Beads v0.59+ rejects database names with spaces (derived from the project directory name)
+- Rename the Dolt database directory: `mv .beads/dolt/"beads_Your Project" .beads/dolt/beads_Your_Project`
+- Update `.beads/metadata.json`: change `"dolt_database"` to match the new name (underscores)
+- Restart the Dolt server: `bd dolt stop && bd dolt start`
+- Run `bd doctor --fix` to clean up any remaining issues
 
 **MCP server not showing**
 - Verify `claude_desktop_config.json` has `mcpServers.beads`

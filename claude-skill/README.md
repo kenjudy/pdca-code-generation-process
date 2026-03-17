@@ -41,6 +41,24 @@ Choose the package that matches your workflow:
 
 ---
 
+## Building from Source
+
+**Required before installation.** The `.skill` files are not included in the repository and must be built locally first.
+
+**macOS/Linux:**
+```bash
+cd claude-skill
+./build-skill.sh
+```
+
+**Windows:**
+```powershell
+cd claude-skill
+.\build-skill.ps1
+```
+
+This generates `pdca-framework.skill` and `pdca-framework-beads.skill` from the source prompts. See [BUILD.md](BUILD.md) for full details, including troubleshooting and CI/CD automation.
+
 ## Installation
 
 **Important:** Claude.ai (web/desktop) and Claude Code (CLI) use different installation methods.
@@ -49,24 +67,30 @@ Choose the package that matches your workflow:
 
 The `.skill` file format is designed for Claude.ai:
 
-1. **Download the skill file**
-   - Get `pdca-framework.skill` from this repository
+1. **Choose your package**
+   - `pdca-framework.skill` - Standard (recommended for most users)
+   - `pdca-framework-beads.skill` - With beads integration (requires setup)
 
-2. **Open Claude Settings**
+2. **Download the skill file**
+   - Get your chosen package from this repository
+
+3. **Open Claude Settings**
    - Click your profile icon (top right)
    - Select "Settings" or "Preferences"
 
-3. **Navigate to Skills**
+4. **Navigate to Skills**
    - Find the "Skills" or "Custom Skills" section
    - Click "Add Skill" or "Upload Skill"
 
-4. **Upload the skill**
-   - Select the `pdca-framework.skill` file
+5. **Upload the skill**
+   - Select your downloaded `.skill` file
    - Confirm the upload
 
-5. **Verify installation**
+6. **Verify installation**
    - The skill should appear in your skills list
    - Status should show as "Active" or "Enabled"
+
+**Note:** If you chose the beads package, see [Beads Integration](#beads-integration) for additional setup steps.
 
 ### For Claude Code (Command Line)
 
@@ -74,14 +98,18 @@ Claude Code uses a **directory-based** skill format, not the `.skill` package fi
 
 #### Quick Install (Recommended)
 
-Use the installation script for automatic setup:
+Use the installation script for automatic setup. The script will ask you to choose between Standard and Beads packages:
 
 **macOS/Linux (Bash):**
 ```bash
 # From the claude-skill directory
 ./install-skill.sh
 
-# Or specify installation type:
+# The script will prompt:
+# 1. Which package? (1 for Standard, 2 for Beads)
+# 2. Installation scope (automatically detects, or specify below)
+
+# Optional: Specify scope as argument
 ./install-skill.sh personal   # Install to ~/.claude/skills/ (default)
 ./install-skill.sh project    # Install to current project's .claude/skills/
 ```
@@ -91,7 +119,9 @@ Use the installation script for automatic setup:
 # From the claude-skill directory
 .\install-skill.ps1
 
-# Or specify installation type:
+# The script will prompt for package selection
+
+# Optional: Specify scope as argument
 .\install-skill.ps1 personal   # Install to ~/.claude/skills/ (default)
 .\install-skill.ps1 project    # Install to current project's .claude/skills/
 ```
@@ -446,6 +476,196 @@ HUMAN COMMITMENTS
 ```
 
 Print this card and keep it visible during coding sessions!
+
+---
+
+## Beads Integration
+
+**For users of `pdca-framework-beads.skill` only**
+
+The beads-enhanced skill adds persistent task tracking across sessions. All beads commands in the prompts are **optional** - the skill works with or without beads installed.
+
+### Understanding Global Skill vs. Per-Project Beads
+
+**Important distinction:**
+
+| Component | Location | Scope | Purpose |
+|-----------|----------|-------|---------|
+| **Skill Installation** | `~/.claude/skills/pdca-framework-beads/` | Global | PDCA prompts available in all projects |
+| **Beads Database** | `.beads/` in each project root | Per-Project | Task tracking for THAT project only |
+
+**You install the skill once globally, but initialize beads separately in each project.**
+
+**Why per-project beads?**
+- PDCA cycles are project-specific (features, bugs, experiments for that codebase)
+- Retrospectives make sense in project context ("How did auth work in THIS app?")
+- Searching is more relevant: `bd list --closed` shows THIS project's history
+- Team collaboration: Commit `.beads/issues.jsonl` to share retrospectives with teammates
+- Clean separation: No mixing dashboard tasks with unrelated projects
+
+**Why NOT one global beads database?**
+- Searching "authentication retrospectives" would return ALL projects (too noisy)
+- Epic/task organization becomes confusing across codebases
+- Can't scope queries to relevant work
+- Can't share project-specific retrospectives via git
+
+**The architecture:**
+1. Install skill globally (once) → prompts available everywhere
+2. Initialize beads per-project → task tracking scoped to that project
+3. When working in a project, the global skill prompts guide you to use that project's local `.beads/` database
+
+### Prerequisites
+
+**System Requirements:**
+```bash
+# Required
+brew install go icu4c dolt
+
+# Verify versions
+go version    # Should be 1.23+
+dolt version  # Should be 1.80+
+```
+
+### Installation Steps
+
+#### 1. Install Beads CLI
+
+```bash
+# Set ICU paths for compilation
+ICU_PATH=$(brew --prefix icu4c@78)
+export CGO_CFLAGS="-I${ICU_PATH}/include"
+export CGO_CXXFLAGS="-I${ICU_PATH}/include"
+export CGO_LDFLAGS="-L${ICU_PATH}/lib"
+
+# Install beads with CGO support
+CGO_ENABLED=1 go install github.com/steveyegge/beads/cmd/bd@latest
+
+# Add to PATH (add to ~/.bashrc or ~/.zshrc)
+export PATH="$HOME/go/bin:$PATH"
+
+# Verify installation
+bd --version
+```
+
+**⚠️ Always use this CGO build method to upgrade beads.** The `curl | bash` install script that `bd doctor` recommends installs a prebuilt binary *without* CGO support. That binary cannot open the Dolt database and will break beads entirely. To upgrade: re-run the `CGO_ENABLED=1 go install` command above.
+
+#### 2. Install Beads MCP Server (Optional but Recommended)
+
+```bash
+# Install beads MCP server
+pip3 install beads-mcp
+
+# Configure in Claude Desktop/Code
+# Add to ~/Library/Application Support/Claude/claude_desktop_config.json:
+{
+  "mcpServers": {
+    "beads": {
+      "command": "beads-mcp"
+    }
+  }
+}
+
+# Restart Claude Desktop/Code after configuration
+```
+
+#### 3. Initialize Beads Per-Project (Repeat for Each Project)
+
+**Important:** Run this in EACH project where you want beads tracking, not just once globally.
+
+```bash
+# Navigate to your project
+cd /path/to/your/project
+
+# Initialize beads (creates .beads/ in THIS project)
+bd init
+
+# Created: .beads/ directory (local to this project)
+```
+
+**Example:** If you work on 3 projects:
+```bash
+cd ~/Projects/dashboard && bd init      # Creates ~/Projects/dashboard/.beads/
+cd ~/Projects/api && bd init            # Creates ~/Projects/api/.beads/
+cd ~/Projects/frontend && bd init       # Creates ~/Projects/frontend/.beads/
+```
+
+Each project gets its own independent beads database for tracking its PDCA cycles.
+
+#### 4. Add .beads/ to .gitignore
+
+```bash
+# Track issues.jsonl and config.yaml, exclude binary dolt database
+echo ".beads/*" >> .gitignore
+echo "!.beads/issues.jsonl" >> .gitignore
+echo "!.beads/config.yaml" >> .gitignore
+```
+
+**Note:** Use `.beads/*` (not `.beads/`) so git negation rules can selectively track specific files inside the directory.
+
+### Using Beads with PDCA
+
+Each PDCA phase includes optional beads sections in the prompts. Example workflow:
+
+**PLAN Phase:**
+```bash
+# Create epic for this PDCA cycle
+bd create "Feature: Add user authentication" --type epic
+# Returns: myproject-a1b2
+```
+
+**DO Phase:**
+```bash
+# Track each TDD step
+bd create "Step 1: Write failing test for JWT middleware" --parent myproject-a1b2
+bd update myproject-a1b2.1 --claim --status in_progress
+
+# After tests pass
+bd close myproject-a1b2.1 --message "✓ Tests pass, committed abc123"
+```
+
+**CHECK Phase:**
+```bash
+# Verify all tasks complete
+bd list --parent myproject-a1b2 --status open,in_progress
+```
+
+**ACT Phase:**
+```bash
+# Store retrospective
+bd update myproject-a1b2 --add-message "Retrospective: TDD kept scope focused..."
+bd close myproject-a1b2
+```
+
+### Benefits of Beads Integration
+
+- **Cross-session continuity**: Resume work days/weeks later with `bd show <epic-id>`
+- **Dependency tracking**: `bd dep add <task> <blocker> blocks`
+- **Searchable retrospectives**: `bd list --closed --type epic | grep auth`
+- **Git-backed audit trail**: Issues committed as `.beads/issues.jsonl` (travels with your repo)
+
+### Troubleshooting Beads
+
+**"bd: command not found"**
+- Add `$HOME/go/bin` to your PATH
+- Verify installation: `ls ~/go/bin/bd`
+
+**"dolt: this binary was built without CGO support"**
+- Reinstall beads with CGO flags (see Installation Step 1)
+- Ensure ICU headers are installed: `brew install icu4c`
+
+**"invalid database name: beads_Your Project" (spaces in project path)**
+- Beads v0.59+ rejects database names with spaces (derived from the project directory name)
+- Rename the Dolt database directory: `mv .beads/dolt/"beads_Your Project" .beads/dolt/beads_Your_Project`
+- Update `.beads/metadata.json`: change `"dolt_database"` to match the new name (underscores)
+- Restart the Dolt server: `bd dolt stop && bd dolt start`
+- Run `bd doctor --fix` to clean up any remaining issues
+
+**MCP server not showing**
+- Verify `claude_desktop_config.json` has `mcpServers.beads`
+- Restart Claude Desktop/Code completely
+- Check for MCP errors in Claude logs
+
+For detailed beads integration guide, see: `references/beads-integration.md` in the beads skill package.
 
 ---
 

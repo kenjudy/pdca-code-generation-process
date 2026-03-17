@@ -25,5 +25,3 @@ claude-skill/temp_package/
 # Dolt database files (added by bd init)
 .dolt/
 *.db
-
-

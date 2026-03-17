@@ -14,6 +14,7 @@ _DS_Store
 # Build artifacts (generated files - not committed)
 claude-skill/src/references/
 claude-skill/pdca-framework.skill
+claude-skill/pdca-framework-beads.skill
 claude-skill/temp_package/
 
 # Beads database (local task tracking - not committed)

@@ -128,6 +128,14 @@ If available run this prompt in "Planning" mode.
 - Implement minimal code to pass tests. Max 3 iterations to green
 - Summarize outcome and refactoring needs providing a commit message. Wait for approval before proceeding
 
+**Preparatory Refactoring (if needed):**
+
+Before behavioral steps begin, identify any structural cleanup required to make the feature change easy:
+- [ ] Does any existing code need to be extracted, renamed, or reorganized to cleanly accommodate this change?
+- [ ] If yes: list these as explicit first steps in the plan, tagged `refactor:` commits, before any `feat:` steps
+- [ ] Preparatory refactoring steps must leave all existing tests passing — no behavioral change
+- [ ] If none needed: explicitly confirm structure is ready as-is
+
 **Opportunities for Batched TDD:**
 
 - Group related functionality into logical batches for pattern reuse

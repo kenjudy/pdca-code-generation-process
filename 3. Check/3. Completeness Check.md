@@ -28,6 +28,11 @@ Review our original goal outcome and plan against our execution.
 - [ ] Simple test scenarios were effective
 
 
+**Structural Review:**
+- [ ] What structural improvements did this implementation reveal? (discovered during Do only — no speculative cleanup)
+- [ ] If identified: implement as separate `refactor:` commits with all tests still passing
+- [ ] If none: confirm scope is structurally clean
+
 **Status:** [Complete/Needs work]
 **Outstanding items:** [any remaining tasks]
 **Ready to close:** [Yes/No with reasoning]

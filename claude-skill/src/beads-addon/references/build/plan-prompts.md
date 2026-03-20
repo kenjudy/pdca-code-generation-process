@@ -120,13 +120,11 @@ If available run this prompt in "Planning" mode.
 - Plan backward compatibility approach
 - Consider file organization and naming consistency
 
-**Testing Strategy:** Test Drive atomic changes to production code using red/green strategy
+**Testing Strategy:** Implementation follows TDD discipline — one failing test at a time. See DO phase for execution rules.
 
-- Break the work into atomic, incremental changes
-- For each task or batch: write failing test(s) with clear behavioral expectations that drive code changes needed
-- Compilation ≠ Red phase - Write compiling stubs first, then test actual behavior expectations, not symbol existence
-- Implement minimal code to pass tests. Max 3 iterations to green
-- Summarize outcome and refactoring needs providing a commit message. Wait for approval before proceeding
+- Break the work into atomic, testable increments — one behavior per step
+- For each step, identify the behavioral expectation to be verified (not implementation details)
+- Build a test list: enumerate all behaviors to verify (golden path, degenerate cases, exceptions) as a planning artifact — execution is always one test at a time
 
 **Preparatory Refactoring (if needed):**
 
@@ -135,12 +133,6 @@ Before behavioral steps begin, identify any structural cleanup required to make 
 - [ ] If yes: list these as explicit first steps in the plan, tagged `refactor:` commits, before any `feat:` steps
 - [ ] Preparatory refactoring steps must leave all existing tests passing — no behavioral change
 - [ ] If none needed: explicitly confirm structure is ready as-is
-
-**Opportunities for Batched TDD:**
-
-- Group related functionality into logical batches for pattern reuse
-- Write failing tests for batch components together
-- Implement batch while maintaining red/green discipline
 
 **Multi-System Work:**
 
@@ -158,9 +150,7 @@ Before behavioral steps begin, identify any structural cleanup required to make 
 
 **Process Checkpoints:**
 
-- Verify adherence to chosen testing strategy
-- Each step: Confirm appropriate test coverage exists
-- Complexity check: If tests become complex, simplify the step
+- Complexity check: If a step feels too large to test atomically, split it
 - Model match verification: Is the tagged model appropriate for actual complexity encountered?
 
 ```

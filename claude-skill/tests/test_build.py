@@ -462,6 +462,19 @@ class TestHookInfrastructure(unittest.TestCase):
             self.skipTest("run-tests.sh not found")
         self.assertTrue(os.access(script, os.X_OK), "run-tests.sh must be executable")
 
+    def test_run_evals_script_is_executable(self):
+        script = CLAUDE_SKILL_DIR / "run-evals.sh"
+        if not script.exists():
+            self.skipTest("run-evals.sh not found")
+        self.assertTrue(os.access(script, os.X_OK), "run-evals.sh must be executable")
+
+    def test_run_evals_script_uses_eval_marker(self):
+        script = CLAUDE_SKILL_DIR / "run-evals.sh"
+        if not script.exists():
+            self.skipTest("run-evals.sh not found")
+        content = script.read_text()
+        self.assertIn("-m eval", content, "run-evals.sh must filter tests with -m eval marker")
+
     def test_pre_commit_hook_template_exists(self):
         self.assertTrue(
             (REPO_ROOT / "hooks" / "pre-commit").exists(),

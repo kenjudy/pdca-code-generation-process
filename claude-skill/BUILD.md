@@ -385,23 +385,29 @@ cd ..
 
 Usage: `build.bat`
 
-## Version Management
+## Releasing a New Version
 
-Consider versioning your skill builds:
+Releases are automated via `.github/workflows/release.yml`. Pushing a semver tag
+triggers the workflow: it runs tests, builds the skill, and publishes a GitHub Release
+with `pdca-framework.skill` attached as a downloadable artifact.
+
+**To cut a release:**
+
+1. Update the version in `README.md` (search for `v1.0.0`)
+2. Note the change in `PDCA-SKILL-CHANGELOG.md`
+3. Commit and push to main
+4. Tag and push:
 
 ```bash
-# In build-skill.sh, add version to filename
-VERSION="1.0.0"
-SKILL_FILE="$SCRIPT_DIR/pdca-framework-v${VERSION}.skill"
-```
-
-Or use git tags:
-
-```bash
-git tag v1.0.0
+git tag v1.x.x
 git push --tags
-# Build includes git tag in skill metadata
 ```
+
+The Action runs automatically. The release appears at:
+`https://github.com/kenjudy/pdca-code-generation-process/releases`
+
+The README's download link uses `/releases/latest/download/pdca-framework.skill` and
+resolves to the newest release automatically — no link update needed.
 
 ## Contributing
 

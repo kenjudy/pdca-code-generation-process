@@ -1,0 +1,42 @@
+name: Release PDCA Skill
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install test dependencies
+        run: uv sync --extra test
+        working-directory: claude-skill
+
+      - name: Run tests
+        run: bash claude-skill/run-tests.sh
+
+      - name: Build skill package
+        run: bash claude-skill/build-skill.sh
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: claude-skill/pdca-framework.skill
+          generate_release_notes: false
+          body: |
+            ## Install via Claude UI
+
+            1. Download `pdca-framework.skill` below
+            2. Go to claude.ai → **Customize** → **Skills** → **Add Skill**
+            3. Upload the file and toggle it on
+
+            See the [README](https://github.com/kenjudy/pdca-code-generation-process/blob/main/claude-skill/README.md) for full documentation.

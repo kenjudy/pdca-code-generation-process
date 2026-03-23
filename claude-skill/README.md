@@ -93,11 +93,9 @@ This generates `pdca-framework.skill` from the source prompts. See [BUILD.md](BU
 
 This is the primary distribution path — upload `pdca-framework.skill` directly in Claude's UI.
 
-1. **Build the skill file** (if you haven't already)
-   ```bash
-   cd claude-skill && bash build-skill.sh
-   ```
-   This produces `claude-skill/pdca-framework.skill`.
+1. **Download the skill file**
+   - [**Download pdca-framework.skill**](https://github.com/kenjudy/pdca-code-generation-process/releases/latest/download/pdca-framework.skill) (latest release)
+   - Or build from source: `cd claude-skill && bash build-skill.sh`
 
 2. **Open Claude Settings**
    - Go to [claude.ai](https://claude.ai) or open the Claude desktop app

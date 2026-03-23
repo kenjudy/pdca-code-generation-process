@@ -22,19 +22,21 @@ SKILL_FILE = CLAUDE_SKILL_DIR / "pdca-framework.skill"
 SKILL_SRC = CLAUDE_SKILL_DIR / "src" / "core" / "SKILL.md"
 BEADS_ADDON_DIR = CLAUDE_SKILL_DIR / "src" / "beads-addon" / "sources"
 
+SKILL_NAME = "pdca-framework"
+
 EXPECTED_FILES = [
-    "SKILL.md",
-    "references/plan-prompts.md",
-    "references/do-prompts.md",
-    "references/check-prompts.md",
-    "references/act-prompts.md",
-    "references/working-agreements.md",
-    "references/plan-beads-addon.md",
-    "references/do-beads-addon.md",
-    "references/check-beads-addon.md",
-    "references/act-beads-addon.md",
-    "references/beads-setup.md",
-    "references/beads-workflow.md",
+    f"{SKILL_NAME}/SKILL.md",
+    f"{SKILL_NAME}/references/plan-prompts.md",
+    f"{SKILL_NAME}/references/do-prompts.md",
+    f"{SKILL_NAME}/references/check-prompts.md",
+    f"{SKILL_NAME}/references/act-prompts.md",
+    f"{SKILL_NAME}/references/working-agreements.md",
+    f"{SKILL_NAME}/references/plan-beads-addon.md",
+    f"{SKILL_NAME}/references/do-beads-addon.md",
+    f"{SKILL_NAME}/references/check-beads-addon.md",
+    f"{SKILL_NAME}/references/act-beads-addon.md",
+    f"{SKILL_NAME}/references/beads-setup.md",
+    f"{SKILL_NAME}/references/beads-workflow.md",
 ]
 
 MASTER_FILES = [
@@ -118,7 +120,8 @@ class TestSkillMdSource(unittest.TestCase):
         refs = re.findall(r"`(references/[^`]+\.md)`", self.content)
         for ref in refs:
             with self.subTest(ref=ref):
-                self.assertIn(ref, EXPECTED_FILES, f"SKILL.md references '{ref}' but it's not in EXPECTED_FILES")
+                qualified = f"{SKILL_NAME}/{ref}"
+                self.assertIn(qualified, EXPECTED_FILES, f"SKILL.md references '{ref}' but '{qualified}' is not in EXPECTED_FILES")
 
     def test_beads_references_are_optional(self):
         """All beads references must be either on a line with 'Optional' or inside
@@ -281,6 +284,16 @@ class TestSkillPackage(unittest.TestCase):
     def test_skill_file_is_valid_zip(self):
         self.assertTrue(zipfile.is_zipfile(SKILL_FILE), "pdca-framework.skill is not a valid zip")
 
+    def test_zip_has_wrapper_folder(self):
+        """Marketplace requirement: ZIP root must be a folder matching the skill name."""
+        names = zip_names(SKILL_FILE)
+        for name in names:
+            with self.subTest(entry=name):
+                self.assertTrue(
+                    name.startswith("pdca-framework/"),
+                    f"ZIP entry '{name}' is not inside the pdca-framework/ wrapper folder",
+                )
+
     def test_contains_exactly_expected_files(self):
         names = zip_names(SKILL_FILE)
         for expected in EXPECTED_FILES:
@@ -299,7 +312,7 @@ class TestSkillPackage(unittest.TestCase):
                 )
 
     def test_skill_md_in_package_under_500_lines(self):
-        content = read_zip_file(SKILL_FILE, "SKILL.md")
+        content = read_zip_file(SKILL_FILE, f"{SKILL_NAME}/SKILL.md")
         lines = content.splitlines()
         self.assertLessEqual(
             len(lines),
@@ -309,7 +322,7 @@ class TestSkillPackage(unittest.TestCase):
 
     def test_plan_prompts_contains_1a_content(self):
         """plan-prompts.md should include content from the 1a master."""
-        plan = read_zip_file(SKILL_FILE, "references/plan-prompts.md")
+        plan = read_zip_file(SKILL_FILE, f"{SKILL_NAME}/references/plan-prompts.md")
         master_1a = (REPO_ROOT / "1. Plan" / "1a Analyze to determine approach for achieving the goal.md").read_text()
         # Check a distinctive phrase from 1a is present
         first_meaningful_line = next(
@@ -323,7 +336,7 @@ class TestSkillPackage(unittest.TestCase):
 
     def test_plan_prompts_contains_1b_content(self):
         """plan-prompts.md should include content from the 1b master."""
-        plan = read_zip_file(SKILL_FILE, "references/plan-prompts.md")
+        plan = read_zip_file(SKILL_FILE, f"{SKILL_NAME}/references/plan-prompts.md")
         master_1b = (REPO_ROOT / "1. Plan" / "1b Create a detailed implementation plan.md").read_text()
         first_meaningful_line = next(
             l.strip() for l in master_1b.splitlines() if l.strip() and not l.startswith("#")
@@ -335,7 +348,7 @@ class TestSkillPackage(unittest.TestCase):
         )
 
     def test_do_prompts_matches_master(self):
-        packaged = read_zip_file(SKILL_FILE, "references/do-prompts.md")
+        packaged = read_zip_file(SKILL_FILE, f"{SKILL_NAME}/references/do-prompts.md")
         master = (REPO_ROOT / "2. Do" / "2. Test Drive the Change.md").read_text()
         master_stripped = master.split("## License & Attribution")[0]
         self.assertEqual(
@@ -345,7 +358,7 @@ class TestSkillPackage(unittest.TestCase):
         )
 
     def test_working_agreements_matches_master(self):
-        packaged = read_zip_file(SKILL_FILE, "references/working-agreements.md")
+        packaged = read_zip_file(SKILL_FILE, f"{SKILL_NAME}/references/working-agreements.md")
         master = (REPO_ROOT / "Human Working Agreements.md").read_text()
         master_stripped = master.split("## License & Attribution")[0]
         self.assertEqual(
@@ -357,12 +370,12 @@ class TestSkillPackage(unittest.TestCase):
     def test_beads_addon_files_match_source(self):
         """Beads addon files in package should match their source files exactly."""
         addon_map = {
-            "references/plan-beads-addon.md": BEADS_ADDON_DIR / "plan-beads-addon.md",
-            "references/do-beads-addon.md": BEADS_ADDON_DIR / "do-beads-addon.md",
-            "references/check-beads-addon.md": BEADS_ADDON_DIR / "check-beads-addon.md",
-            "references/act-beads-addon.md": BEADS_ADDON_DIR / "act-beads-addon.md",
-            "references/beads-setup.md": BEADS_ADDON_DIR / "beads-setup.md",
-            "references/beads-workflow.md": BEADS_ADDON_DIR / "beads-workflow.md",
+            f"{SKILL_NAME}/references/plan-beads-addon.md": BEADS_ADDON_DIR / "plan-beads-addon.md",
+            f"{SKILL_NAME}/references/do-beads-addon.md": BEADS_ADDON_DIR / "do-beads-addon.md",
+            f"{SKILL_NAME}/references/check-beads-addon.md": BEADS_ADDON_DIR / "check-beads-addon.md",
+            f"{SKILL_NAME}/references/act-beads-addon.md": BEADS_ADDON_DIR / "act-beads-addon.md",
+            f"{SKILL_NAME}/references/beads-setup.md": BEADS_ADDON_DIR / "beads-setup.md",
+            f"{SKILL_NAME}/references/beads-workflow.md": BEADS_ADDON_DIR / "beads-workflow.md",
         }
         for pkg_path, src_path in addon_map.items():
             with self.subTest(file=pkg_path):
@@ -378,12 +391,13 @@ class TestSkillPackage(unittest.TestCase):
 
     def test_all_skill_md_references_resolvable(self):
         """Every references/xxx.md link in packaged SKILL.md must exist in the zip."""
-        skill_content = read_zip_file(SKILL_FILE, "SKILL.md")
+        skill_content = read_zip_file(SKILL_FILE, f"{SKILL_NAME}/SKILL.md")
         refs = re.findall(r"`(references/[^`]+\.md)`", skill_content)
         names = zip_names(SKILL_FILE)
         for ref in refs:
             with self.subTest(ref=ref):
-                self.assertIn(ref, names, f"SKILL.md references '{ref}' but it's not in the package")
+                qualified = f"{SKILL_NAME}/{ref}"
+                self.assertIn(qualified, names, f"SKILL.md references '{ref}' but '{qualified}' is not in the package")
 
     def test_no_empty_files(self):
         with zipfile.ZipFile(SKILL_FILE) as zf:
@@ -399,11 +413,11 @@ class TestSkillPackage(unittest.TestCase):
         """License & Attribution blocks must not appear in built prompt files.
         They add ~760 tokens of in-context overhead with no value to Claude."""
         prompt_files = [
-            "references/plan-prompts.md",
-            "references/do-prompts.md",
-            "references/check-prompts.md",
-            "references/act-prompts.md",
-            "references/working-agreements.md",
+            f"{SKILL_NAME}/references/plan-prompts.md",
+            f"{SKILL_NAME}/references/do-prompts.md",
+            f"{SKILL_NAME}/references/check-prompts.md",
+            f"{SKILL_NAME}/references/act-prompts.md",
+            f"{SKILL_NAME}/references/working-agreements.md",
         ]
         for pkg_path in prompt_files:
             with self.subTest(file=pkg_path):

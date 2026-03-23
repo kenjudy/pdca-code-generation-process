@@ -134,25 +134,30 @@ if [ ! -f "$CORE_DIR/SKILL.md" ]; then
 fi
 
 echo -e "${BLUE}Creating pdca-framework.skill package...${NC}"
-cd "$CORE_DIR"
+# Marketplace requirement: ZIP root folder must match the skill name.
+# Build by zipping from SRC_DIR with core/ renamed to pdca-framework/.
 SKILL_FILE="$SCRIPT_DIR/pdca-framework.skill"
 [ -f "$SKILL_FILE" ] && rm "$SKILL_FILE"
 
+# Temporarily symlink core/ -> pdca-framework/ so zip picks up the right folder name
+ln -s "$CORE_DIR" "$SRC_DIR/pdca-framework"
+cd "$SRC_DIR"
 zip -r "$SKILL_FILE" \
-    SKILL.md \
-    references/plan-prompts.md \
-    references/do-prompts.md \
-    references/check-prompts.md \
-    references/act-prompts.md \
-    references/working-agreements.md \
-    references/plan-beads-addon.md \
-    references/do-beads-addon.md \
-    references/check-beads-addon.md \
-    references/act-beads-addon.md \
-    references/beads-setup.md \
-    references/beads-workflow.md \
+    pdca-framework/SKILL.md \
+    pdca-framework/references/plan-prompts.md \
+    pdca-framework/references/do-prompts.md \
+    pdca-framework/references/check-prompts.md \
+    pdca-framework/references/act-prompts.md \
+    pdca-framework/references/working-agreements.md \
+    pdca-framework/references/plan-beads-addon.md \
+    pdca-framework/references/do-beads-addon.md \
+    pdca-framework/references/check-beads-addon.md \
+    pdca-framework/references/act-beads-addon.md \
+    pdca-framework/references/beads-setup.md \
+    pdca-framework/references/beads-workflow.md \
     -x "*.DS_Store" \
     -q
+rm "$SRC_DIR/pdca-framework"
 
 cd "$SCRIPT_DIR"
 

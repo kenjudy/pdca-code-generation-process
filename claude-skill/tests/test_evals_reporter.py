@@ -1,0 +1,119 @@
+"""Unit tests for eval.reporter — no API calls, no pytest markers."""
+
+from pathlib import Path
+from eval.mechanical import CheckResult
+from eval.reporter import EvalReporter
+
+
+def _make_result(
+    scenario_id="1a-clear-goal",
+    prompt_id="1a",
+    geval_score=0.8,
+    geval_passed=True,
+    geval_threshold=0.5,
+    geval_reason="Response correctly enforces STOP CONDITION.",
+    mechanical_pass=True,
+):
+    return {
+        "scenario_id": scenario_id,
+        "prompt_id": prompt_id,
+        "input": "Add rate limiting to our Rails API.",
+        "output": "STOP CONDITION: I need to search the codebase first.",
+        "mechanical": [
+            CheckResult(
+                field="must_contain: 'STOP CONDITION'",
+                passed=mechanical_pass,
+                detail="'STOP CONDITION' found in output" if mechanical_pass else "'STOP CONDITION' NOT found in output",
+            )
+        ],
+        "geval_score": geval_score,
+        "geval_reason": geval_reason,
+        "geval_threshold": geval_threshold,
+        "geval_passed": geval_passed,
+    }
+
+
+class TestEvalReporter:
+
+    def test_add_and_count(self):
+        reporter = EvalReporter()
+        assert len(reporter.results) == 0
+        reporter.add(_make_result())
+        assert len(reporter.results) == 1
+
+    def test_write_report_creates_file(self, tmp_path):
+        reporter = EvalReporter()
+        reporter.add(_make_result())
+        path = tmp_path / "report.md"
+        reporter.write_report(path)
+        assert path.exists()
+
+    def test_report_contains_summary_table(self, tmp_path):
+        reporter = EvalReporter()
+        reporter.add(_make_result())
+        path = tmp_path / "report.md"
+        reporter.write_report(path)
+        content = path.read_text()
+        assert "## Summary" in content
+        assert "1a-clear-goal" in content
+
+    def test_report_shows_geval_score(self, tmp_path):
+        reporter = EvalReporter()
+        reporter.add(_make_result(geval_score=0.85))
+        path = tmp_path / "report.md"
+        reporter.write_report(path)
+        assert "0.85" in path.read_text()
+
+    def test_report_shows_pass_fail_icons(self, tmp_path):
+        reporter = EvalReporter()
+        reporter.add(_make_result(geval_passed=True, mechanical_pass=True))
+        reporter.add(_make_result(scenario_id="1a-vague-goal", geval_passed=False, mechanical_pass=False))
+        path = tmp_path / "report.md"
+        reporter.write_report(path)
+        content = path.read_text()
+        assert "✅" in content
+        assert "❌" in content
+
+    def test_report_contains_judge_reasoning(self, tmp_path):
+        reporter = EvalReporter()
+        reporter.add(_make_result(geval_reason="Response correctly enforces STOP CONDITION."))
+        path = tmp_path / "report.md"
+        reporter.write_report(path)
+        assert "Response correctly enforces STOP CONDITION." in path.read_text()
+
+    def test_report_contains_model_output(self, tmp_path):
+        reporter = EvalReporter()
+        reporter.add(_make_result())
+        path = tmp_path / "report.md"
+        reporter.write_report(path)
+        assert "STOP CONDITION: I need to search the codebase first." in path.read_text()
+
+    def test_report_contains_mechanical_check_detail(self, tmp_path):
+        reporter = EvalReporter()
+        reporter.add(_make_result(mechanical_pass=False))
+        path = tmp_path / "report.md"
+        reporter.write_report(path)
+        assert "NOT found in output" in path.read_text()
+
+    def test_report_contains_phase_names(self, tmp_path):
+        reporter = EvalReporter()
+        reporter.add(_make_result(prompt_id="1a"))
+        reporter.add(_make_result(scenario_id="2-first-step", prompt_id="2"))
+        path = tmp_path / "report.md"
+        reporter.write_report(path)
+        content = path.read_text()
+        assert "Analysis" in content
+        assert "TDD Implementation" in content
+
+    def test_write_report_returns_path(self, tmp_path):
+        reporter = EvalReporter()
+        reporter.add(_make_result())
+        path = tmp_path / "report.md"
+        returned = reporter.write_report(path)
+        assert returned == path
+
+    def test_empty_reporter_writes_report(self, tmp_path):
+        reporter = EvalReporter()
+        path = tmp_path / "report.md"
+        reporter.write_report(path)
+        assert path.exists()

@@ -8,18 +8,22 @@ Run with:
 
 Do NOT run in CI — they are excluded from the default test suite via the
 `eval` pytest marker.
+
+Results are written to eval/results/report_<timestamp>.md after each run.
 """
 
 import json
-import pytest
+from datetime import datetime
 from pathlib import Path
 
+import pytest
 from deepeval.metrics import GEval
 from deepeval.models import AnthropicModel
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 
 from eval.executor import run_phase
 from eval.mechanical import check_mechanical
+from eval.reporter import EvalReporter
 from eval.rubrics.rubric_1a import CRITERIA as CRITERIA_1A, THRESHOLD as THRESHOLD_1A
 from eval.rubrics.rubric_1b import CRITERIA as CRITERIA_1B, THRESHOLD as THRESHOLD_1B
 from eval.rubrics.rubric_2 import CRITERIA as CRITERIA_2, THRESHOLD as THRESHOLD_2
@@ -33,6 +37,7 @@ pytestmark = pytest.mark.eval
 CLAUDE_SKILL_DIR = Path(__file__).parent.parent
 SCENARIOS_DIR = CLAUDE_SKILL_DIR / "eval" / "scenarios"
 PHASE_PROMPTS_DIR = CLAUDE_SKILL_DIR / "src" / "core" / "references"
+RESULTS_DIR = CLAUDE_SKILL_DIR / "eval" / "results"
 
 PROMPT_FILE = {
     "1a": "plan-prompts.md",
@@ -44,14 +49,12 @@ PROMPT_FILE = {
 
 
 def load_scenarios(prompt_id: str) -> list[dict]:
-    """Load scenarios for a given prompt_id from the scenarios directory."""
     scenario_file = SCENARIOS_DIR / f"{prompt_id}_scenarios.json"
     with open(scenario_file) as f:
         return json.load(f)
 
 
 def _rubric_for_prompt(prompt_id: str) -> tuple[str, float]:
-    """Return (criteria_text, threshold) for a given prompt_id."""
     rubrics = {
         "1a": (CRITERIA_1A, THRESHOLD_1A),
         "1b": (CRITERIA_1B, THRESHOLD_1B),
@@ -65,7 +68,6 @@ def _rubric_for_prompt(prompt_id: str) -> tuple[str, float]:
 
 
 def _run_scenario(scenario: dict) -> dict:
-    """Run executor + mechanical + GEval for one scenario. Returns result dict."""
     prompt_id = scenario["prompt_id"]
     phase_prompt_path = PHASE_PROMPTS_DIR / PROMPT_FILE[prompt_id]
 
@@ -85,55 +87,93 @@ def _run_scenario(scenario: dict) -> dict:
 
     return {
         "scenario_id": scenario["scenario_id"],
+        "prompt_id": prompt_id,
+        "input": scenario["input"],
         "output": output,
         "mechanical": mechanical_results,
         "geval_score": metric.score,
+        "geval_reason": getattr(metric, "reason", None),
+        "geval_threshold": threshold,
         "geval_passed": metric.is_successful(),
     }
 
 
-def _assert_result_shape(result: dict) -> None:
-    assert result is not None, "eval harness must not error"
-    assert "mechanical" in result
-    assert "geval_score" in result
-    assert isinstance(result["geval_score"], float)
+# ---------------------------------------------------------------------------
+# Session fixtures
+# ---------------------------------------------------------------------------
 
+@pytest.fixture(scope="session")
+def reporter():
+    return EvalReporter()
+
+
+@pytest.fixture(autouse=True, scope="session")
+def write_report(reporter):
+    yield
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    report_path = reporter.write_report(RESULTS_DIR / f"report_{timestamp}.md")
+    print(f"\nEval report: {report_path}")
+
+
+# ---------------------------------------------------------------------------
+# Shared assertion helper
+# ---------------------------------------------------------------------------
+
+def _assert_and_store(scenario: dict, reporter: EvalReporter) -> None:
+    result = _run_scenario(scenario)
+    reporter.add(result)
+
+    mech_failures = [c for c in result["mechanical"] if not c.passed]
+    assert not mech_failures, (
+        f"[{result['scenario_id']}] Mechanical checks failed:\n"
+        + "\n".join(f"  - {c.detail}" for c in mech_failures)
+    )
+    assert result["geval_passed"], (
+        f"[{result['scenario_id']}] GEval score {result['geval_score']:.2f} "
+        f"below threshold {result['geval_threshold']:.2f}.\n"
+        f"  Reason: {result.get('geval_reason')}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Test classes
+# ---------------------------------------------------------------------------
 
 class TestPrompt1aEvals:
     """End-to-end LLM eval for PDCA prompt 1a (Analysis Phase)."""
 
     @pytest.mark.parametrize("scenario", load_scenarios("1a"), ids=lambda s: s["scenario_id"])
-    def test_1a_scenario(self, scenario):
-        _assert_result_shape(_run_scenario(scenario))
+    def test_1a_scenario(self, scenario, reporter):
+        _assert_and_store(scenario, reporter)
 
 
 class TestPrompt1bEvals:
     """End-to-end LLM eval for PDCA prompt 1b (Planning Phase)."""
 
     @pytest.mark.parametrize("scenario", load_scenarios("1b"), ids=lambda s: s["scenario_id"])
-    def test_1b_scenario(self, scenario):
-        _assert_result_shape(_run_scenario(scenario))
+    def test_1b_scenario(self, scenario, reporter):
+        _assert_and_store(scenario, reporter)
 
 
 class TestPrompt2Evals:
     """End-to-end LLM eval for PDCA prompt 2 (DO / TDD Implementation)."""
 
     @pytest.mark.parametrize("scenario", load_scenarios("2"), ids=lambda s: s["scenario_id"])
-    def test_2_scenario(self, scenario):
-        _assert_result_shape(_run_scenario(scenario))
+    def test_2_scenario(self, scenario, reporter):
+        _assert_and_store(scenario, reporter)
 
 
 class TestPrompt3Evals:
     """End-to-end LLM eval for PDCA prompt 3 (Check Phase)."""
 
     @pytest.mark.parametrize("scenario", load_scenarios("3"), ids=lambda s: s["scenario_id"])
-    def test_3_scenario(self, scenario):
-        _assert_result_shape(_run_scenario(scenario))
+    def test_3_scenario(self, scenario, reporter):
+        _assert_and_store(scenario, reporter)
 
 
 class TestPrompt4Evals:
     """End-to-end LLM eval for PDCA prompt 4 (Act / Retrospection)."""
 
     @pytest.mark.parametrize("scenario", load_scenarios("4"), ids=lambda s: s["scenario_id"])
-    def test_4_scenario(self, scenario):
-        _assert_result_shape(_run_scenario(scenario))
+    def test_4_scenario(self, scenario, reporter):
+        _assert_and_store(scenario, reporter)

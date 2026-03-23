@@ -18,6 +18,9 @@ _DS_Store
 .env
 .deepeval/
 
+# Eval reports (local run artifacts - not committed)
+claude-skill/eval/results/
+
 # Build artifacts (generated files - not committed)
 claude-skill/src/references/
 claude-skill/src/core/references/

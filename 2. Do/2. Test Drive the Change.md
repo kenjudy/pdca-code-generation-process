@@ -24,33 +24,49 @@ Try to add tests to existing fixtures where the tests fit coherently into the co
 **TDD Implementation**
 
 1. ❌ DON'T test interfaces - test concrete implementations
-2. ❌ DON'T use compilation errors as RED phase - use behavioral failures  
+2. ❌ DON'T use compilation errors as RED phase - use behavioral failures
 3. ✅ DO create stub implementations that compile but fail behaviorally
 4. ✅ DO use real components over mocks when possible
-   
+
    THIS MEANS: Compilation errors are not a valid red. A red test is when an invocation does not meet the expectation. So, that would imply the project can compile and the method stubs exist but the behavior is not fully implemented.
 
-**🚨 TDD DISCIPLINE CHECK 🚨**
-- [ ] Have I written a FAILING test first? (RED phase mandatory)
-- [ ] Am I implementing ONLY enough to make the test pass? (GREEN phase)
-- [ ] Is this test simple enough? (Complex scenarios → simplify first)
-- [ ] Am I using mocks when I should be using real components
-- [ ] Did I check how existing code handles this pattern?
+**🚨 CALLED SHOT — MANDATORY BEFORE EVERY TEST 🚨**
 
-**Integration Tests & Real-World Validation**
-- [ ] Default to real components + temporary resources
-- [ ] Question complex mocking: Ask "Why not use real File access with temporary directories?"
-- [ ] **CRITICAL**: Before implementing any external system integration, inspect actual system behavior/outputs first
-- [ ] Build end-to-end scaffolding early, not as an afterthought
-- [ ] Test against real data/systems before optimizing unit tests
-      
-  **When Unit Tests Can't Replicate Production Bugs:**
-  If you have production evidence (logs, metrics) proving a bug exists but unit tests pass:
-  - **Diagnosis:** Testing at wrong scope - unit test fixtures too small to trigger scale-dependent behavior
-  - **Solution 1 (PREFERRED):** Write integration test with realistic data scale (accept slower execution)
-  - **Solution 2 (ACCEPTABLE):** Write unit-level regression test AND document production evidence in test comments
-  - **Anti-pattern:** Never call it RED phase if test passes - be honest it's a regression test
-  - **Required:** Commit message must include production metrics showing bug before/after (node counts, file sizes, performance data)
+YOU MUST output all three before writing or running any test:
+- **Test name:** [descriptive name]
+- **Behavior under test:** [the observable behavior this verifies]
+- **Expected failure:** [exact assertion message or error expected when the test runs red]
+
+Run the test. If actual failure ≠ expected failure — STOP. Diagnose the mismatch before writing any production code. A test that fails differently than predicted is testing the wrong thing.
+
+**Test Sequencing**
+
+Work through behaviors in this order:
+1. **Degenerate/zero case first** — empty state, null input, no items (establishes the API)
+2. **1-2 exception cases** — invalid input, error conditions (defines the valid input contract before core logic)
+3. **Happy path incrementally** — simplest case first (Fake It), then generalize (Obvious Implementation)
+4. **Remaining exception cases** — those that require the established core to be meaningful
+
+Never stop with only happy path coverage. All cases must be on the test list from the start.
+
+**Test Scope — Which Level?**
+
+| Question | → |
+|---|---|
+| Can this behavior be verified without external dependencies? | Unit test |
+| Does it verify serialization, deserialization, or a system boundary? | Narrow integration test |
+| Is it a critical user journey not covered at a lower level? | E2E test |
+| Is it already covered at a lower level? | Don't duplicate it |
+
+Mock only at infrastructure boundaries (external services, filesystem, database). Do not mock internal collaborators — tests that mock internals break on refactoring and test implementation, not behavior.
+
+**When Unit Tests Can't Replicate Production Bugs:**
+If production evidence (logs, metrics) proves a bug exists but unit tests pass:
+- **Diagnosis:** Testing at wrong scope — unit test fixtures too small to trigger scale-dependent behavior
+- **Preferred:** Write integration test with realistic data scale (accept slower execution)
+- **Acceptable:** Write unit-level regression test AND document production evidence in test comments
+- **Anti-pattern:** Never call it RED phase if the test passes — be honest it's a regression test
+- **Required:** Commit message must include production metrics showing bug before/after
     
 **AI Command Transparency:**
 

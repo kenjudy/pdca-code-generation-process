@@ -161,6 +161,17 @@ class TestSkillMdSource(unittest.TestCase):
                 f"Description contains imperative '{phrase}' — must be third-person for marketplace compliance",
             )
 
+    def test_description_under_200_chars(self):
+        """Marketplace requirement: description field must be ≤200 characters."""
+        match = re.search(r"^description:\s*(.+)$", self.content, re.MULTILINE)
+        self.assertIsNotNone(match, "Could not parse description")
+        description = match.group(1).strip()
+        self.assertLessEqual(
+            len(description),
+            200,
+            f"Description is {len(description)} chars — marketplace limit is 200",
+        )
+
     def test_skill_md_retains_license(self):
         """SKILL.md is human-facing — its license block must be preserved."""
         self.assertIn(

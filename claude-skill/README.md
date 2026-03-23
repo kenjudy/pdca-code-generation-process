@@ -89,28 +89,35 @@ This generates `pdca-framework.skill` from the source prompts. See [BUILD.md](BU
 
 **Important:** Claude.ai (web/desktop) and Claude Code (CLI) use different installation methods.
 
-### For Claude.ai Web/Desktop App
+### For Claude.ai Web/Desktop App (Skill Upload)
 
-The `.skill` file format is designed for Claude.ai:
+This is the primary distribution path — upload `pdca-framework.skill` directly in Claude's UI.
 
-1. **Download the skill file**
-   - Get `pdca-framework.skill` from this repository
+1. **Build the skill file** (if you haven't already)
+   ```bash
+   cd claude-skill && bash build-skill.sh
+   ```
+   This produces `claude-skill/pdca-framework.skill`.
 
-3. **Open Claude Settings**
-   - Click your profile icon (top right)
-   - Select "Settings" or "Preferences"
+2. **Open Claude Settings**
+   - Go to [claude.ai](https://claude.ai) or open the Claude desktop app
+   - Click **Customize** in the left sidebar (or your profile menu)
+   - Select **Skills**
 
-4. **Navigate to Skills**
-   - Find the "Skills" or "Custom Skills" section
-   - Click "Add Skill" or "Upload Skill"
-
-5. **Upload the skill**
-   - Select your downloaded `.skill` file
+3. **Upload the skill**
+   - Click **Add Skill**
+   - Select `pdca-framework.skill`
    - Confirm the upload
 
-6. **Verify installation**
-   - The skill should appear in your skills list
-   - Status should show as "Active" or "Enabled"
+4. **Enable the skill**
+   - The skill appears in your skills list — toggle it on
+   - Verify it shows as active
+
+5. **Test activation** (see [Smoke Test](#smoke-test) below)
+
+> **Org/team distribution:** Enterprise and Team plan admins can provision skills for their
+> organization via the admin console. See Anthropic's
+> [Skills for organizations](https://support.claude.com) documentation.
 
 **Note:** To enable beads, see [Beads Integration](#beads-integration). The skill works without it.
 

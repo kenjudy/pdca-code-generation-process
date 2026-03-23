@@ -16,6 +16,7 @@ _DS_Store
 **/__pycache__/
 **/*.egg-info/
 .env
+.deepeval/
 
 # Build artifacts (generated files - not committed)
 claude-skill/src/references/

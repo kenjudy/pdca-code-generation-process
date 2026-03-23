@@ -62,6 +62,13 @@ echo -e "${GREEN}✓ All beads addon files found${NC}\n"
 # Create build directory
 mkdir -p "$CORE_DIR/references"
 
+# Strip license block from a file — removes "## License & Attribution" to EOF.
+# Source templates retain the block for GitHub/documentation; built files omit it
+# since the attribution text has no value to Claude in-context.
+strip_license() {
+    sed '/^## License & Attribution/,$ d' "$1"
+}
+
 # ═══════════════════════════════════════════════════════
 # BUILD BASE PROMPT FILES (from Obsidian masters)
 # ═══════════════════════════════════════════════════════
@@ -70,7 +77,7 @@ echo -e "${YELLOW}┌───────────────────�
 echo -e "${YELLOW}│  Building base prompt files from masters            │${NC}"
 echo -e "${YELLOW}└─────────────────────────────────────────────────────┘${NC}\n"
 
-# plan-prompts.md combines 1a and 1b masters
+# plan-prompts.md combines 1a and 1b masters (license stripped from both)
 echo -e "${BLUE}Building plan-prompts.md...${NC}"
 cat > "$CORE_DIR/references/plan-prompts.md" << 'EOF'
 # PLAN Phase: Analysis & Detailed Planning
@@ -80,25 +87,25 @@ This file contains prompts for both analysis (1a) and planning (1b) phases.
 ---
 
 EOF
-cat "$MASTER_1A" >> "$CORE_DIR/references/plan-prompts.md"
+strip_license "$MASTER_1A" >> "$CORE_DIR/references/plan-prompts.md"
 echo -e "\n---\n" >> "$CORE_DIR/references/plan-prompts.md"
-cat "$MASTER_1B" >> "$CORE_DIR/references/plan-prompts.md"
+strip_license "$MASTER_1B" >> "$CORE_DIR/references/plan-prompts.md"
 echo -e "${GREEN}✓ Built plan-prompts.md${NC}"
 
 echo -e "${BLUE}Building do-prompts.md...${NC}"
-cp "$MASTER_2" "$CORE_DIR/references/do-prompts.md"
+strip_license "$MASTER_2" > "$CORE_DIR/references/do-prompts.md"
 echo -e "${GREEN}✓ Built do-prompts.md${NC}"
 
 echo -e "${BLUE}Building check-prompts.md...${NC}"
-cp "$MASTER_3" "$CORE_DIR/references/check-prompts.md"
+strip_license "$MASTER_3" > "$CORE_DIR/references/check-prompts.md"
 echo -e "${GREEN}✓ Built check-prompts.md${NC}"
 
 echo -e "${BLUE}Building act-prompts.md...${NC}"
-cp "$MASTER_4" "$CORE_DIR/references/act-prompts.md"
+strip_license "$MASTER_4" > "$CORE_DIR/references/act-prompts.md"
 echo -e "${GREEN}✓ Built act-prompts.md${NC}"
 
 echo -e "${BLUE}Building working-agreements.md...${NC}"
-cp "$MASTER_WORKING_AGREEMENTS" "$CORE_DIR/references/working-agreements.md"
+strip_license "$MASTER_WORKING_AGREEMENTS" > "$CORE_DIR/references/working-agreements.md"
 echo -e "${GREEN}✓ Built working-agreements.md${NC}\n"
 
 # ═══════════════════════════════════════════════════════

@@ -147,6 +147,14 @@ class TestSkillMdSource(unittest.TestCase):
                         f"on its line or in its section heading ('{section.strip()}')",
                     )
 
+    def test_skill_md_retains_license(self):
+        """SKILL.md is human-facing — its license block must be preserved."""
+        self.assertIn(
+            "## License & Attribution",
+            self.content,
+            "SKILL.md license block was removed — it should be kept (human-facing)",
+        )
+
     def test_four_pdca_phases_documented(self):
         for phase in ["PLAN", "DO", "CHECK", "ACT"]:
             with self.subTest(phase=phase):
@@ -219,19 +227,21 @@ class TestSkillPackage(unittest.TestCase):
     def test_do_prompts_matches_master(self):
         packaged = read_zip_file(SKILL_FILE, "references/do-prompts.md")
         master = (REPO_ROOT / "2. Do" / "2. Test Drive the Change.md").read_text()
+        master_stripped = master.split("## License & Attribution")[0]
         self.assertEqual(
             packaged.strip(),
-            master.strip(),
-            "do-prompts.md content doesn't match master source",
+            master_stripped.strip(),
+            "do-prompts.md content doesn't match license-stripped master source",
         )
 
     def test_working_agreements_matches_master(self):
         packaged = read_zip_file(SKILL_FILE, "references/working-agreements.md")
         master = (REPO_ROOT / "Human Working Agreements.md").read_text()
+        master_stripped = master.split("## License & Attribution")[0]
         self.assertEqual(
             packaged.strip(),
-            master.strip(),
-            "working-agreements.md content doesn't match master source",
+            master_stripped.strip(),
+            "working-agreements.md content doesn't match license-stripped master source",
         )
 
     def test_beads_addon_files_match_source(self):
@@ -274,6 +284,26 @@ class TestSkillPackage(unittest.TestCase):
                         0,
                         f"Empty file in package: {info.filename}",
                     )
+
+    def test_license_stripped_from_prompt_files(self):
+        """License & Attribution blocks must not appear in built prompt files.
+        They add ~760 tokens of in-context overhead with no value to Claude."""
+        prompt_files = [
+            "references/plan-prompts.md",
+            "references/do-prompts.md",
+            "references/check-prompts.md",
+            "references/act-prompts.md",
+            "references/working-agreements.md",
+        ]
+        for pkg_path in prompt_files:
+            with self.subTest(file=pkg_path):
+                content = read_zip_file(SKILL_FILE, pkg_path)
+                self.assertNotIn(
+                    "## License & Attribution",
+                    content,
+                    f"{pkg_path} still contains a License & Attribution block — "
+                    "strip_license() should remove it at build time",
+                )
 
 
 class TestBuildScript(unittest.TestCase):

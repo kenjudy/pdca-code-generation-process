@@ -1,0 +1,43 @@
+#!/bin/bash
+# Canonical test runner for PDCA Framework Skill
+# Builds the skill package, then runs the test suite.
+# Used by: git pre-commit hook (warn-only) and GitHub Actions CI (enforcing).
+#
+# Exit codes:
+#   0 — tests passed (or --warn-only mode)
+#   1 — tests failed (default; CI uses this to block merges)
+#
+# Usage:
+#   bash run-tests.sh              # exit 1 on failure (CI mode)
+#   WARN_ONLY=1 bash run-tests.sh  # exit 0 always (hook mode)
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+WARN_ONLY="${WARN_ONLY:-0}"
+
+echo "=== Building PDCA Framework Skill ==="
+bash "$SCRIPT_DIR/build-skill.sh"
+
+echo ""
+echo "=== Running Test Suite ==="
+set +e
+python3 "$SCRIPT_DIR/tests/test_build.py" -v 2>&1
+TEST_EXIT=$?
+set -e
+
+if [ "$TEST_EXIT" -eq 0 ]; then
+    echo ""
+    echo "✓ All tests passed."
+    exit 0
+else
+    echo ""
+    echo "✗ Tests failed (exit $TEST_EXIT)."
+    if [ "$WARN_ONLY" = "1" ]; then
+        echo "  (warn-only mode — commit allowed)"
+        exit 0
+    else
+        exit 1
+    fi
+fi

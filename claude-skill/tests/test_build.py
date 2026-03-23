@@ -8,6 +8,7 @@ Or to run a fresh build before testing:
     bash build-skill.sh && python3 tests/test_build.py
 """
 
+import os
 import re
 import subprocess
 import sys
@@ -345,6 +346,80 @@ class TestBuildScript(unittest.TestCase):
         self.assertFalse(
             beads_skill.exists(),
             "build-skill.sh produced pdca-framework-beads.skill — it should only build one unified package",
+        )
+
+
+class TestHookInfrastructure(unittest.TestCase):
+    """Verify git hook infrastructure files exist and are correctly structured."""
+
+    def test_run_tests_script_exists(self):
+        self.assertTrue(
+            (CLAUDE_SKILL_DIR / "run-tests.sh").exists(),
+            "run-tests.sh missing — canonical test runner for hooks and CI",
+        )
+
+    def test_run_tests_script_is_executable(self):
+        script = CLAUDE_SKILL_DIR / "run-tests.sh"
+        if not script.exists():
+            self.skipTest("run-tests.sh not found")
+        self.assertTrue(os.access(script, os.X_OK), "run-tests.sh must be executable")
+
+    def test_pre_commit_hook_template_exists(self):
+        self.assertTrue(
+            (REPO_ROOT / "hooks" / "pre-commit").exists(),
+            "hooks/pre-commit template missing at repo root",
+        )
+
+    def test_pre_commit_hook_calls_run_tests(self):
+        hook = REPO_ROOT / "hooks" / "pre-commit"
+        if not hook.exists():
+            self.skipTest("hooks/pre-commit not found")
+        self.assertIn(
+            "run-tests.sh",
+            hook.read_text(),
+            "pre-commit hook must delegate to run-tests.sh",
+        )
+
+    def test_pre_commit_hook_exits_zero(self):
+        """Pre-commit hook must warn only (exit 0) — never block commits."""
+        hook = REPO_ROOT / "hooks" / "pre-commit"
+        if not hook.exists():
+            self.skipTest("hooks/pre-commit not found")
+        self.assertNotIn(
+            "exit 1",
+            hook.read_text(),
+            "pre-commit hook must exit 0 (warn-only) — use CI to enforce failures",
+        )
+
+    def test_install_hooks_script_exists(self):
+        self.assertTrue(
+            (REPO_ROOT / "install-hooks.sh").exists(),
+            "install-hooks.sh missing at repo root — needed to install hooks into .git/hooks/",
+        )
+
+    def test_github_actions_workflow_exists(self):
+        workflow = REPO_ROOT / ".github" / "workflows" / "test.yml"
+        self.assertTrue(
+            workflow.exists(),
+            ".github/workflows/test.yml missing — CI workflow required",
+        )
+
+    def test_github_actions_triggers_on_push_and_pr(self):
+        workflow = REPO_ROOT / ".github" / "workflows" / "test.yml"
+        if not workflow.exists():
+            self.skipTest(".github/workflows/test.yml not found")
+        content = workflow.read_text()
+        self.assertIn("push:", content, "Workflow missing 'push:' trigger")
+        self.assertIn("pull_request:", content, "Workflow missing 'pull_request:' trigger")
+
+    def test_github_actions_runs_test_suite(self):
+        workflow = REPO_ROOT / ".github" / "workflows" / "test.yml"
+        if not workflow.exists():
+            self.skipTest(".github/workflows/test.yml not found")
+        self.assertIn(
+            "run-tests.sh",
+            workflow.read_text(),
+            "Workflow must invoke run-tests.sh",
         )
 
 

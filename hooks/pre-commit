@@ -1,0 +1,9 @@
+#!/bin/bash
+# pre-commit hook: runs PDCA skill tests in warn-only mode.
+# Failures are reported but never block commits — CI enforces on push/PR.
+#
+# Installed via: bash install-hooks.sh
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+WARN_ONLY=1 bash "$REPO_ROOT/claude-skill/run-tests.sh"

@@ -113,8 +113,6 @@ This is the primary distribution path — upload `pdca-framework.skill` directly
    - The skill appears in your skills list — toggle it on
    - Verify it shows as active
 
-5. **Test activation** (see [Smoke Test](#smoke-test) below)
-
 > **Org/team distribution:** Enterprise and Team plan admins can provision skills for their
 > organization via the admin console. See Anthropic's
 > [Skills for organizations](https://support.claude.com) documentation.

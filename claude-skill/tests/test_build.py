@@ -178,6 +178,33 @@ class TestSkillMdSource(unittest.TestCase):
 README_FILE = CLAUDE_SKILL_DIR / "README.md"
 
 
+class TestProjectSetup(unittest.TestCase):
+    """Validate uv-based Python project infrastructure."""
+
+    def test_eval_pytest_marker_registered(self):
+        """pytest --markers must list the eval marker — confirms pyproject.toml registers it."""
+        result = subprocess.run(
+            ["python3", "-m", "pytest", "--markers"],
+            cwd=str(CLAUDE_SKILL_DIR),
+            capture_output=True,
+            text=True,
+        )
+        self.assertIn(
+            "@pytest.mark.eval",
+            result.stdout,
+            "pytest does not recognise 'eval' marker — add it to [tool.pytest.ini_options] in pyproject.toml",
+        )
+
+    def test_run_tests_script_uses_uv_runner(self):
+        """run-tests.sh must delegate to uv run pytest, not bare python3."""
+        script = CLAUDE_SKILL_DIR / "run-tests.sh"
+        self.assertIn(
+            "uv run",
+            script.read_text(),
+            "run-tests.sh must invoke 'uv run pytest', not bare 'python3'",
+        )
+
+
 class TestReadme(unittest.TestCase):
     """Validate README quality for marketplace distribution."""
 

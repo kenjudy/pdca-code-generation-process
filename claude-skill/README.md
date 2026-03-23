@@ -14,6 +14,31 @@ This skill provides a disciplined framework for AI-assisted code generation that
 
 ---
 
+## Development Setup
+
+**Requirements:** Python 3.11+, [uv](https://docs.astral.sh/uv/) (`brew install uv` or `curl -LsSf https://astral.sh/uv/install.sh | sh`)
+
+### For running unit tests (no API key needed)
+
+```bash
+cd claude-skill
+uv sync --extra test
+bash run-tests.sh
+```
+
+### For running eval tests (requires Anthropic API key, ~$2-5/full run)
+
+```bash
+cd claude-skill
+uv sync --extra eval
+cp .env.example .env          # add your ANTHROPIC_API_KEY
+bash run-evals.sh             # coming in eval harness step
+```
+
+> **Note:** Unit tests (`run-tests.sh`) run in CI on every push. Eval tests (`run-evals.sh`) are on-demand only — they call the Anthropic API and are not run in CI automatically.
+
+---
+
 ## 📦 One Unified Package
 
 `pdca-framework.skill` includes everything:
@@ -462,7 +487,8 @@ Print this card and keep it visible during coding sessions!
 
 ---
 
-## Beads Integration
+## 
+gration
 
 **Optional** — the skill works without beads. Set it up when you want persistent task tracking across multi-day sessions.
 

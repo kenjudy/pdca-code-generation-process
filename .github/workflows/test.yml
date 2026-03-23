@@ -11,10 +11,14 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.11"
+
+      - name: Install test dependencies
+        run: uv sync --extra test
+        working-directory: claude-skill
 
       - name: Build and test
         run: bash claude-skill/run-tests.sh

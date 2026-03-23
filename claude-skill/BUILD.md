@@ -6,6 +6,20 @@ This document explains how to build and install the PDCA Framework skill package
 
 **Just want to use the skill?** See [README.md](README.md) for installation instructions.
 
+**Running unit tests** (no API key, runs in CI):
+```bash
+cd claude-skill
+uv sync --extra test
+bash run-tests.sh
+```
+
+**Running eval tests** (requires `ANTHROPIC_API_KEY` in `.env`, ~$2-5/run, on-demand only):
+```bash
+cd claude-skill
+uv sync --extra eval
+bash run-evals.sh
+```
+
 **Building from source:**
 
 **macOS/Linux (Bash):**

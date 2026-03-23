@@ -1,6 +1,6 @@
 #!/bin/bash
 # Canonical test runner for PDCA Framework Skill
-# Builds the skill package, then runs the test suite.
+# Builds the skill package, then runs the unit test suite (no API calls).
 # Used by: git pre-commit hook (warn-only) and GitHub Actions CI (enforcing).
 #
 # Exit codes:
@@ -10,6 +10,9 @@
 # Usage:
 #   bash run-tests.sh              # exit 1 on failure (CI mode)
 #   WARN_ONLY=1 bash run-tests.sh  # exit 0 always (hook mode)
+#
+# For LLM eval tests (requires ANTHROPIC_API_KEY, incurs API cost):
+#   bash run-evals.sh
 
 set -e
 
@@ -23,7 +26,7 @@ bash "$SCRIPT_DIR/build-skill.sh"
 echo ""
 echo "=== Running Test Suite ==="
 set +e
-python3 "$SCRIPT_DIR/tests/test_build.py" -v 2>&1
+(cd "$SCRIPT_DIR" && uv run python -m pytest tests/ -m "not eval" -v) 2>&1
 TEST_EXIT=$?
 set -e
 

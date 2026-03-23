@@ -178,6 +178,28 @@ class TestSkillMdSource(unittest.TestCase):
 README_FILE = CLAUDE_SKILL_DIR / "README.md"
 
 
+EVAL_SCENARIOS_DIR = CLAUDE_SKILL_DIR / "eval" / "scenarios"
+
+
+class TestEvalScenarios(unittest.TestCase):
+    """Structural validation: every scenario JSON file must conform to the schema."""
+
+    def test_scenario_files_valid_against_schema(self):
+        """All JSON files in eval/scenarios/ must pass validate_scenario.
+        Passes vacuously until scenario files are added in Step 4."""
+        import json
+        from eval.schema import validate_scenario, ScenarioValidationError
+
+        scenario_files = list(EVAL_SCENARIOS_DIR.glob("*.json"))
+        for scenario_file in scenario_files:
+            with self.subTest(file=scenario_file.name):
+                scenarios = json.loads(scenario_file.read_text())
+                if not isinstance(scenarios, list):
+                    scenarios = [scenarios]
+                for scenario in scenarios:
+                    validate_scenario(scenario)
+
+
 class TestProjectSetup(unittest.TestCase):
     """Validate uv-based Python project infrastructure."""
 

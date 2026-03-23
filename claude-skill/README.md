@@ -376,7 +376,7 @@ The skill is based on documented research showing AI code generation quality iss
 - Google DORA 2024: 7.2% stability decrease per 25% AI adoption
 - METR 2025: 19% slower development with AI tools
 
-Read the full framework paper: [Link would go here]
+Read the full framework paper: [SOSA 2025 Notes](https://github.com/kenjudy/human-ai-collaboration-process/blob/main/presentations/SOSA%202025/SOSA%202025%20Notes.md)
 
 ### Philosophy
 This framework embodies agile principles:
@@ -389,8 +389,8 @@ This framework embodies agile principles:
 The PDCA framework is open source under CC BY 4.0.
 
 **Repository:** https://github.com/kenjudy/human-ai-collaboration-process
-**Issues/Suggestions:** [Create GitHub issue]
-**Discussions:** [GitHub Discussions]
+**Issues/Suggestions:** [Create GitHub issue](https://github.com/kenjudy/human-ai-collaboration-process/issues/new)
+**Discussions:** [GitHub Discussions](https://github.com/kenjudy/human-ai-collaboration-process/discussions)
 
 ---
 
@@ -413,10 +413,10 @@ Help improve the framework:
 
 ## Version Information
 
-**Current Version:** Based on GitHub repository as of 2025
+**Current Version:** v1.0.0
 **License:** Creative Commons Attribution 4.0 International (CC BY 4.0)
 **Attribution:** Ken Judy with Claude Anthropic 4
-**Last Updated:** 2025
+**Last Updated:** 2026-03-23
 
 ---
 

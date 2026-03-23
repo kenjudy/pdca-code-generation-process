@@ -1,6 +1,6 @@
 ---
 name: pdca-framework
-description: Human-supervised PDCA (Plan-Do-Check-Act) framework for AI-assisted code generation. Use when generating production code with AI agents to maintain quality, reduce technical debt, and keep humans engaged. Applies structured analysis, planning, test-driven development, validation, and retrospection to AI coding sessions. Essential for developers who need systematic approaches to maintain code quality and accountability when using AI code generation tools in complex codebases.
+description: Guides developers through a human-supervised PDCA (Plan-Do-Check-Act) framework for AI-assisted code generation. Applies structured analysis, planning, test-driven development, validation, and retrospection to maintain code quality, reduce technical debt, and keep humans actively engaged. Activates for production code generation sessions where systematic quality control and human accountability are needed when working with AI agents in complex codebases.
 ---
 
 # PDCA Framework for AI-Assisted Code Generation

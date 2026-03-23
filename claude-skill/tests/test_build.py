@@ -148,6 +148,19 @@ class TestSkillMdSource(unittest.TestCase):
                         f"on its line or in its section heading ('{section.strip()}')",
                     )
 
+    def test_description_is_third_person(self):
+        """Marketplace requirement: description must be third-person, not imperative."""
+        match = re.search(r"^description:\s*(.+)$", self.content, re.MULTILINE)
+        self.assertIsNotNone(match, "Could not parse description")
+        description = match.group(1).strip()
+        imperative_phrases = ["Use when", "Use this when", "Run when", "Apply when"]
+        for phrase in imperative_phrases:
+            self.assertNotIn(
+                phrase,
+                description,
+                f"Description contains imperative '{phrase}' — must be third-person for marketplace compliance",
+            )
+
     def test_skill_md_retains_license(self):
         """SKILL.md is human-facing — its license block must be preserved."""
         self.assertIn(
@@ -160,6 +173,42 @@ class TestSkillMdSource(unittest.TestCase):
         for phase in ["PLAN", "DO", "CHECK", "ACT"]:
             with self.subTest(phase=phase):
                 self.assertIn(phase, self.content, f"Phase {phase} not found in SKILL.md")
+
+
+README_FILE = CLAUDE_SKILL_DIR / "README.md"
+
+
+class TestReadme(unittest.TestCase):
+    """Validate README quality for marketplace distribution."""
+
+    def setUp(self):
+        if not README_FILE.exists():
+            self.skipTest("README.md not found")
+        self.content = README_FILE.read_text()
+
+    def test_no_placeholder_links(self):
+        """README must not contain unfilled bracket placeholders outside code blocks."""
+        # Strip fenced code blocks (```...```) before checking
+        prose = re.sub(r"```.*?```", "", self.content, flags=re.DOTALL)
+        # Strip inline code spans
+        prose = re.sub(r"`[^`]+`", "", prose)
+        # Matches [some text] not followed by ( or [ — orphaned link text
+        orphaned = re.findall(r"\[[^\]]+\](?![\(\[])", prose)
+        # Exclude markdown checkboxes like [ ] or [x]
+        orphaned = [m for m in orphaned if not re.match(r"^\[[ xX]\]$", m)]
+        self.assertEqual(
+            orphaned,
+            [],
+            f"README contains unfilled placeholder link(s) outside code blocks: {orphaned}",
+        )
+
+    def test_has_semantic_version(self):
+        """README must have a semantic version number, not a vague date string."""
+        self.assertRegex(
+            self.content,
+            r"v\d+\.\d+\.\d+",
+            "README must contain a semantic version (e.g. v1.0.0)",
+        )
 
 
 class TestSkillPackage(unittest.TestCase):

@@ -26,6 +26,18 @@ Commitments you hold yourself accountable to when interacting with coding agents
 - Intervene immediately on process violations
 - Explicitly establish methodology, scope, and intervention rights before coding
 
+## Beads Integration (Optional)
+
+Beads provides persistent, git-backed memory across PDCA sessions:
+- **Cross-session continuity**: Resume cycles days/weeks later with full context
+- **Task dependency tracking**: Link Plan → Do → Check → Act formally
+- **Searchable retrospectives**: Find past learnings easily
+
+**First-time setup**: See `references/beads-setup.md`
+**Active sessions**: See `references/beads-workflow.md` for per-phase commands
+
+All beads commands in the phase addon files are **optional**. The framework works with or without beads installed.
+
 ## PDCA Cycle Overview
 
 Each step has distinct prompts and human commitments:
@@ -34,21 +46,25 @@ Each step has distinct prompts and human commitments:
 - **Analysis**: Examine codebase, define achievable objectives, explore approaches
 - **Planning**: Create detailed execution plan with numbered steps and checkpoints
 - See `references/plan-prompts.md` for complete templates
+- **Beads (Optional)**: See `references/plan-beads-addon.md` for epic tracking
 
 ### 2. DO: Code Generation (30 min - 2.5 hrs)
 - **TDD Implementation**: Red-green-refactor with checklist-based guidance
 - **Active Oversight**: Follow agent's work, intervene early and often
 - See `references/do-prompts.md` for implementation checklists
+- **Beads (Optional)**: See `references/do-beads-addon.md` for TDD step tracking
 
 ### 3. CHECK: Validate (2-5 min)
 - **Completeness**: Verify against analysis, plan, and quality standards
 - **Definition of Done**: Explicit checklist for delivery readiness
 - See `references/check-prompts.md` for validation templates
+- **Beads (Optional)**: See `references/check-beads-addon.md` for task graph validation
 
 ### 4. ACT: Retrospect (5-10 min)
 - **Process Review**: Identify what worked and what to improve
 - **Continuous Improvement**: Update 1-3 small things for next cycle
 - See `references/act-prompts.md` for retrospective guides
+- **Beads (Optional)**: See `references/act-beads-addon.md` for storing retrospectives
 
 ## When to Use Each Phase
 

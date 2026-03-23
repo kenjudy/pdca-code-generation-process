@@ -1,0 +1,35 @@
+[
+  {
+    "prompt_id": "1b",
+    "scenario_id": "1b-clear-analysis",
+    "description": "Well-analyzed feature ready for planning. Should produce numbered atomic steps, a complete test list, and explicit refactor confirmation. Must NOT jump into writing code.",
+    "input": "Analysis complete. We need to add webhook support to our Rails app. Existing pattern: background jobs via Sidekiq, event model for internal events. Chosen approach: new WebhookDelivery model, reuse existing EventBus for triggering, Sidekiq worker for delivery with retry. No preparatory refactoring needed — existing abstractions fit cleanly.",
+    "expected_signals": {
+      "must_contain": ["test list", "atomic"],
+      "must_not_contain": ["def deliver_webhook", "rails generate"],
+      "called_shot_required": false
+    }
+  },
+  {
+    "prompt_id": "1b",
+    "scenario_id": "1b-needs-refactoring",
+    "description": "Analysis revealed existing code needs structural cleanup before the feature can be added cleanly. Plan must explicitly tag preparatory refactor steps before feature steps, with all tests passing after each refactor step.",
+    "input": "Analysis complete. Adding multi-tenant support to our billing module. Problem: BillingService is a 600-line God object mixing tenant logic, payment processing, and reporting. We need to extract PaymentProcessor and ReportingService before adding tenant scoping. Approach chosen: extract-then-scope pattern.",
+    "expected_signals": {
+      "must_contain": ["refactor", "feat"],
+      "must_not_contain": ["Here is the complete implementation", "skip the refactor"],
+      "called_shot_required": false
+    }
+  },
+  {
+    "prompt_id": "1b",
+    "scenario_id": "1b-multi-system",
+    "description": "Feature spans two systems (Node.js API + Python data service). Plan must address system-specific constraints and integration touch points for each system separately.",
+    "input": "Analysis complete. We need to add real-time usage metrics that flow from our Python data pipeline into our Node.js API for display. Integration point: shared Redis stream. Chosen approach: Python writes metrics events to Redis stream, Node.js consumer reads and caches in memory with 30s TTL.",
+    "expected_signals": {
+      "must_contain": ["Node", "Python"],
+      "must_not_contain": ["Here is the code", "npm install"],
+      "called_shot_required": false
+    }
+  }
+]

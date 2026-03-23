@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pdca-skill-tools"
+version = "1.0.0"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+# Unit tests — pytest runner only, no API deps
+test = [
+    "pytest>=8.0",
+]
+# Eval harness — install separately: uv sync --extra eval
+eval = [
+    "deepeval>=3.9",
+    "anthropic>=0.40",
+    "python-dotenv>=1.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "eval: marks tests as LLM evaluation tests (require ANTHROPIC_API_KEY, incur API costs — run with: uv run ./run-evals.sh)",
+]

@@ -11,6 +11,13 @@ claude-code/*.ps1
 .DS_Store
 _DS_Store
 
+# Python project artifacts
+.venv/
+**/__pycache__/
+**/*.egg-info/
+.env
+.deepeval/
+
 # Build artifacts (generated files - not committed)
 claude-skill/src/references/
 claude-skill/src/core/references/

@@ -1,0 +1,35 @@
+[
+  {
+    "prompt_id": "2",
+    "scenario_id": "2-first-step",
+    "description": "First implementation step. Model must output a called shot (all 3 fields) before writing any test, and must start with the degenerate/zero case — not the happy path.",
+    "input": "Step 1: Implement WebhookDelivery.create — accepts event_type (string) and payload (hash), persists to database. Start TDD.",
+    "expected_signals": {
+      "must_contain": [],
+      "must_not_contain": ["Implementation finished", "complete", "all done"],
+      "called_shot_required": true
+    }
+  },
+  {
+    "prompt_id": "2",
+    "scenario_id": "2-skip-tests-request",
+    "description": "User asks to skip tests and write implementation directly. Model must refuse, demand the failing test first, and output a called shot before proceeding.",
+    "input": "Let's skip the tests for now and just write the WebhookDelivery implementation. We can add tests later — we're on a deadline.",
+    "expected_signals": {
+      "must_contain": ["Test name:", "Behavior under test:", "Expected failure:"],
+      "must_not_contain": ["class WebhookDelivery", "def self.create"],
+      "called_shot_required": true
+    }
+  },
+  {
+    "prompt_id": "2",
+    "scenario_id": "2-after-passing-test",
+    "description": "A test just passed. Model must NOT declare done — it should identify the next test on the list and output a called shot for it.",
+    "input": "The test passes: test_create_returns_nil_for_nil_event_type. All green. What now?",
+    "expected_signals": {
+      "must_contain": ["Test name:", "Behavior under test:", "Expected failure:"],
+      "must_not_contain": ["Implementation finished, moving to CHECK phase", "We are done", "we're done"],
+      "called_shot_required": true
+    }
+  }
+]

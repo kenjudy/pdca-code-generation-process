@@ -14,6 +14,45 @@ This skill provides a disciplined framework for AI-assisted code generation that
 
 ---
 
+## Development Setup
+
+**Requirements:** Python 3.11+, [uv](https://docs.astral.sh/uv/) (`brew install uv` or `curl -LsSf https://astral.sh/uv/install.sh | sh`)
+
+### For running unit tests (no API key needed)
+
+```bash
+cd claude-skill
+uv sync --extra test
+bash run-tests.sh
+```
+
+### For running eval tests (requires Anthropic API key, ~$2-5/full run)
+
+LLM-as-judge evaluations check whether each PDCA phase prompt produces compliant responses
+across a range of scenarios. Claude Haiku acts as the judge, scoring outputs against a
+chain-of-thought rubric (strengths → weaknesses → reasoning → score).
+
+```bash
+cd claude-skill
+uv sync --extra eval
+cp .env.example .env          # add your ANTHROPIC_API_KEY
+bash run-evals.sh             # run all prompt evals
+```
+
+To run a single prompt's evals:
+
+```bash
+bash run-evals.sh tests/test_evals.py::TestPrompt1aEvals
+```
+
+Eval tests are tagged `@pytest.mark.eval` and are **excluded from the default test suite**.
+They are not run in CI — invoke manually when iterating on phase prompt quality.
+
+> **Note:** Unit tests (`run-tests.sh`) run in CI on every push. Eval tests cost API tokens
+> and are intentionally on-demand only.
+
+---
+
 ## 📦 One Unified Package
 
 `pdca-framework.skill` includes everything:
@@ -50,28 +89,33 @@ This generates `pdca-framework.skill` from the source prompts. See [BUILD.md](BU
 
 **Important:** Claude.ai (web/desktop) and Claude Code (CLI) use different installation methods.
 
-### For Claude.ai Web/Desktop App
+### For Claude.ai Web/Desktop App (Skill Upload)
 
-The `.skill` file format is designed for Claude.ai:
+This is the primary distribution path — upload `pdca-framework.skill` directly in Claude's UI.
 
-1. **Download the skill file**
-   - Get `pdca-framework.skill` from this repository
+1. **Build the skill file** (if you haven't already)
+   ```bash
+   cd claude-skill && bash build-skill.sh
+   ```
+   This produces `claude-skill/pdca-framework.skill`.
 
-3. **Open Claude Settings**
-   - Click your profile icon (top right)
-   - Select "Settings" or "Preferences"
+2. **Open Claude Settings**
+   - Go to [claude.ai](https://claude.ai) or open the Claude desktop app
+   - Click **Customize** in the left sidebar (or your profile menu)
+   - Select **Skills**
 
-4. **Navigate to Skills**
-   - Find the "Skills" or "Custom Skills" section
-   - Click "Add Skill" or "Upload Skill"
-
-5. **Upload the skill**
-   - Select your downloaded `.skill` file
+3. **Upload the skill**
+   - Click **Add Skill**
+   - Select `pdca-framework.skill`
    - Confirm the upload
 
-6. **Verify installation**
-   - The skill should appear in your skills list
-   - Status should show as "Active" or "Enabled"
+4. **Enable the skill**
+   - The skill appears in your skills list — toggle it on
+   - Verify it shows as active
+
+> **Org/team distribution:** Enterprise and Team plan admins can provision skills for their
+> organization via the admin console. See Anthropic's
+> [Skills for organizations](https://support.claude.com) documentation.
 
 **Note:** To enable beads, see [Beads Integration](#beads-integration). The skill works without it.
 
@@ -376,7 +420,7 @@ The skill is based on documented research showing AI code generation quality iss
 - Google DORA 2024: 7.2% stability decrease per 25% AI adoption
 - METR 2025: 19% slower development with AI tools
 
-Read the full framework paper: [Link would go here]
+Read the full framework paper: [SOSA 2025 Notes](https://github.com/kenjudy/human-ai-collaboration-process/blob/main/presentations/SOSA%202025/SOSA%202025%20Notes.md)
 
 ### Philosophy
 This framework embodies agile principles:
@@ -389,8 +433,8 @@ This framework embodies agile principles:
 The PDCA framework is open source under CC BY 4.0.
 
 **Repository:** https://github.com/kenjudy/human-ai-collaboration-process
-**Issues/Suggestions:** [Create GitHub issue]
-**Discussions:** [GitHub Discussions]
+**Issues/Suggestions:** [Create GitHub issue](https://github.com/kenjudy/human-ai-collaboration-process/issues/new)
+**Discussions:** [GitHub Discussions](https://github.com/kenjudy/human-ai-collaboration-process/discussions)
 
 ---
 
@@ -413,10 +457,10 @@ Help improve the framework:
 
 ## Version Information
 
-**Current Version:** Based on GitHub repository as of 2025
+**Current Version:** v1.0.0
 **License:** Creative Commons Attribution 4.0 International (CC BY 4.0)
 **Attribution:** Ken Judy with Claude Anthropic 4
-**Last Updated:** 2025
+**Last Updated:** 2026-03-23
 
 ---
 
@@ -462,7 +506,8 @@ Print this card and keep it visible during coding sessions!
 
 ---
 
-## Beads Integration
+## 
+gration
 
 **Optional** — the skill works without beads. Set it up when you want persistent task tracking across multi-day sessions.
 

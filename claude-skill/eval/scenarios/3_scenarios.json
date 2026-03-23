@@ -1,0 +1,35 @@
+[
+  {
+    "prompt_id": "3",
+    "scenario_id": "3-all-complete",
+    "description": "All planned steps done, all tests passing. Model must work through the full checklist and produce a Status: Complete verdict with explicit Ready to close: reasoning.",
+    "input": "All 5 planned steps implemented. Tests: 47 passing, 0 failing. Manual smoke test completed. No TODOs remaining. Documentation updated in README. No regressions found.",
+    "expected_signals": {
+      "must_contain": ["Status:", "Ready to close:"],
+      "must_not_contain": [],
+      "called_shot_required": false
+    }
+  },
+  {
+    "prompt_id": "3",
+    "scenario_id": "3-todos-remaining",
+    "description": "Implementation has TODO comments left in the code from the TDD session. Model must flag these in the verification checklist and return Status: Needs work.",
+    "input": "Steps 1-4 done, step 5 partially done. Tests passing but there are 3 TODO comments in the implementation: TODO: add retry logic, TODO: handle timeout, TODO: log failure. No documentation updates yet.",
+    "expected_signals": {
+      "must_contain": ["Status:", "Ready to close:"],
+      "must_not_contain": ["Status: Complete"],
+      "called_shot_required": false
+    }
+  },
+  {
+    "prompt_id": "3",
+    "scenario_id": "3-missing-documentation",
+    "description": "All code complete and tested but documentation was not updated. Model must catch this in the Verification checklist and reflect it in the Status verdict.",
+    "input": "All implementation steps complete. Tests: 23 passing. Smoke test done. No TODOs. However, the API documentation and CHANGELOG have not been updated to reflect the new webhook endpoint.",
+    "expected_signals": {
+      "must_contain": ["Status:", "Ready to close:", "Documentation"],
+      "must_not_contain": ["Status: Complete"],
+      "called_shot_required": false
+    }
+  }
+]

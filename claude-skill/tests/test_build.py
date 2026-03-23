@@ -22,19 +22,21 @@ SKILL_FILE = CLAUDE_SKILL_DIR / "pdca-framework.skill"
 SKILL_SRC = CLAUDE_SKILL_DIR / "src" / "core" / "SKILL.md"
 BEADS_ADDON_DIR = CLAUDE_SKILL_DIR / "src" / "beads-addon" / "sources"
 
+SKILL_NAME = "pdca-framework"
+
 EXPECTED_FILES = [
-    "SKILL.md",
-    "references/plan-prompts.md",
-    "references/do-prompts.md",
-    "references/check-prompts.md",
-    "references/act-prompts.md",
-    "references/working-agreements.md",
-    "references/plan-beads-addon.md",
-    "references/do-beads-addon.md",
-    "references/check-beads-addon.md",
-    "references/act-beads-addon.md",
-    "references/beads-setup.md",
-    "references/beads-workflow.md",
+    f"{SKILL_NAME}/SKILL.md",
+    f"{SKILL_NAME}/references/plan-prompts.md",
+    f"{SKILL_NAME}/references/do-prompts.md",
+    f"{SKILL_NAME}/references/check-prompts.md",
+    f"{SKILL_NAME}/references/act-prompts.md",
+    f"{SKILL_NAME}/references/working-agreements.md",
+    f"{SKILL_NAME}/references/plan-beads-addon.md",
+    f"{SKILL_NAME}/references/do-beads-addon.md",
+    f"{SKILL_NAME}/references/check-beads-addon.md",
+    f"{SKILL_NAME}/references/act-beads-addon.md",
+    f"{SKILL_NAME}/references/beads-setup.md",
+    f"{SKILL_NAME}/references/beads-workflow.md",
 ]
 
 MASTER_FILES = [
@@ -118,7 +120,8 @@ class TestSkillMdSource(unittest.TestCase):
         refs = re.findall(r"`(references/[^`]+\.md)`", self.content)
         for ref in refs:
             with self.subTest(ref=ref):
-                self.assertIn(ref, EXPECTED_FILES, f"SKILL.md references '{ref}' but it's not in EXPECTED_FILES")
+                qualified = f"{SKILL_NAME}/{ref}"
+                self.assertIn(qualified, EXPECTED_FILES, f"SKILL.md references '{ref}' but '{qualified}' is not in EXPECTED_FILES")
 
     def test_beads_references_are_optional(self):
         """All beads references must be either on a line with 'Optional' or inside
@@ -148,6 +151,30 @@ class TestSkillMdSource(unittest.TestCase):
                         f"on its line or in its section heading ('{section.strip()}')",
                     )
 
+    def test_description_is_third_person(self):
+        """Marketplace requirement: description must be third-person, not imperative."""
+        match = re.search(r"^description:\s*(.+)$", self.content, re.MULTILINE)
+        self.assertIsNotNone(match, "Could not parse description")
+        description = match.group(1).strip()
+        imperative_phrases = ["Use when", "Use this when", "Run when", "Apply when"]
+        for phrase in imperative_phrases:
+            self.assertNotIn(
+                phrase,
+                description,
+                f"Description contains imperative '{phrase}' — must be third-person for marketplace compliance",
+            )
+
+    def test_description_under_200_chars(self):
+        """Marketplace requirement: description field must be ≤200 characters."""
+        match = re.search(r"^description:\s*(.+)$", self.content, re.MULTILINE)
+        self.assertIsNotNone(match, "Could not parse description")
+        description = match.group(1).strip()
+        self.assertLessEqual(
+            len(description),
+            200,
+            f"Description is {len(description)} chars — marketplace limit is 200",
+        )
+
     def test_skill_md_retains_license(self):
         """SKILL.md is human-facing — its license block must be preserved."""
         self.assertIn(
@@ -162,6 +189,91 @@ class TestSkillMdSource(unittest.TestCase):
                 self.assertIn(phase, self.content, f"Phase {phase} not found in SKILL.md")
 
 
+README_FILE = CLAUDE_SKILL_DIR / "README.md"
+
+
+EVAL_SCENARIOS_DIR = CLAUDE_SKILL_DIR / "eval" / "scenarios"
+
+
+class TestEvalScenarios(unittest.TestCase):
+    """Structural validation: every scenario JSON file must conform to the schema."""
+
+    def test_scenario_files_valid_against_schema(self):
+        """All JSON files in eval/scenarios/ must pass validate_scenario.
+        Passes vacuously until scenario files are added in Step 4."""
+        import json
+        from eval.schema import validate_scenario, ScenarioValidationError
+
+        scenario_files = list(EVAL_SCENARIOS_DIR.glob("*.json"))
+        for scenario_file in scenario_files:
+            with self.subTest(file=scenario_file.name):
+                scenarios = json.loads(scenario_file.read_text())
+                if not isinstance(scenarios, list):
+                    scenarios = [scenarios]
+                for scenario in scenarios:
+                    validate_scenario(scenario)
+
+
+class TestProjectSetup(unittest.TestCase):
+    """Validate uv-based Python project infrastructure."""
+
+    def test_eval_pytest_marker_registered(self):
+        """pytest --markers must list the eval marker — confirms pyproject.toml registers it."""
+        result = subprocess.run(
+            ["python3", "-m", "pytest", "--markers"],
+            cwd=str(CLAUDE_SKILL_DIR),
+            capture_output=True,
+            text=True,
+        )
+        self.assertIn(
+            "@pytest.mark.eval",
+            result.stdout,
+            "pytest does not recognise 'eval' marker — add it to [tool.pytest.ini_options] in pyproject.toml",
+        )
+
+    def test_run_tests_script_uses_uv_runner(self):
+        """run-tests.sh must delegate to uv run pytest, not bare python3."""
+        script = CLAUDE_SKILL_DIR / "run-tests.sh"
+        self.assertIn(
+            "uv run",
+            script.read_text(),
+            "run-tests.sh must invoke 'uv run pytest', not bare 'python3'",
+        )
+
+
+class TestReadme(unittest.TestCase):
+    """Validate README quality for marketplace distribution."""
+
+    def setUp(self):
+        if not README_FILE.exists():
+            self.skipTest("README.md not found")
+        self.content = README_FILE.read_text()
+
+    def test_no_placeholder_links(self):
+        """README must not contain unfilled bracket placeholders outside code blocks."""
+        # Strip fenced code blocks (```...```) before checking
+        prose = re.sub(r"```.*?```", "", self.content, flags=re.DOTALL)
+        # Strip inline code spans
+        prose = re.sub(r"`[^`]+`", "", prose)
+        # Matches [some text] not followed by ( or [ — orphaned link text
+        orphaned = re.findall(r"\[[^\]]+\](?![\(\[])", prose)
+        # Exclude markdown checkboxes like [ ] or [x]
+        orphaned = [m for m in orphaned if not re.match(r"^\[[ xX]\]$", m)]
+        self.assertEqual(
+            orphaned,
+            [],
+            f"README contains unfilled placeholder link(s) outside code blocks: {orphaned}",
+        )
+
+    def test_has_semantic_version(self):
+        """README must have a semantic version number, not a vague date string."""
+        self.assertRegex(
+            self.content,
+            r"v\d+\.\d+\.\d+",
+            "README must contain a semantic version (e.g. v1.0.0)",
+        )
+
+
 class TestSkillPackage(unittest.TestCase):
     """Validate the built pdca-framework.skill zip package."""
 
@@ -171,6 +283,16 @@ class TestSkillPackage(unittest.TestCase):
 
     def test_skill_file_is_valid_zip(self):
         self.assertTrue(zipfile.is_zipfile(SKILL_FILE), "pdca-framework.skill is not a valid zip")
+
+    def test_zip_has_wrapper_folder(self):
+        """Marketplace requirement: ZIP root must be a folder matching the skill name."""
+        names = zip_names(SKILL_FILE)
+        for name in names:
+            with self.subTest(entry=name):
+                self.assertTrue(
+                    name.startswith("pdca-framework/"),
+                    f"ZIP entry '{name}' is not inside the pdca-framework/ wrapper folder",
+                )
 
     def test_contains_exactly_expected_files(self):
         names = zip_names(SKILL_FILE)
@@ -190,7 +312,7 @@ class TestSkillPackage(unittest.TestCase):
                 )
 
     def test_skill_md_in_package_under_500_lines(self):
-        content = read_zip_file(SKILL_FILE, "SKILL.md")
+        content = read_zip_file(SKILL_FILE, f"{SKILL_NAME}/SKILL.md")
         lines = content.splitlines()
         self.assertLessEqual(
             len(lines),
@@ -200,7 +322,7 @@ class TestSkillPackage(unittest.TestCase):
 
     def test_plan_prompts_contains_1a_content(self):
         """plan-prompts.md should include content from the 1a master."""
-        plan = read_zip_file(SKILL_FILE, "references/plan-prompts.md")
+        plan = read_zip_file(SKILL_FILE, f"{SKILL_NAME}/references/plan-prompts.md")
         master_1a = (REPO_ROOT / "1. Plan" / "1a Analyze to determine approach for achieving the goal.md").read_text()
         # Check a distinctive phrase from 1a is present
         first_meaningful_line = next(
@@ -214,7 +336,7 @@ class TestSkillPackage(unittest.TestCase):
 
     def test_plan_prompts_contains_1b_content(self):
         """plan-prompts.md should include content from the 1b master."""
-        plan = read_zip_file(SKILL_FILE, "references/plan-prompts.md")
+        plan = read_zip_file(SKILL_FILE, f"{SKILL_NAME}/references/plan-prompts.md")
         master_1b = (REPO_ROOT / "1. Plan" / "1b Create a detailed implementation plan.md").read_text()
         first_meaningful_line = next(
             l.strip() for l in master_1b.splitlines() if l.strip() and not l.startswith("#")
@@ -226,7 +348,7 @@ class TestSkillPackage(unittest.TestCase):
         )
 
     def test_do_prompts_matches_master(self):
-        packaged = read_zip_file(SKILL_FILE, "references/do-prompts.md")
+        packaged = read_zip_file(SKILL_FILE, f"{SKILL_NAME}/references/do-prompts.md")
         master = (REPO_ROOT / "2. Do" / "2. Test Drive the Change.md").read_text()
         master_stripped = master.split("## License & Attribution")[0]
         self.assertEqual(
@@ -236,7 +358,7 @@ class TestSkillPackage(unittest.TestCase):
         )
 
     def test_working_agreements_matches_master(self):
-        packaged = read_zip_file(SKILL_FILE, "references/working-agreements.md")
+        packaged = read_zip_file(SKILL_FILE, f"{SKILL_NAME}/references/working-agreements.md")
         master = (REPO_ROOT / "Human Working Agreements.md").read_text()
         master_stripped = master.split("## License & Attribution")[0]
         self.assertEqual(
@@ -248,12 +370,12 @@ class TestSkillPackage(unittest.TestCase):
     def test_beads_addon_files_match_source(self):
         """Beads addon files in package should match their source files exactly."""
         addon_map = {
-            "references/plan-beads-addon.md": BEADS_ADDON_DIR / "plan-beads-addon.md",
-            "references/do-beads-addon.md": BEADS_ADDON_DIR / "do-beads-addon.md",
-            "references/check-beads-addon.md": BEADS_ADDON_DIR / "check-beads-addon.md",
-            "references/act-beads-addon.md": BEADS_ADDON_DIR / "act-beads-addon.md",
-            "references/beads-setup.md": BEADS_ADDON_DIR / "beads-setup.md",
-            "references/beads-workflow.md": BEADS_ADDON_DIR / "beads-workflow.md",
+            f"{SKILL_NAME}/references/plan-beads-addon.md": BEADS_ADDON_DIR / "plan-beads-addon.md",
+            f"{SKILL_NAME}/references/do-beads-addon.md": BEADS_ADDON_DIR / "do-beads-addon.md",
+            f"{SKILL_NAME}/references/check-beads-addon.md": BEADS_ADDON_DIR / "check-beads-addon.md",
+            f"{SKILL_NAME}/references/act-beads-addon.md": BEADS_ADDON_DIR / "act-beads-addon.md",
+            f"{SKILL_NAME}/references/beads-setup.md": BEADS_ADDON_DIR / "beads-setup.md",
+            f"{SKILL_NAME}/references/beads-workflow.md": BEADS_ADDON_DIR / "beads-workflow.md",
         }
         for pkg_path, src_path in addon_map.items():
             with self.subTest(file=pkg_path):
@@ -269,12 +391,13 @@ class TestSkillPackage(unittest.TestCase):
 
     def test_all_skill_md_references_resolvable(self):
         """Every references/xxx.md link in packaged SKILL.md must exist in the zip."""
-        skill_content = read_zip_file(SKILL_FILE, "SKILL.md")
+        skill_content = read_zip_file(SKILL_FILE, f"{SKILL_NAME}/SKILL.md")
         refs = re.findall(r"`(references/[^`]+\.md)`", skill_content)
         names = zip_names(SKILL_FILE)
         for ref in refs:
             with self.subTest(ref=ref):
-                self.assertIn(ref, names, f"SKILL.md references '{ref}' but it's not in the package")
+                qualified = f"{SKILL_NAME}/{ref}"
+                self.assertIn(qualified, names, f"SKILL.md references '{ref}' but '{qualified}' is not in the package")
 
     def test_no_empty_files(self):
         with zipfile.ZipFile(SKILL_FILE) as zf:
@@ -290,11 +413,11 @@ class TestSkillPackage(unittest.TestCase):
         """License & Attribution blocks must not appear in built prompt files.
         They add ~760 tokens of in-context overhead with no value to Claude."""
         prompt_files = [
-            "references/plan-prompts.md",
-            "references/do-prompts.md",
-            "references/check-prompts.md",
-            "references/act-prompts.md",
-            "references/working-agreements.md",
+            f"{SKILL_NAME}/references/plan-prompts.md",
+            f"{SKILL_NAME}/references/do-prompts.md",
+            f"{SKILL_NAME}/references/check-prompts.md",
+            f"{SKILL_NAME}/references/act-prompts.md",
+            f"{SKILL_NAME}/references/working-agreements.md",
         ]
         for pkg_path in prompt_files:
             with self.subTest(file=pkg_path):
@@ -363,6 +486,19 @@ class TestHookInfrastructure(unittest.TestCase):
         if not script.exists():
             self.skipTest("run-tests.sh not found")
         self.assertTrue(os.access(script, os.X_OK), "run-tests.sh must be executable")
+
+    def test_run_evals_script_is_executable(self):
+        script = CLAUDE_SKILL_DIR / "run-evals.sh"
+        if not script.exists():
+            self.skipTest("run-evals.sh not found")
+        self.assertTrue(os.access(script, os.X_OK), "run-evals.sh must be executable")
+
+    def test_run_evals_script_uses_eval_marker(self):
+        script = CLAUDE_SKILL_DIR / "run-evals.sh"
+        if not script.exists():
+            self.skipTest("run-evals.sh not found")
+        content = script.read_text()
+        self.assertIn("-m eval", content, "run-evals.sh must filter tests with -m eval marker")
 
     def test_pre_commit_hook_template_exists(self):
         self.assertTrue(

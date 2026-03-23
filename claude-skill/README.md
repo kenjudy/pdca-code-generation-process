@@ -14,30 +14,17 @@ This skill provides a disciplined framework for AI-assisted code generation that
 
 ---
 
-## 📦 Two Skill Packages Available
+## 📦 One Unified Package
 
-Choose the package that matches your workflow:
+`pdca-framework.skill` includes everything:
 
-### Standard Package (`pdca-framework.skill`)
-**Recommended for most users**
 - ✅ Core PDCA framework (Plan→Do→Check→Act)
 - ✅ Strict TDD discipline and working agreements
 - ✅ Works out of the box, no additional setup
-- ✅ Perfect for single-session work (1-3 hours)
-- 📦 **Size**: 16K
-
-### Beads Package (`pdca-framework-beads.skill`)
-**For long-running work with persistent tracking**
-- ✅ Everything in Standard package
-- ✅ **Plus**: Persistent task tracking across sessions
-- ✅ **Plus**: Git-backed memory (resumes work days/weeks later)
-- ✅ **Plus**: Dependency graphs and searchable retrospectives
-- ⚙️ **Requires**: beads CLI + MCP server (see [Beads Integration](#beads-integration))
+- ✅ Beads integration files included (optional — only load them if beads is installed)
 - 📦 **Size**: 20K
 
-**Decision guide:**
-- **Use Standard** if: Bug fixes, quick features, learning the framework
-- **Use Beads** if: Multi-day features, complex epics, want searchable history
+**Beads** adds persistent task tracking across sessions (multi-day features, searchable retrospectives). It's built in and optional — see [Beads Integration](#beads-integration) if you want it.
 
 ---
 
@@ -57,7 +44,7 @@ cd claude-skill
 .\build-skill.ps1
 ```
 
-This generates `pdca-framework.skill` and `pdca-framework-beads.skill` from the source prompts. See [BUILD.md](BUILD.md) for full details, including troubleshooting and CI/CD automation.
+This generates `pdca-framework.skill` from the source prompts. See [BUILD.md](BUILD.md) for full details, including troubleshooting and CI/CD automation.
 
 ## Installation
 
@@ -67,12 +54,8 @@ This generates `pdca-framework.skill` and `pdca-framework-beads.skill` from the 
 
 The `.skill` file format is designed for Claude.ai:
 
-1. **Choose your package**
-   - `pdca-framework.skill` - Standard (recommended for most users)
-   - `pdca-framework-beads.skill` - With beads integration (requires setup)
-
-2. **Download the skill file**
-   - Get your chosen package from this repository
+1. **Download the skill file**
+   - Get `pdca-framework.skill` from this repository
 
 3. **Open Claude Settings**
    - Click your profile icon (top right)
@@ -90,7 +73,7 @@ The `.skill` file format is designed for Claude.ai:
    - The skill should appear in your skills list
    - Status should show as "Active" or "Enabled"
 
-**Note:** If you chose the beads package, see [Beads Integration](#beads-integration) for additional setup steps.
+**Note:** To enable beads, see [Beads Integration](#beads-integration). The skill works without it.
 
 ### For Claude Code (Command Line)
 
@@ -98,16 +81,12 @@ Claude Code uses a **directory-based** skill format, not the `.skill` package fi
 
 #### Quick Install (Recommended)
 
-Use the installation script for automatic setup. The script will ask you to choose between Standard and Beads packages:
+Use the installation script for automatic setup:
 
 **macOS/Linux (Bash):**
 ```bash
 # From the claude-skill directory
 ./install-skill.sh
-
-# The script will prompt:
-# 1. Which package? (1 for Standard, 2 for Beads)
-# 2. Installation scope (automatically detects, or specify below)
 
 # Optional: Specify scope as argument
 ./install-skill.sh personal   # Install to ~/.claude/skills/ (default)
@@ -118,8 +97,6 @@ Use the installation script for automatic setup. The script will ask you to choo
 ```powershell
 # From the claude-skill directory
 .\install-skill.ps1
-
-# The script will prompt for package selection
 
 # Optional: Specify scope as argument
 .\install-skill.ps1 personal   # Install to ~/.claude/skills/ (default)
@@ -143,7 +120,13 @@ unzip pdca-framework.skill -d ~/.claude/skills/pdca-framework
 #       ├── do-prompts.md
 #       ├── check-prompts.md
 #       ├── act-prompts.md
-#       └── working-agreements.md
+#       ├── working-agreements.md
+#       ├── plan-beads-addon.md    (optional — beads phase steps)
+#       ├── do-beads-addon.md
+#       ├── check-beads-addon.md
+#       ├── act-beads-addon.md
+#       ├── beads-setup.md         (optional — first-time beads install)
+#       └── beads-workflow.md      (optional — per-session beads reference)
 ```
 
 #### Manual Install - Project Skill (Shared with Team via Git)
@@ -481,9 +464,9 @@ Print this card and keep it visible during coding sessions!
 
 ## Beads Integration
 
-**For users of `pdca-framework-beads.skill` only**
+**Optional** — the skill works without beads. Set it up when you want persistent task tracking across multi-day sessions.
 
-The beads-enhanced skill adds persistent task tracking across sessions. All beads commands in the prompts are **optional** - the skill works with or without beads installed.
+All beads commands in the prompts are optional. The skill includes `references/beads-setup.md` (first-time install guide) and `references/beads-workflow.md` (per-session reference) that Claude loads only when needed.
 
 ### Understanding Global Skill vs. Per-Project Beads
 
@@ -665,7 +648,9 @@ bd close myproject-a1b2
 - Restart Claude Desktop/Code completely
 - Check for MCP errors in Claude logs
 
-For detailed beads integration guide, see: `references/beads-integration.md` in the beads skill package.
+For detailed beads documentation, see:
+- `references/beads-setup.md` — first-time installation and MCP configuration
+- `references/beads-workflow.md` — per-phase commands for active sessions
 
 ---
 

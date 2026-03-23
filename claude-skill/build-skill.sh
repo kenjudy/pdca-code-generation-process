@@ -32,12 +32,12 @@ MASTER_4="$REPO_ROOT/4. Act/4. Retrospect for continuous improvement.md"
 MASTER_WORKING_AGREEMENTS="$REPO_ROOT/Human Working Agreements.md"
 
 # Beads addon files (source — NOT build artifacts)
-BEADS_PLAN_ADDON="$BEADS_DIR/references/plan-beads-addon.md"
-BEADS_DO_ADDON="$BEADS_DIR/references/do-beads-addon.md"
-BEADS_CHECK_ADDON="$BEADS_DIR/references/check-beads-addon.md"
-BEADS_ACT_ADDON="$BEADS_DIR/references/act-beads-addon.md"
-BEADS_SETUP="$BEADS_DIR/references/beads-setup.md"
-BEADS_WORKFLOW="$BEADS_DIR/references/beads-workflow.md"
+BEADS_PLAN_ADDON="$BEADS_DIR/sources/plan-beads-addon.md"
+BEADS_DO_ADDON="$BEADS_DIR/sources/do-beads-addon.md"
+BEADS_CHECK_ADDON="$BEADS_DIR/sources/check-beads-addon.md"
+BEADS_ACT_ADDON="$BEADS_DIR/sources/act-beads-addon.md"
+BEADS_SETUP="$BEADS_DIR/sources/beads-setup.md"
+BEADS_WORKFLOW="$BEADS_DIR/sources/beads-workflow.md"
 
 # Verify master files exist
 echo -e "${BLUE}Verifying master source files...${NC}"

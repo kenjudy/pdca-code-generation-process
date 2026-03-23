@@ -28,14 +28,28 @@ bash run-tests.sh
 
 ### For running eval tests (requires Anthropic API key, ~$2-5/full run)
 
+LLM-as-judge evaluations check whether each PDCA phase prompt produces compliant responses
+across a range of scenarios. Claude Haiku acts as the judge, scoring outputs against a
+chain-of-thought rubric (strengths → weaknesses → reasoning → score).
+
 ```bash
 cd claude-skill
 uv sync --extra eval
 cp .env.example .env          # add your ANTHROPIC_API_KEY
-bash run-evals.sh             # coming in eval harness step
+bash run-evals.sh             # run all prompt evals
 ```
 
-> **Note:** Unit tests (`run-tests.sh`) run in CI on every push. Eval tests (`run-evals.sh`) are on-demand only — they call the Anthropic API and are not run in CI automatically.
+To run a single prompt's evals:
+
+```bash
+bash run-evals.sh tests/test_evals.py::TestPrompt1aEvals
+```
+
+Eval tests are tagged `@pytest.mark.eval` and are **excluded from the default test suite**.
+They are not run in CI — invoke manually when iterating on phase prompt quality.
+
+> **Note:** Unit tests (`run-tests.sh`) run in CI on every push. Eval tests cost API tokens
+> and are intentionally on-demand only.
 
 ---
 

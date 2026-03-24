@@ -17,4 +17,4 @@ echo "=== Running PDCA Prompt Evaluations ==="
 echo "Judge model: claude-haiku-4-5-20251001"
 echo ""
 
-(cd "$SCRIPT_DIR" && uv run python -m pytest tests/ -m eval -v "${@}")
+(cd "$SCRIPT_DIR" && uv run python -m pytest tests/ -m eval -v ${@+"$@"})

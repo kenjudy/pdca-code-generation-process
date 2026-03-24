@@ -1,6 +1,5 @@
 """Unit tests for eval.reporter — no API calls, no pytest markers."""
 
-from pathlib import Path
 from eval.mechanical import CheckResult
 from eval.reporter import EvalReporter
 
@@ -23,7 +22,10 @@ def _make_result(
             CheckResult(
                 field="must_contain: 'STOP CONDITION'",
                 passed=mechanical_pass,
-                detail="'STOP CONDITION' found in output" if mechanical_pass else "'STOP CONDITION' NOT found in output",
+                detail=(
+                    "'STOP CONDITION' found in output" if mechanical_pass
+                    else "'STOP CONDITION' NOT found in output"
+                ),
             )
         ],
         "geval_score": geval_score,

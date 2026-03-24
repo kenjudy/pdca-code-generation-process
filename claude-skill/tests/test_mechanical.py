@@ -1,7 +1,8 @@
 """Tests for the mechanical assertion checker."""
 
 import unittest
-from eval.mechanical import CheckResult, check_mechanical
+
+from eval.mechanical import check_mechanical
 
 EMPTY_SIGNALS = {
     "must_contain": [],

@@ -1,6 +1,7 @@
 """Tests for eval scenario schema validation."""
 
 import unittest
+
 from eval.schema import ScenarioValidationError, validate_scenario
 
 VALID_SCENARIO = {
@@ -42,26 +43,30 @@ class TestSchemaRejectsInvalid(unittest.TestCase):
             validate_scenario(scenario)
 
     def test_rejects_missing_must_contain(self):
-        scenario = {**VALID_SCENARIO, "expected_signals": {**VALID_SCENARIO["expected_signals"]}}
-        del scenario["expected_signals"]["must_contain"]
+        scenario = {**VALID_SCENARIO, "expected_signals": {**VALID_SCENARIO["expected_signals"]}}  # type: ignore[dict-item]
+        del scenario["expected_signals"]["must_contain"]  # type: ignore[attr-defined]
         with self.assertRaises(ScenarioValidationError):
             validate_scenario(scenario)
 
     def test_rejects_missing_called_shot_required(self):
-        scenario = {**VALID_SCENARIO, "expected_signals": {**VALID_SCENARIO["expected_signals"]}}
-        del scenario["expected_signals"]["called_shot_required"]
+        scenario = {**VALID_SCENARIO, "expected_signals": {**VALID_SCENARIO["expected_signals"]}}  # type: ignore[dict-item]
+        del scenario["expected_signals"]["called_shot_required"]  # type: ignore[attr-defined]
         with self.assertRaises(ScenarioValidationError):
             validate_scenario(scenario)
 
     def test_rejects_must_contain_not_a_list(self):
-        scenario = {**VALID_SCENARIO, "expected_signals": {**VALID_SCENARIO["expected_signals"],
-                                                            "must_contain": "not-a-list"}}
+        scenario = {**VALID_SCENARIO, "expected_signals": {
+            **VALID_SCENARIO["expected_signals"],  # type: ignore[dict-item]
+            "must_contain": "not-a-list",
+        }}
         with self.assertRaises(ScenarioValidationError):
             validate_scenario(scenario)
 
     def test_rejects_called_shot_required_not_a_bool(self):
-        scenario = {**VALID_SCENARIO, "expected_signals": {**VALID_SCENARIO["expected_signals"],
-                                                            "called_shot_required": "yes"}}
+        scenario = {**VALID_SCENARIO, "expected_signals": {
+            **VALID_SCENARIO["expected_signals"],  # type: ignore[dict-item]
+            "called_shot_required": "yes",
+        }}
         with self.assertRaises(ScenarioValidationError):
             validate_scenario(scenario)
 
@@ -82,21 +87,21 @@ class TestSchemaAcceptsValid(unittest.TestCase):
 
     def test_accepts_called_shot_required_true(self):
         scenario = {**VALID_SCENARIO, "expected_signals": {
-            **VALID_SCENARIO["expected_signals"],
+            **VALID_SCENARIO["expected_signals"],  # type: ignore[dict-item]
             "called_shot_required": True,
         }}
         validate_scenario(scenario)  # must not raise
 
     def test_accepts_skip_geval_true(self):
         scenario = {**VALID_SCENARIO, "expected_signals": {
-            **VALID_SCENARIO["expected_signals"],
+            **VALID_SCENARIO["expected_signals"],  # type: ignore[dict-item]
             "skip_geval": True,
         }}
         validate_scenario(scenario)  # must not raise
 
     def test_rejects_skip_geval_not_bool(self):
         scenario = {**VALID_SCENARIO, "expected_signals": {
-            **VALID_SCENARIO["expected_signals"],
+            **VALID_SCENARIO["expected_signals"],  # type: ignore[dict-item]
             "skip_geval": "yes",
         }}
         with self.assertRaises(ScenarioValidationError):

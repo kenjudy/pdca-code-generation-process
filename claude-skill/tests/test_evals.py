@@ -24,11 +24,16 @@ from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 from eval.executor import run_phase
 from eval.mechanical import check_mechanical
 from eval.reporter import EvalReporter
-from eval.rubrics.rubric_1a import CRITERIA as CRITERIA_1A, THRESHOLD as THRESHOLD_1A
-from eval.rubrics.rubric_1b import CRITERIA as CRITERIA_1B, THRESHOLD as THRESHOLD_1B
-from eval.rubrics.rubric_2 import CRITERIA as CRITERIA_2, THRESHOLD as THRESHOLD_2
-from eval.rubrics.rubric_3 import CRITERIA as CRITERIA_3, THRESHOLD as THRESHOLD_3
-from eval.rubrics.rubric_4 import CRITERIA as CRITERIA_4, THRESHOLD as THRESHOLD_4
+from eval.rubrics.rubric_1a import CRITERIA as CRITERIA_1A
+from eval.rubrics.rubric_1a import THRESHOLD as THRESHOLD_1A
+from eval.rubrics.rubric_1b import CRITERIA as CRITERIA_1B
+from eval.rubrics.rubric_1b import THRESHOLD as THRESHOLD_1B
+from eval.rubrics.rubric_2 import CRITERIA as CRITERIA_2
+from eval.rubrics.rubric_2 import THRESHOLD as THRESHOLD_2
+from eval.rubrics.rubric_3 import CRITERIA as CRITERIA_3
+from eval.rubrics.rubric_3 import THRESHOLD as THRESHOLD_3
+from eval.rubrics.rubric_4 import CRITERIA as CRITERIA_4
+from eval.rubrics.rubric_4 import THRESHOLD as THRESHOLD_4
 
 JUDGE_MODEL = AnthropicModel(model="claude-haiku-4-5-20251001")
 

@@ -11,7 +11,6 @@ Or to run a fresh build before testing:
 import os
 import re
 import subprocess
-import sys
 import unittest
 import zipfile
 from pathlib import Path
@@ -106,6 +105,7 @@ class TestSkillMdSource(unittest.TestCase):
     def test_skill_name_is_pdca_framework(self):
         match = re.search(r"^name:\s*(.+)$", self.content, re.MULTILINE)
         self.assertIsNotNone(match, "Could not parse skill name")
+        assert match is not None
         self.assertEqual(match.group(1).strip(), "pdca-framework")
 
     def test_under_500_lines(self):
@@ -121,7 +121,8 @@ class TestSkillMdSource(unittest.TestCase):
         for ref in refs:
             with self.subTest(ref=ref):
                 qualified = f"{SKILL_NAME}/{ref}"
-                self.assertIn(qualified, EXPECTED_FILES, f"SKILL.md references '{ref}' but '{qualified}' is not in EXPECTED_FILES")
+                msg = f"SKILL.md references '{ref}' but '{qualified}' is not in EXPECTED_FILES"
+                self.assertIn(qualified, EXPECTED_FILES, msg)
 
     def test_beads_references_are_optional(self):
         """All beads references must be either on a line with 'Optional' or inside
@@ -138,7 +139,7 @@ class TestSkillMdSource(unittest.TestCase):
             section_headings[i] = current_heading
 
         for ref in beads_refs:
-            matching_line_nums = [i for i, l in enumerate(self.lines) if ref in l]
+            matching_line_nums = [i for i, row in enumerate(self.lines) if ref in row]
             for lineno in matching_line_nums:
                 line = self.lines[lineno]
                 section = section_headings.get(lineno, "")
@@ -155,6 +156,7 @@ class TestSkillMdSource(unittest.TestCase):
         """Marketplace requirement: description must be third-person, not imperative."""
         match = re.search(r"^description:\s*(.+)$", self.content, re.MULTILINE)
         self.assertIsNotNone(match, "Could not parse description")
+        assert match is not None
         description = match.group(1).strip()
         imperative_phrases = ["Use when", "Use this when", "Run when", "Apply when"]
         for phrase in imperative_phrases:
@@ -168,6 +170,7 @@ class TestSkillMdSource(unittest.TestCase):
         """Marketplace requirement: description field must be ≤200 characters."""
         match = re.search(r"^description:\s*(.+)$", self.content, re.MULTILINE)
         self.assertIsNotNone(match, "Could not parse description")
+        assert match is not None
         description = match.group(1).strip()
         self.assertLessEqual(
             len(description),
@@ -202,7 +205,8 @@ class TestEvalScenarios(unittest.TestCase):
         """All JSON files in eval/scenarios/ must pass validate_scenario.
         Passes vacuously until scenario files are added in Step 4."""
         import json
-        from eval.schema import validate_scenario, ScenarioValidationError
+
+        from eval.schema import validate_scenario
 
         scenario_files = list(EVAL_SCENARIOS_DIR.glob("*.json"))
         for scenario_file in scenario_files:
@@ -326,7 +330,7 @@ class TestSkillPackage(unittest.TestCase):
         master_1a = (REPO_ROOT / "1. Plan" / "1a Analyze to determine approach for achieving the goal.md").read_text()
         # Check a distinctive phrase from 1a is present
         first_meaningful_line = next(
-            l.strip() for l in master_1a.splitlines() if l.strip() and not l.startswith("#")
+            ln.strip() for ln in master_1a.splitlines() if ln.strip() and not ln.startswith("#")
         )
         self.assertIn(
             first_meaningful_line[:60],
@@ -339,7 +343,7 @@ class TestSkillPackage(unittest.TestCase):
         plan = read_zip_file(SKILL_FILE, f"{SKILL_NAME}/references/plan-prompts.md")
         master_1b = (REPO_ROOT / "1. Plan" / "1b Create a detailed implementation plan.md").read_text()
         first_meaningful_line = next(
-            l.strip() for l in master_1b.splitlines() if l.strip() and not l.startswith("#")
+            ln.strip() for ln in master_1b.splitlines() if ln.strip() and not ln.startswith("#")
         )
         self.assertIn(
             first_meaningful_line[:60],

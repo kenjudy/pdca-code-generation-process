@@ -19,6 +19,22 @@ eval = [
     "anthropic>=0.40",
     "python-dotenv>=1.0",
 ]
+lint = [
+    "mypy>=1.19.1",
+    "ruff>=0.15.7",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.mypy]
+python_version = "3.11"
+check_untyped_defs = true
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -20,5 +20,17 @@ jobs:
         run: uv sync --extra test
         working-directory: claude-skill
 
+      - name: Install lint dependencies
+        run: uv sync --extra lint
+        working-directory: claude-skill
+
+      - name: Lint (ruff)
+        run: uv run ruff check .
+        working-directory: claude-skill
+
+      - name: Type check (mypy)
+        run: uv run mypy eval tests
+        working-directory: claude-skill
+
       - name: Build and test
         run: bash claude-skill/run-tests.sh

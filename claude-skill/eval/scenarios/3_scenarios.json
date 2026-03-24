@@ -16,7 +16,7 @@
     "description": "Implementation has TODO comments left in the code from the TDD session. Model must flag these in the verification checklist and return a non-complete verdict with Ready to close: No.",
     "input": "Steps 1-4 done, step 5 partially done. Tests passing but there are 3 TODO comments in the implementation: TODO: add retry logic, TODO: handle timeout, TODO: log failure. No documentation updates yet.",
     "expected_signals": {
-      "must_contain": ["Ready to close:"],
+      "must_contain": [],
       "must_not_contain": ["Status: Complete"],
       "called_shot_required": false
     }

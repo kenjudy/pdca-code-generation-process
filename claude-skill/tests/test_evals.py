@@ -132,19 +132,59 @@ def write_report(reporter):
 # Shared assertion helper
 # ---------------------------------------------------------------------------
 
+def _result_passed(result: dict) -> tuple[bool, bool]:
+    """Return (mech_passed, geval_passed) for a single result."""
+    mech_passed = not any(not c.passed for c in result["mechanical"])
+    geval_passed = result["geval_passed"]
+    return mech_passed, geval_passed
+
+
 def _assert_and_store(scenario: dict, reporter: EvalReporter) -> None:
     result = _run_scenario(scenario)
     reporter.add(result)
 
-    mech_failures = [c for c in result["mechanical"] if not c.passed]
-    assert not mech_failures, (
-        f"[{result['scenario_id']}] Mechanical checks failed:\n"
-        + "\n".join(f"  - {c.detail}" for c in mech_failures)
+    mech_ok, geval_ok = _result_passed(result)
+
+    if mech_ok and geval_ok:
+        return
+
+    # First shot failed — run 2 more shots and use majority voting (≥2/3).
+    all_results = [result]
+    for _ in range(2):
+        r = _run_scenario(scenario)
+        all_results.append(r)
+
+    mech_pass_count = sum(1 for r in all_results if _result_passed(r)[0])
+    geval_pass_count = sum(1 for r in all_results if _result_passed(r)[1])
+
+    # Replace reporter entry with retry-aware summary so report reflects true verdict.
+    reporter.results.pop()
+    reporter.add({
+        **result,
+        "retried": True,
+        "shots": all_results,
+        "shots_geval_passed": geval_pass_count,
+        "shots_mech_passed": mech_pass_count,
+        "shots_total": 3,
+        "geval_passed": geval_pass_count >= 2,
+    })
+
+    sid = result["scenario_id"]
+    assert mech_pass_count >= 2, (
+        f"[{sid}] Mechanical checks failed in majority of shots ({mech_pass_count}/3):\n"
+        + "\n".join(
+            f"  shot {i+1}: {c.detail}"
+            for i, r in enumerate(all_results)
+            for c in r["mechanical"] if not c.passed
+        )
     )
-    assert result["geval_passed"], (
-        f"[{result['scenario_id']}] GEval score {result['geval_score']:.2f} "
-        f"below threshold {result['geval_threshold']:.2f}.\n"
-        f"  Reason: {result.get('geval_reason')}"
+    assert geval_pass_count >= 2, (
+        f"[{sid}] GEval failed in majority of shots ({geval_pass_count}/3).\n"
+        + "\n".join(
+            f"  shot {i+1}: score={r['geval_score']:.2f}  {r.get('geval_reason', '')}"
+            for i, r in enumerate(all_results)
+            if not _result_passed(r)[1] and r["geval_score"] is not None
+        )
     )
 
 

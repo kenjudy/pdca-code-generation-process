@@ -395,8 +395,9 @@ with `pdca-framework.skill` attached as a downloadable artifact.
 
 1. Update the version in `README.md` (search for `v1.0.0`)
 2. Note the change in `PDCA-SKILL-CHANGELOG.md`
-3. Commit and push to main
-4. Tag and push:
+3. (Optional) Run Anthropic's official skill validator — see [Pre-Release Validation](#pre-release-validation) below
+4. Commit and push to main
+5. Tag and push:
 
 ```bash
 git tag v1.x.x
@@ -408,6 +409,35 @@ The Action runs automatically. The release appears at:
 
 The README's download link uses `/releases/latest/download/pdca-framework.skill` and
 resolves to the newest release automatically — no link update needed.
+
+## Pre-Release Validation
+
+Anthropic provides a `quick_validate.py` script in their [`anthropics/skills`](https://github.com/anthropics/skills) repository that checks SKILL.md spec compliance: frontmatter schema, allowed keys, kebab-case name format, and description constraints. Our CI tests cover the same ground, but this is the authoritative source.
+
+**One-time setup:**
+
+```bash
+git clone https://github.com/anthropics/skills /tmp/anthropics-skills
+pip install pyyaml  # if not already installed
+```
+
+**Run before releasing:**
+
+```bash
+cd /tmp/anthropics-skills/skills/skill-creator
+python3 -m scripts.quick_validate "/path/to/claude-skill/src/core"
+# Expected output: Skill is valid!
+```
+
+This is a manual pre-release check, not wired into CI. Re-clone if `/tmp/anthropics-skills` has been cleared.
+
+**What it validates:**
+- `SKILL.md` frontmatter is valid YAML
+- `name` is present, kebab-case, ≤64 chars
+- `description` is present, no angle brackets, ≤1024 chars
+- No unexpected frontmatter keys (allowed: `name`, `description`, `license`, `allowed-tools`, `metadata`, `compatibility`)
+
+Note: The spec allows descriptions up to 1024 chars. Our `test_description_under_200_chars` enforces a stricter 200-char limit as a UX discipline constraint for marketplace display.
 
 ## Contributing
 

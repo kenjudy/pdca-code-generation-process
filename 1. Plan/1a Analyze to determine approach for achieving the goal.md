@@ -33,9 +33,9 @@ Execute these searches BEFORE any analysis. Do not proceed until completed:
 
 **Required Deliverables BEFORE Analysis:**
 - Identify 2-3 existing implementations that follow similar patterns
-- Document the established architectural layers (which namespaces, which interfaces)
+- Document the established architectural layers (which modules/packages/namespaces, which interfaces)
 - Map the integration touch points (which existing methods will need modification)
-- List the abstractions already available (FileProvider, interfaces, base classes)
+- List the abstractions already available (interfaces, base classes, mixins)
 - **Solution Constraint**: State which existing abstractions the solution MUST use (no new ones unless absolutely necessary)
 
 **STOP CONDITION**: Do not proceed to analysis until you have concrete examples of:

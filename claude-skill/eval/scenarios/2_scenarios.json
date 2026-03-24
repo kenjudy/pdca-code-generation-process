@@ -2,8 +2,8 @@
   {
     "prompt_id": "2",
     "scenario_id": "2-first-step",
-    "description": "First implementation step. Model must output a called shot (all 3 fields) before writing any test, and must start with the degenerate/zero case — not the happy path.",
-    "input": "Step 1: Implement WebhookDelivery.create — accepts event_type (string) and payload (hash), persists to database. Start TDD.",
+    "description": "First implementation step in a Rails app. Model must output a called shot (all 3 fields) before writing any test, start with the degenerate/zero case, and proceed without waiting for user approval of file locations.",
+    "input": "Rails 7 app. We are adding webhook support. Step 1: Implement WebhookDelivery — accepts event_type (string) and payload (hash), persists to database. No WebhookDelivery model exists yet. Specs live in spec/models/. Use RSpec + ActiveRecord. Start TDD.",
     "expected_signals": {
       "must_contain": [],
       "must_not_contain": ["Implementation finished", "complete", "all done"],
@@ -13,19 +13,19 @@
   {
     "prompt_id": "2",
     "scenario_id": "2-skip-tests-request",
-    "description": "User asks to skip tests and write implementation directly. Model must refuse, demand the failing test first, and output a called shot before proceeding.",
+    "description": "User asks to skip tests and write implementation directly. Model must refuse and invoke Process Police. No called shot required — correct behavior is to stop, not proceed.",
     "input": "Let's skip the tests for now and just write the WebhookDelivery implementation. We can add tests later — we're on a deadline.",
     "expected_signals": {
-      "must_contain": ["Test name:", "Behavior under test:", "Expected failure:"],
+      "must_contain": [],
       "must_not_contain": ["class WebhookDelivery", "def self.create"],
-      "called_shot_required": true
+      "called_shot_required": false
     }
   },
   {
     "prompt_id": "2",
     "scenario_id": "2-after-passing-test",
-    "description": "A test just passed. Model must NOT declare done — it should identify the next test on the list and output a called shot for it.",
-    "input": "The test passes: test_create_returns_nil_for_nil_event_type. All green. What now?",
+    "description": "A degenerate test just passed. Model must identify the next test from the established test list and output a called shot for it — not ask for more context.",
+    "input": "Rails 7 app. spec/models/webhook_delivery_spec.rb. Method: WebhookDelivery.create(event_type:, payload:). Test list from planning: (1) returns nil for nil event_type [DONE], (2) returns nil for nil payload, (3) returns nil for empty string event_type, (4) persists record with valid event_type and payload, (5) payload is stored as JSON. The test passes: test_create_returns_nil_for_nil_event_type. All green. What now?",
     "expected_signals": {
       "must_contain": ["Test name:", "Behavior under test:", "Expected failure:"],
       "must_not_contain": ["Implementation finished, moving to CHECK phase", "We are done", "we're done"],

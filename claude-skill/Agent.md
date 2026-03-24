@@ -129,3 +129,55 @@ The human operator commits to:
 - Completing the Retrospective even when time-pressured
 
 The agent cannot enforce these. They are the human's accountability.
+
+---
+
+## Validating Changes to Source Instructions
+
+Any change to master prompt files (`1. Plan/`, `2. Do/`, etc.) or eval rubrics must follow this sequence. Do not commit without completing it.
+
+### 1. Establish a Baseline
+
+Check the most recent eval report:
+
+```bash
+ls -t claude-skill/eval/results/
+```
+
+If a recent report exists, use its per-scenario scores as the baseline. If not, or if the codebase has diverged, run the full eval first:
+
+```bash
+cd claude-skill && bash run-evals.sh
+```
+
+### 2. Make Small, Discrete Changes
+
+- Change **one concern at a time** — a single prompt section, a single rubric criterion
+- Rebuild after each change: `bash claude-skill/build-skill.sh`
+- Confirm the change appears in the built references before running evals
+
+### 3. Re-run Evals for Affected Phases Only
+
+Identify which phases are affected:
+
+| Changed file | Affected eval classes |
+|---|---|
+| `1. Plan/1a...md` | `TestPrompt1aEvals`, `TestPrompt1bEvals` (both use `plan-prompts.md`) |
+| `1. Plan/1b...md` | `TestPrompt1bEvals` |
+| `2. Do/2...md` | `TestPrompt2Evals` |
+| `3. Check/3...md` | `TestPrompt3Evals` |
+| `4. Act/4...md` | `TestPrompt4Evals` |
+| `eval/rubrics/rubric_Xb.py` | that phase's class only |
+
+```bash
+cd claude-skill && bash run-evals.sh -k "TestPrompt1aEvals or TestPrompt1bEvals"
+```
+
+### 4. Accept Only Same-or-Better Scores
+
+- All previously passing scenarios must still pass
+- If a scenario flips from pass to fail:
+  1. Check whether the failure is caused by your change or pre-existing rubric variance
+  2. Re-run the scenario 1–3 times — LLM-judge scores vary naturally
+  3. If the rubric is misapplying a criterion, fix the rubric (targeted change only) and re-run
+- Do not commit prompt or rubric changes that regress a passing scenario

@@ -24,23 +24,32 @@ echo "=== Building PDCA Framework Skill ==="
 bash "$SCRIPT_DIR/build-skill.sh"
 
 echo ""
+echo "=== Lint (ruff) ==="
+set +e
+(cd "$SCRIPT_DIR" && uv run ruff check .) 2>&1
+RUFF_EXIT=$?
+set -e
+
+echo ""
 echo "=== Running Test Suite ==="
 set +e
 (cd "$SCRIPT_DIR" && uv run python -m pytest tests/ --ignore=tests/test_evals.py -v) 2>&1
 TEST_EXIT=$?
 set -e
 
-if [ "$TEST_EXIT" -eq 0 ]; then
+COMBINED_EXIT=$(( RUFF_EXIT > TEST_EXIT ? RUFF_EXIT : TEST_EXIT ))
+
+if [ "$COMBINED_EXIT" -eq 0 ]; then
     echo ""
-    echo "✓ All tests passed."
+    echo "✓ All checks passed."
     exit 0
 else
     echo ""
-    echo "✗ Tests failed (exit $TEST_EXIT)."
+    echo "✗ Checks failed (ruff=$RUFF_EXIT tests=$TEST_EXIT)."
     if [ "$WARN_ONLY" = "1" ]; then
         echo "  (warn-only mode — commit allowed)"
         exit 0
     else
-        exit 1
+        exit "$COMBINED_EXIT"
     fi
 fi

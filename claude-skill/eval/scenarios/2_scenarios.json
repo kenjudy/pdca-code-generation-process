@@ -2,12 +2,12 @@
   {
     "prompt_id": "2",
     "scenario_id": "2-first-step",
-    "description": "First implementation step. File locations confirmed, no existing webhook files. Model must output a called shot (all 3 fields) and start with the degenerate/zero case.",
+    "description": "First implementation step. File locations confirmed, no existing webhook files. Model must output called shot info (may use table format) and start with the degenerate/zero case. GEval covers called shot quality.",
     "input": "Rails 7 app, PostgreSQL, RSpec + FactoryBot. Adding webhook support. Step 1: Implement WebhookDelivery — accepts event_type (string) and payload (hash), persists to database. File locations confirmed: app/models/webhook_delivery.rb (new), db/migrate/TIMESTAMP_create_webhook_deliveries.rb (new), spec/models/webhook_delivery_spec.rb (new). No existing WebhookDelivery files. ApplicationRecord base class. Start TDD now.",
     "expected_signals": {
       "must_contain": [],
       "must_not_contain": ["complete", "all done"],
-      "called_shot_required": true
+      "called_shot_required": false
     }
   },
   {

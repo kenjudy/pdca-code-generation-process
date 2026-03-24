@@ -1,0 +1,256 @@
+# This workflow collects code metrics for the repository and stores them in a JSON file.
+# It also creates an issue with the metrics summary.
+# The workflow is scheduled to run weekly on Sunday.
+# The workflow can also be triggered manually.
+# This workflow requires merge/squash commits do not delete the head branches (project properties -> general -> merge strategy).
+name: Collect Code Metrics
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday
+  workflow_dispatch:
+
+jobs:
+  collect-metrics:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Collect Commit Metrics
+        uses: actions/github-script@v7
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          script: |
+            const fs = require('fs');
+            
+            async function collectMetrics() {
+              const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+              const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+              
+              console.log(`Repository: ${owner}/${repo}`);
+              console.log(`Looking for commits since: ${since}`);
+              
+              try {
+                const repoInfo = await github.rest.repos.get({
+                  owner,
+                  repo
+                });
+                console.log(`Repository access confirmed: ${repoInfo.data.full_name}`);
+                
+                const branches = await github.paginate(github.rest.repos.listBranches, {
+                  owner,
+                  repo,
+                  per_page: 100
+                });
+                
+                const featureBranches = branches.filter(branch => 
+                  !['main', 'master'].includes(branch.name.toLowerCase())
+                );
+                
+                console.log(`Found ${branches.length} total branches`);
+                console.log(`Analyzing ${featureBranches.length} feature branches: ${featureBranches.map(b => b.name).join(', ')}`);
+                
+                let allCommits = [];
+                let branchCommitCounts = {};
+                
+                for (const branch of featureBranches) {
+                  try {
+                    console.log(`Fetching commits from branch: ${branch.name}`);
+                    const branchCommits = await github.paginate(github.rest.repos.listCommits, {
+                      owner,
+                      repo,
+                      sha: branch.name,
+                      since,
+                      per_page: 100
+                    });
+                    
+                    branchCommitCounts[branch.name] = branchCommits.length;
+                    allCommits = allCommits.concat(branchCommits.map(commit => ({
+                      ...commit,
+                      source_branch: branch.name
+                    })));
+                    
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    
+                  } catch (error) {
+                    console.log(`Error fetching commits from branch ${branch.name}: ${error.message}`);
+                    branchCommitCounts[branch.name] = 0;
+                  }
+                }
+                
+                const uniqueCommits = allCommits.filter((commit, index, self) => 
+                  index === self.findIndex(c => c.sha === commit.sha)
+                );
+                
+                console.log(`Found ${allCommits.length} total commits, ${uniqueCommits.length} unique commits`);
+                console.log('Commits per branch:', branchCommitCounts);
+                
+                if (uniqueCommits.length === 0) {
+                  console.log('No commits found in feature branches in the last 30 days.');
+                  const emptyMetrics = [];
+                  const summary = {
+                    total_commits: 0,
+                    branches_analyzed: featureBranches.map(b => b.name),
+                    branch_commit_counts: branchCommitCounts,
+                    large_commits_pct: "0.00",
+                    sprawling_commits_pct: "0.00", 
+                    test_first_pct: "0.00",
+                    avg_files_changed: "0.00",
+                    avg_lines_changed: "0.00",
+                    avg_prod_lines_changed: "0.00",
+                    note: "Feature branches only - main/master excluded. Large commit threshold applied to production code only."
+                  };
+                  
+                  fs.writeFileSync('commit_metrics.json', JSON.stringify(emptyMetrics, null, 2));
+                  fs.writeFileSync('metrics_summary.json', JSON.stringify(summary, null, 2));
+                  return;
+                }
+                
+                const metrics = [];
+                console.log(`Processing ${Math.min(uniqueCommits.length, 50)} commits...`);
+                
+                for (const commit of uniqueCommits.slice(0, 50)) {
+                  try {
+                    const detail = await github.rest.repos.getCommit({
+                      owner,
+                      repo,
+                      ref: commit.sha
+                    });
+                    
+                    const testFiles = detail.data.files?.filter(f =>
+                      /\.(test|spec)\.|Tests?\.cs$|Test\.cs$|__tests__|\/tests?\//i.test(f.filename)
+                    ) || [];
+
+                    const prodFiles = detail.data.files?.filter(f =>
+                      !/\.(test|spec)\.|Tests?\.cs$|Test\.cs$|__tests__|\/tests?\//i.test(f.filename)
+                    ) || [];
+                    
+                    metrics.push({
+                      sha: commit.sha,
+                      date: commit.commit.committer.date,
+                      message: commit.commit.message.split('\n')[0],
+                      author: commit.commit.author.name,
+                      source_branch: commit.source_branch,
+                      total_additions: detail.data.stats.additions,
+                      total_deletions: detail.data.stats.deletions,
+                      files_changed: detail.data.files?.length || 0,
+                      test_files_count: testFiles.length,
+                      prod_files_count: prodFiles.length,
+                      test_first_indicator: testFiles.length > 0 && prodFiles.length > 0,
+                      
+                      // Calculate production code changes only
+                      prod_additions: prodFiles.reduce((sum, f) => sum + f.additions, 0),
+                      prod_deletions: prodFiles.reduce((sum, f) => sum + f.deletions, 0),
+                      
+                      // Base "large commit" on production code only
+                      large_commit: (prodFiles.reduce((sum, f) => sum + f.additions + f.deletions, 0)) > 100,
+                      
+                      sprawling_commit: (detail.data.files?.length || 0) > 5,
+                      commit_type: "feature_branch"
+                    });
+                    
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                  } catch (error) {
+                    console.log(`Error processing commit ${commit.sha}: ${error.message}`);
+                  }
+                }
+                
+                console.log(`Saving metrics for ${metrics.length} commits`);
+                fs.writeFileSync('commit_metrics.json', JSON.stringify(metrics, null, 2));
+                
+                // Calculate summary AFTER all commits are processed
+                const summary = {
+                  total_commits: metrics.length,
+                  filtered_from: uniqueCommits.length,
+                  branches_analyzed: featureBranches.map(b => b.name),
+                  branch_commit_counts: branchCommitCounts,
+                  large_commits_pct: (metrics.filter(m => m.large_commit).length / metrics.length * 100).toFixed(2),
+                  sprawling_commits_pct: (metrics.filter(m => m.sprawling_commit).length / metrics.length * 100).toFixed(2),
+                  test_first_pct: (metrics.filter(m => m.test_first_indicator).length / metrics.length * 100).toFixed(2),
+                  avg_files_changed: (metrics.reduce((sum, m) => sum + m.files_changed, 0) / metrics.length).toFixed(2),
+                  
+                  // Use production code lines for average (both total and prod-only metrics)
+                  avg_lines_changed: (metrics.reduce((sum, m) => sum + (m.prod_additions || 0) + (m.prod_deletions || 0), 0) / metrics.length).toFixed(2),
+                  avg_prod_lines_changed: (metrics.reduce((sum, m) => sum + (m.prod_additions || 0) + (m.prod_deletions || 0), 0) / metrics.length).toFixed(2),
+                  
+                  note: "Feature branches only - main/master excluded. Large commit threshold applied to production code only."
+                };
+                
+                fs.writeFileSync('metrics_summary.json', JSON.stringify(summary, null, 2));
+                console.log('Summary:', summary);
+                
+              } catch (error) {
+                console.error('Error in collectMetrics:', error);
+                throw error;
+              }
+            }
+            
+            collectMetrics();
+
+      - name: Upload metrics artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: code-metrics-${{ github.run_number }}
+          path: |
+            commit_metrics.json
+            metrics_summary.json
+          if-no-files-found: warn
+
+      - name: Create Issue with Results
+        if: github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = JSON.parse(fs.readFileSync('metrics_summary.json', 'utf8'));
+
+            const branchActivity = Object.entries(summary.branch_commit_counts || {})
+              .map(([branch, count]) => `- ${branch}: ${count} commits`)
+              .join('\n');
+
+            const bodyLines = [
+              '## Weekly Code Metrics Report',
+              '',
+              '**Period:** Last 30 days',
+              `**Commits Analyzed:** ${summary.total_commits}`,
+              `**Branches Analyzed:** ${summary.branches_analyzed?.join(', ') || 'N/A'}`,
+              '',
+              '### Key Metrics',
+              '',
+              `**Large Commits (>100 production lines):** ${summary.large_commits_pct}%`,
+              `**Sprawling Commits (>5 files):** ${summary.sprawling_commits_pct}%`,
+              `**Test-First Discipline:** ${summary.test_first_pct}%`,
+              `**Avg Files Changed:** ${summary.avg_files_changed}`,
+              `**Avg Production Lines Changed:** ${summary.avg_prod_lines_changed}`,
+              '',
+              '### Branch Activity',
+              branchActivity,
+              '',
+              '### Interpretation',
+              '',
+              'Target: <20% large commits, <10% sprawling commits',
+              'Test-first discipline should trend upward',
+              'Large commits now measured by production code only (excludes test files)',
+              'Consider investigation if metrics worsen significantly',
+              '',
+              '_Generated by PDCA Code Metrics Workflow_'
+            ];
+
+            const body = bodyLines.join('\n');
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Code Metrics Report - ${new Date().toISOString().split('T')[0]}`,
+              body: body,
+              labels: ['metrics', 'automated']
+            });

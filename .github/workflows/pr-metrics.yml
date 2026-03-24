@@ -1,0 +1,286 @@
+name: Enhanced PR Analysis with Commit Metrics
+on:
+  pull_request:
+    types: [opened, synchronize]
+jobs:
+  analyze-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Enhanced PR Analysis
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            
+            // Get PR files for size analysis
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              per_page: 100
+            });
+            
+            // Get commits in this PR for detailed analysis
+            const commits = await github.paginate(github.rest.pulls.listCommits, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              per_page: 100
+            });
+            
+            console.log(`Analyzing ${commits.length} commits and ${files.length} files in PR`);
+            
+            // Separate test and production files
+            const testFiles = files.filter(f =>
+              /\.(test|spec)\.|Tests?\.cs$|Test\.cs$|__tests__|\/tests?\//i.test(f.filename)
+            );
+            
+            const prodFiles = files.filter(f =>
+              !/\.(test|spec)\.|Tests?\.cs$|Test\.cs$|__tests__|\/tests?\//i.test(f.filename)
+            );
+            
+            // Analyze each commit in detail
+            const commitMetrics = [];
+            for (const commit of commits) {
+              try {
+                const detail = await github.rest.repos.getCommit({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: commit.sha
+                });
+                
+                const commitTestFiles = detail.data.files?.filter(f =>
+                  /\.(test|spec)\.|Tests?\.cs$|Test\.cs$|__tests__|\/tests?\//i.test(f.filename)
+                ) || [];
+
+                const commitProdFiles = detail.data.files?.filter(f =>
+                  !/\.(test|spec)\.|Tests?\.cs$|Test\.cs$|__tests__|\/tests?\//i.test(f.filename)
+                ) || [];
+                
+                const prodChanges = commitProdFiles.reduce((sum, f) => sum + f.additions + f.deletions, 0);
+                const testChanges = commitTestFiles.reduce((sum, f) => sum + f.additions + f.deletions, 0);
+                
+                commitMetrics.push({
+                  sha: commit.sha.substring(0, 7),
+                  message: commit.commit.message.split('\n')[0],
+                  author: commit.commit.author.name,
+                  date: new Date(commit.commit.author.date).toLocaleDateString(),
+                  files_changed: detail.data.files?.length || 0,
+                  prod_files: commitProdFiles.length,
+                  test_files: commitTestFiles.length,
+                  prod_changes: prodChanges,
+                  test_changes: testChanges,
+                  total_changes: detail.data.stats.additions + detail.data.stats.deletions,
+                  large_commit: prodChanges > 100,
+                  sprawling_commit: (detail.data.files?.length || 0) > 5,
+                  test_first_indicator: commitTestFiles.length > 0 && commitProdFiles.length > 0,
+                  test_only: commitTestFiles.length > 0 && commitProdFiles.length === 0,
+                  prod_only: commitProdFiles.length > 0 && commitTestFiles.length === 0,
+                  test_ratio: prodChanges > 0 ? (testChanges / prodChanges) : 0
+                });
+                
+                await new Promise(resolve => setTimeout(resolve, 100));
+              } catch (error) {
+                console.log(`Error analyzing commit ${commit.sha}: ${error.message}`);
+              }
+            }
+            
+            // Calculate PR-level metrics
+            const totalAdditions = pr.additions;
+            const totalDeletions = pr.deletions;
+            const totalChangedFiles = pr.changed_files;
+            const totalChanges = totalAdditions + totalDeletions;
+            
+            const prodAdditions = prodFiles.reduce((sum, f) => sum + f.additions, 0);
+            const prodDeletions = prodFiles.reduce((sum, f) => sum + f.deletions, 0);
+            const prodChanges = prodAdditions + prodDeletions;
+            const prodFilesCount = prodFiles.length;
+            
+            const testAdditions = testFiles.reduce((sum, f) => sum + f.additions, 0);
+            const testDeletions = testFiles.reduce((sum, f) => sum + f.deletions, 0);
+            const testChanges = testAdditions + testDeletions;
+            const testFilesCount = testFiles.length;
+            
+            // Commit-level analysis
+            const largeCommits = commitMetrics.filter(c => c.large_commit).length;
+            const sprawlingCommits = commitMetrics.filter(c => c.sprawling_commit).length;
+            const testFirstCommits = commitMetrics.filter(c => c.test_first_indicator).length;
+            const testOnlyCommits = commitMetrics.filter(c => c.test_only).length;
+            const prodOnlyCommits = commitMetrics.filter(c => c.prod_only).length;
+            
+            const avgCommitSize = commitMetrics.length > 0 ? 
+              (commitMetrics.reduce((sum, c) => sum + c.prod_changes, 0) / commitMetrics.length) : 0;
+            
+            const avgFilesPerCommit = commitMetrics.length > 0 ? 
+              (commitMetrics.reduce((sum, c) => sum + c.files_changed, 0) / commitMetrics.length) : 0;
+            
+            // Development pattern analysis
+            const hasRefactoringPattern = commitMetrics.some(c => 
+              /refactor|cleanup|reorganize|extract|rename/i.test(c.message)
+            );
+            
+            const hasIncrementalPattern = commitMetrics.length > 1 && 
+              commitMetrics.every(c => c.prod_changes < 200);
+            
+            const hasTestDiscipline = commitMetrics.length > 0 && 
+              (testFirstCommits / commitMetrics.length) > 0.5;
+            
+            // PR size classification
+            let sizeLabel = 'small';
+            let concerns = [];
+            let strengths = [];
+            
+            if (prodChanges > 500) {
+              sizeLabel = 'extra-large';
+              concerns.push(':warning: Very large production changes - consider breaking into smaller PRs');
+            } else if (prodChanges > 200) {
+              sizeLabel = 'large';
+              concerns.push(':straight_ruler: Large production changes - review carefully');
+            } else if (prodChanges > 100) {
+              sizeLabel = 'medium';
+            }
+            
+            if (prodFilesCount > 10) {
+              concerns.push(':file_folder: Many production files changed - possible scope creep');
+            }
+            
+            // Commit quality assessment
+            if (largeCommits > commitMetrics.length * 0.5) {
+              concerns.push(`:package: ${largeCommits}/${commitMetrics.length} commits are large (>100 production lines)`);
+            }
+            
+            if (sprawlingCommits > commitMetrics.length * 0.3) {
+              concerns.push(`:deciduous_tree: ${sprawlingCommits}/${commitMetrics.length} commits touch many files (>5)`);
+            }
+            
+            // Positive patterns
+            if (hasIncrementalPattern) {
+              strengths.push(':building_construction: Incremental development pattern detected');
+            }
+            
+            if (hasTestDiscipline) {
+              strengths.push(':test_tube: Strong test-first discipline across commits');
+            }
+            
+            if (hasRefactoringPattern) {
+              strengths.push(':recycle: Includes refactoring/cleanup work');
+            }
+            
+            if (testOnlyCommits > 0) {
+              strengths.push(`:white_check_mark: ${testOnlyCommits} test-only commits (good for TDD)`);
+            }
+            
+            // Test adequacy analysis
+            let testAdequacy = 'excellent';
+            let testConcerns = [];
+            let testPraise = [];
+            
+            const testRatio = prodChanges > 0 ? (testChanges / prodChanges) : 0;
+            
+            if (prodChanges === 0) {
+              if (testChanges > 0) {
+                testAdequacy = 'excellent';
+                testPraise.push(':white_check_mark: Test-only changes - refactoring or test improvements');
+              } else {
+                testAdequacy = 'n/a';
+              }
+            } else if (prodChanges > 0 && testChanges === 0) {
+              testAdequacy = 'poor';
+              testConcerns.push(':x: No test changes for production code modifications');
+              if (prodOnlyCommits === commitMetrics.length) {
+                testConcerns.push(':warning: All commits lack test coverage');
+              }
+            } else if (testRatio < 0.3) {
+              testAdequacy = 'needs-improvement';
+              testConcerns.push(':yellow_circle: Low test coverage - consider adding more tests');
+            } else if (testRatio >= 0.3 && testRatio <= 2.0) {
+              testAdequacy = 'good';
+              testPraise.push(':white_check_mark: Good balance of production and test code');
+            } else {
+              testAdequacy = 'excellent';
+              testPraise.push(':star2: Excellent test coverage - comprehensive testing');
+            }
+            
+            // Create detailed breakdown
+            const breakdown = `
+            **Production Code:** ${prodChanges} lines (${prodFilesCount} files)
+            **Test Code:** ${testChanges} lines (${testFilesCount} files)
+            **Total:** ${totalChanges} lines (${totalChangedFiles} files)
+            ${prodChanges > 0 ? `**Test-to-Production Ratio:** ${testRatio.toFixed(2)}:1` : ''}
+            `;
+            
+            const commitAnalysis = `
+            ## Commit Analysis
+            
+            **Total Commits:** ${commitMetrics.length}
+            **Average Commit Size:** ${avgCommitSize.toFixed(0)} production lines
+            **Average Files per Commit:** ${avgFilesPerCommit.toFixed(1)}
+            
+            ### Commit Quality Metrics:
+            - **Large Commits (>100 prod lines):** ${largeCommits}/${commitMetrics.length} (${(largeCommits/commitMetrics.length*100).toFixed(0)}%)
+            - **Sprawling Commits (>5 files):** ${sprawlingCommits}/${commitMetrics.length} (${(sprawlingCommits/commitMetrics.length*100).toFixed(0)}%)
+            - **Test-First Discipline:** ${testFirstCommits}/${commitMetrics.length} (${(testFirstCommits/commitMetrics.length*100).toFixed(0)}%)
+            - **Test-Only Commits:** ${testOnlyCommits}
+            - **Production-Only Commits:** ${prodOnlyCommits}
+            
+            ### Development Patterns:
+            ${strengths.length > 0 ? strengths.map(s => `- ${s}`).join('\n') : '- No notable positive patterns detected'}
+            
+            ${commitMetrics.length <= 10 ? `
+            ### Commit Details:
+            ${commitMetrics.map(c => `
+            **${c.sha}** by ${c.author} (${c.date})
+            \`${c.message}\`
+            - Files: ${c.files_changed} (${c.prod_files} prod, ${c.test_files} test)
+            - Changes: ${c.prod_changes} prod lines, ${c.test_changes} test lines
+            ${c.large_commit ? '- :package: Large commit' : ''}${c.sprawling_commit ? '- :deciduous_tree: Sprawling commit' : ''}${c.test_first_indicator ? '- :test_tube: Test-first' : ''}
+            `).join('\n')}` : ''}
+            `;
+            
+            const testSection = testAdequacy !== 'n/a' ? `
+            ## Test Coverage Analysis
+            
+            **Test Adequacy:** ${testAdequacy}
+            
+            ${testPraise.length > 0 ? '### Strengths:\n' + testPraise.map(p => `- ${p}`).join('\n') + '\n' : ''}
+            ${testConcerns.length > 0 ? '### Test Coverage Concerns:\n' + testConcerns.map(c => `- ${c}`).join('\n') + '\n' : ''}
+            
+            ### Test Coverage Guidelines:
+            - **Target ratio:** 0.5-2.0 test lines per production line
+            - **Minimum:** Some test changes for any production code modifications
+            - **Best practice:** Write tests first (TDD) when adding new features
+            ` : '';
+            
+            const comment = `
+            ## Enhanced PR Analysis
+            
+            **Size:** ${sizeLabel} (based on production code)
+            
+            ${breakdown}
+            
+            ${concerns.length > 0 ? '### Size & Quality Concerns:\n' + concerns.map(c => `- ${c}`).join('\n') + '\n' : ':white_check_mark: Good size and commit quality\n'}
+            
+            ${commitAnalysis}
+            
+            ${testSection}
+            
+            ### PDCA Framework Alignment:
+            - **Plan:** ${hasIncrementalPattern ? ':white_check_mark: Shows incremental planning' : ':yellow_circle: Consider smaller, planned increments'}
+            - **Do:** ${commitMetrics.length > 0 ? ':white_check_mark: Implementation tracked in commits' : ':x: No commit history'}
+            - **Check:** ${testAdequacy === 'good' || testAdequacy === 'excellent' ? ':white_check_mark: Good validation through tests' : ':yellow_circle: Needs better validation'}
+            - **Act:** ${hasRefactoringPattern ? ':white_check_mark: Shows continuous improvement' : ':information_source: Consider refactoring opportunities'}
+            
+            *Automated by Enhanced PDCA Framework - analyzing both PR and commit-level metrics*
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

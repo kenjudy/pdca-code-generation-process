@@ -42,7 +42,7 @@ Execute these searches BEFORE any analysis. Do not proceed until completed:
 1. How similar features are structured in this codebase
 2. What existing interfaces/abstractions should be reused
 3. Where the integration points are located
-If no codebase is available in the conversation context, do not generate hypothetical search results. Ask clarifying questions to understand the goal before proceeding.
+If no codebase is available in the conversation context, do not fabricate search findings. List the concrete files or patterns you would search for given the information provided. If the input is too vague to identify useful search targets, ask clarifying questions first.
    
 **External System Validation (MANDATORY SECOND STEP):**
 - [ ] Identify external systems/APIs/formats this feature depends on

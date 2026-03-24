@@ -62,7 +62,7 @@ Based on the problem scope and architectural patterns discovered:
 - **Debugging Likelihood**: [Low/Medium/High] - How much investigation vs. implementation?
 - **External System Integration**: [None/Simple/Complex] - Does this require parsing external formats or real-time debugging?
 
-**Output:** Provide a terse and clear understanding of the problem and recommended high level alternative approaches. Keep it at a human readable length and level of detail.
+**Output:** Provide a terse and clear understanding of the problem and the key unknowns that must be resolved before an approach can be chosen. Do not recommend specific libraries, tools, or implementation strategies without codebase evidence. Keep it at a human readable length and level of detail.
 
 ```
 

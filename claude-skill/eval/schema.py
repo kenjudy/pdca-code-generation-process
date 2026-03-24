@@ -31,3 +31,6 @@ def validate_scenario(scenario: dict) -> None:
         raise ScenarioValidationError("expected_signals.must_not_contain must be a list")
     if not isinstance(signals["called_shot_required"], bool):
         raise ScenarioValidationError("expected_signals.called_shot_required must be a bool")
+
+    if "skip_geval" in signals and not isinstance(signals["skip_geval"], bool):
+        raise ScenarioValidationError("expected_signals.skip_geval must be a bool")

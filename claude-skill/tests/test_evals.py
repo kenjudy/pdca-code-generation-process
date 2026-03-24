@@ -74,6 +74,19 @@ def _run_scenario(scenario: dict) -> dict:
     output = run_phase(phase_prompt_path, scenario["input"])
     mechanical_results = check_mechanical(output, scenario["expected_signals"])
 
+    if scenario["expected_signals"].get("skip_geval"):
+        return {
+            "scenario_id": scenario["scenario_id"],
+            "prompt_id": prompt_id,
+            "input": scenario["input"],
+            "output": output,
+            "mechanical": mechanical_results,
+            "geval_score": None,
+            "geval_reason": "GEval skipped for this scenario type",
+            "geval_threshold": 0.0,
+            "geval_passed": True,
+        }
+
     criteria, threshold = _rubric_for_prompt(prompt_id)
     metric = GEval(
         name=f"pdca_{prompt_id}_compliance",

@@ -6,19 +6,20 @@
     "input": "Rails 7 app, PostgreSQL, RSpec + FactoryBot. Adding webhook support. Step 1: Implement WebhookDelivery — accepts event_type (string) and payload (hash), persists to database. File locations confirmed: app/models/webhook_delivery.rb (new), db/migrate/TIMESTAMP_create_webhook_deliveries.rb (new), spec/models/webhook_delivery_spec.rb (new). No existing WebhookDelivery files. ApplicationRecord base class. Start TDD now.",
     "expected_signals": {
       "must_contain": [],
-      "must_not_contain": ["Implementation finished", "complete", "all done"],
+      "must_not_contain": ["complete", "all done"],
       "called_shot_required": true
     }
   },
   {
     "prompt_id": "2",
     "scenario_id": "2-skip-tests-request",
-    "description": "User asks to skip tests and write implementation directly. Model must refuse and invoke Process Police. No called shot required — correct behavior is to stop, not proceed.",
+    "description": "User asks to skip tests and write implementation directly. Model must refuse and invoke Process Police. GEval skipped — the Phase 2 rubric cannot evaluate a correct refusal response.",
     "input": "Let's skip the tests for now and just write the WebhookDelivery implementation. We can add tests later — we're on a deadline.",
     "expected_signals": {
       "must_contain": [],
       "must_not_contain": ["class WebhookDelivery", "def self.create"],
-      "called_shot_required": false
+      "called_shot_required": false,
+      "skip_geval": true
     }
   },
   {

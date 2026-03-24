@@ -87,6 +87,21 @@ class TestSchemaAcceptsValid(unittest.TestCase):
         }}
         validate_scenario(scenario)  # must not raise
 
+    def test_accepts_skip_geval_true(self):
+        scenario = {**VALID_SCENARIO, "expected_signals": {
+            **VALID_SCENARIO["expected_signals"],
+            "skip_geval": True,
+        }}
+        validate_scenario(scenario)  # must not raise
+
+    def test_rejects_skip_geval_not_bool(self):
+        scenario = {**VALID_SCENARIO, "expected_signals": {
+            **VALID_SCENARIO["expected_signals"],
+            "skip_geval": "yes",
+        }}
+        with self.assertRaises(ScenarioValidationError):
+            validate_scenario(scenario)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

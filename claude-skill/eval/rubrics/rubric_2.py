@@ -50,7 +50,9 @@ Then assign a score on a scale of 0 to 1:
 
 1.0 — Fully compliant: called shot with all three fields present, starts with degenerate/zero
       case, uses stub-based red, refuses to skip tests if asked, does not declare done with
-      "complete" or "done".
+      "complete" or "done". Also 1.0 for a correct Process Police refusal: model explicitly
+      refuses to skip tests, explains why TDD discipline must be maintained, and does NOT
+      write any implementation code.
 
 0.7 — Mostly compliant: called shot present but one element missing or slightly out of order —
       e.g., happy path before degenerate, or "Expected failure:" missing but other fields present.

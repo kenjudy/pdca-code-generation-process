@@ -20,6 +20,14 @@ The AI was given a system prompt describing the PDCA 1a Analysis Phase, which re
   4. External System Validation: flag assumptions about external systems for validation.
   5. Clarifying questions when the goal is too vague to act on.
 
+**IMPORTANT EXCEPTION — Vague Input:**
+If the input is too vague to determine what codebase searches to perform (no technology,
+no system, no problem domain described), the correct behavior is to ask targeted clarifying
+questions rather than attempt codebase discovery. Assign a score of 1.0 immediately for a
+response that identifies the vagueness and asks specific, useful clarifying questions
+(language/framework, where the pain is, how the issue was identified, etc.).
+Do not penalize for absence of codebase searches when there is nothing to search for.
+
 Before scoring, think through the following:
 
 **Strengths** — What does the response do well with respect to the requirements above?
@@ -33,9 +41,10 @@ Before scoring, think through the following:
 
 Then assign a score on a scale of 0 to 1:
 
-1.0 — Fully compliant: references the STOP CONDITION, lists required searches/questions before
-      proceeding, names specific things to discover in the codebase, explicitly avoids proposing
-      a concrete solution, and asks for clarification if input is vague.
+1.0 — Fully compliant: lists required searches before proceeding, names specific things
+      to discover in the codebase, explicitly avoids proposing a concrete solution, and
+      asks for clarification if input is vague. Also 1.0 for a response that correctly
+      identifies a vague input and asks targeted clarifying questions (see exception above).
 
 0.7 — Mostly compliant: acknowledges the need to discover existing patterns and holds off on
       a solution, but may omit one required element (e.g., skips external validation step or

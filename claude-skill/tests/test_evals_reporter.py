@@ -117,3 +117,45 @@ class TestEvalReporter:
         path = tmp_path / "report.md"
         reporter.write_report(path)
         assert path.exists()
+
+    def test_retried_result_shows_retry_info_in_summary(self, tmp_path):
+        shot1 = _make_result(geval_passed=False, geval_score=0.20)
+        shot2 = _make_result(geval_passed=True, geval_score=0.90)
+        shot3 = _make_result(geval_passed=True, geval_score=0.80)
+        retried = {
+            **shot1,
+            "retried": True,
+            "shots": [shot1, shot2, shot3],
+            "shots_geval_passed": 2,
+            "shots_mech_passed": 3,
+            "shots_total": 3,
+            "geval_passed": True,  # majority verdict
+        }
+        reporter = EvalReporter()
+        reporter.add(retried)
+        path = tmp_path / "report.md"
+        reporter.write_report(path)
+        content = path.read_text()
+        assert "2/3" in content
+
+    def test_retried_result_shows_shot_details(self, tmp_path):
+        shot1 = _make_result(geval_passed=False, geval_score=0.20)
+        shot2 = _make_result(geval_passed=True, geval_score=0.90)
+        shot3 = _make_result(geval_passed=True, geval_score=0.80)
+        retried = {
+            **shot1,
+            "retried": True,
+            "shots": [shot1, shot2, shot3],
+            "shots_geval_passed": 2,
+            "shots_mech_passed": 3,
+            "shots_total": 3,
+            "geval_passed": True,
+        }
+        reporter = EvalReporter()
+        reporter.add(retried)
+        path = tmp_path / "report.md"
+        reporter.write_report(path)
+        content = path.read_text()
+        assert "Shot 1" in content
+        assert "Shot 2" in content
+        assert "Shot 3" in content

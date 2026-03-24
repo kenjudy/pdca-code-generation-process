@@ -42,6 +42,7 @@ Execute these searches BEFORE any analysis. Do not proceed until completed:
 1. How similar features are structured in this codebase
 2. What existing interfaces/abstractions should be reused
 3. Where the integration points are located
+If no codebase is available in the conversation context, do not fabricate search findings. List the concrete files or patterns you would search for given the information provided. If the input is too vague to identify useful search targets, ask clarifying questions first.
    
 **External System Validation (MANDATORY SECOND STEP):**
 - [ ] Identify external systems/APIs/formats this feature depends on
@@ -62,7 +63,7 @@ Based on the problem scope and architectural patterns discovered:
 - **Debugging Likelihood**: [Low/Medium/High] - How much investigation vs. implementation?
 - **External System Integration**: [None/Simple/Complex] - Does this require parsing external formats or real-time debugging?
 
-**Output:** Provide a terse and clear understanding of the problem and recommended high level alternative approaches. Keep it at a human readable length and level of detail.
+**Output:** Provide a terse and clear understanding of the problem and the key unknowns that must be resolved before an approach can be chosen. Do not recommend specific libraries, tools, or implementation strategies without codebase evidence. Keep it at a human readable length and level of detail.
 
 ```
 

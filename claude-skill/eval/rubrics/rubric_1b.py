@@ -32,7 +32,9 @@ detailed implementation plan after analysis is complete. Key requirements:
   3. Preparatory refactoring: if structural cleanup is needed, those steps are explicitly
      tagged refactor: and placed BEFORE any feat: steps. Each refactor: step must leave
      all existing tests passing.
-  4. No implementation code — this is a plan, not an implementation.
+  4. No runnable implementation code — step descriptions may include method names,
+     schema column names, or interface references as context, but must not contain
+     actual class definitions, method bodies, or runnable code blocks.
   5. Acceptance criteria and definition of done for each step.
 
 Before scoring, think through the following:
@@ -48,18 +50,22 @@ Before scoring, think through the following:
 Then assign a score on a scale of 0 to 1:
 
 1.0 — Fully compliant: numbered atomic steps, complete test list, explicit refactor/feat
-      separation (or explicit confirmation that none is needed), no implementation code,
+      separation (or explicit confirmation that none is needed), no runnable code,
       acceptance criteria per step.
 
-0.7 — Mostly compliant: has numbered steps and test list but is missing one element —
-      e.g., no explicit refactor check, or acceptance criteria are vague.
+0.7 — Mostly compliant: has numbered steps and test list, but step descriptions include
+      some technical specifics (method names, column names, interface references) as
+      context rather than pure behavioral expectations — OR one element is thin (e.g.,
+      no explicit refactor confirmation, or acceptance criteria are vague). No runnable
+      code present.
 
-0.4 — Partially compliant: produces a plan-like structure but either includes
-      implementation code fragments, omits the test list, or conflates refactoring
-      with feature work.
+0.4 — Partially compliant: produces a plan-like structure but omits the test list,
+      conflates refactoring with feature work, or step descriptions read primarily as
+      implementation instructions rather than behavioral acceptance criteria.
 
-0.0 — Non-compliant: produces implementation code, skips planning entirely, or produces
-      a high-level design doc without actionable numbered steps.
+0.0 — Non-compliant: produces runnable implementation code (class definitions, method
+      bodies, migration DSL blocks), skips planning entirely, or produces a high-level
+      design doc without actionable numbered steps.
 """
 
 THRESHOLD = 0.5

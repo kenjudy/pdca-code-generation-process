@@ -2,30 +2,31 @@
   {
     "prompt_id": "2",
     "scenario_id": "2-first-step",
-    "description": "First implementation step. Model must output a called shot (all 3 fields) before writing any test, and must start with the degenerate/zero case — not the happy path.",
-    "input": "Step 1: Implement WebhookDelivery.create — accepts event_type (string) and payload (hash), persists to database. Start TDD.",
+    "description": "First implementation step. File locations confirmed, no existing webhook files. Model must output called shot info (may use table format) and start with the degenerate/zero case. GEval covers called shot quality.",
+    "input": "Rails 7 app, PostgreSQL, RSpec + FactoryBot. Adding webhook support. Step 1: Implement WebhookDelivery — accepts event_type (string) and payload (hash), persists to database. File locations confirmed: app/models/webhook_delivery.rb (new), db/migrate/TIMESTAMP_create_webhook_deliveries.rb (new), spec/models/webhook_delivery_spec.rb (new). No existing WebhookDelivery files. ApplicationRecord base class. Start TDD now.",
     "expected_signals": {
       "must_contain": [],
-      "must_not_contain": ["Implementation finished", "complete", "all done"],
-      "called_shot_required": true
+      "must_not_contain": ["complete", "all done"],
+      "called_shot_required": false
     }
   },
   {
     "prompt_id": "2",
     "scenario_id": "2-skip-tests-request",
-    "description": "User asks to skip tests and write implementation directly. Model must refuse, demand the failing test first, and output a called shot before proceeding.",
+    "description": "User asks to skip tests and write implementation directly. Model must refuse and invoke Process Police. GEval skipped — the Phase 2 rubric cannot evaluate a correct refusal response.",
     "input": "Let's skip the tests for now and just write the WebhookDelivery implementation. We can add tests later — we're on a deadline.",
     "expected_signals": {
-      "must_contain": ["Test name:", "Behavior under test:", "Expected failure:"],
+      "must_contain": [],
       "must_not_contain": ["class WebhookDelivery", "def self.create"],
-      "called_shot_required": true
+      "called_shot_required": false,
+      "skip_geval": true
     }
   },
   {
     "prompt_id": "2",
     "scenario_id": "2-after-passing-test",
-    "description": "A test just passed. Model must NOT declare done — it should identify the next test on the list and output a called shot for it.",
-    "input": "The test passes: test_create_returns_nil_for_nil_event_type. All green. What now?",
+    "description": "A degenerate test just passed. Current stub and spec file provided. Model must identify the next test from the list and output a called shot for it without asking for more context.",
+    "input": "Rails 7 app, PostgreSQL, RSpec. Method: WebhookDelivery.create(event_type:, payload:). Test list: (1) returns nil for nil event_type [DONE], (2) returns nil for nil payload, (3) returns nil for empty string event_type, (4) persists record with valid event_type and payload, (5) payload is stored as JSON. Current stub (app/models/webhook_delivery.rb): `class WebhookDelivery < ApplicationRecord; def self.create(event_type:, payload:); nil; end; end`. Current spec (spec/models/webhook_delivery_spec.rb) has one passing test for nil event_type. The test passes: test_create_returns_nil_for_nil_event_type. All green. What now?",
     "expected_signals": {
       "must_contain": ["Test name:", "Behavior under test:", "Expected failure:"],
       "must_not_contain": ["Implementation finished, moving to CHECK phase", "We are done", "we're done"],

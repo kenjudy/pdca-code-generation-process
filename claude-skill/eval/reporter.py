@@ -35,9 +35,12 @@ class EvalReporter:
         lines.append("| Scenario | Phase | Score | Threshold | GEval | Mechanical |")
         lines.append("|----------|-------|-------|-----------|-------|------------|")
         for r in self.results:
-            score_str = f"{r['geval_score']:.2f}" if r["geval_score"] is not None else "n/a"
             phase = PHASE_NAMES.get(r["prompt_id"], r["prompt_id"])
-            mech_ok = all(c.passed for c in r["mechanical"])
+            mech_ok = r["shots_mech_passed"] >= 2 if r.get("retried") else all(c.passed for c in r["mechanical"])
+            if r.get("retried"):
+                score_str = f"{r['shots_geval_passed']}/{r['shots_total']} shots"
+            else:
+                score_str = f"{r['geval_score']:.2f}" if r["geval_score"] is not None else "n/a"
             lines.append(
                 f"| {r['scenario_id']} | {phase} | {score_str} | {r['geval_threshold']:.2f}"
                 f" | {'✅' if r['geval_passed'] else '❌'} | {'✅' if mech_ok else '❌'} |"
@@ -51,23 +54,41 @@ class EvalReporter:
             score_str = f"{r['geval_score']:.2f}" if r["geval_score"] is not None else "n/a"
 
             lines.append(f"### {r['scenario_id']} ({phase})\n")
-            lines.append(
-                f"**GEval:** {score_str} / threshold {r['geval_threshold']:.2f}"
-                f" {'✅' if r['geval_passed'] else '❌'}"
-            )
 
-            # Mechanical checks
-            lines.append("\n**Mechanical checks:**\n")
-            if r["mechanical"]:
-                for c in r["mechanical"]:
-                    lines.append(f"- {'✅' if c.passed else '❌'} `{c.field}` — {c.detail}")
+            if r.get("retried"):
+                lines.append(
+                    f"**GEval:** retried — {r['shots_geval_passed']}/{r['shots_total']} shots passed"
+                    f" {'✅' if r['geval_passed'] else '❌'}"
+                )
+                lines.append(f"\n**Mechanical:** {r['shots_mech_passed']}/{r['shots_total']} shots passed\n")
+                for i, shot in enumerate(r["shots"], 1):
+                    shot_score = f"{shot['geval_score']:.2f}" if shot["geval_score"] is not None else "n/a"
+                    shot_mech_ok = all(c.passed for c in shot["mechanical"])
+                    lines.append(
+                        f"**Shot {i}:** GEval {shot_score} {'✅' if shot['geval_passed'] else '❌'}"
+                        f" | Mechanical {'✅' if shot_mech_ok else '❌'}"
+                    )
+                    if shot.get("geval_reason"):
+                        lines.append(f"> {shot['geval_reason'].strip()}")
+                lines.append("")
             else:
-                lines.append("- *(none defined)*")
+                lines.append(
+                    f"**GEval:** {score_str} / threshold {r['geval_threshold']:.2f}"
+                    f" {'✅' if r['geval_passed'] else '❌'}"
+                )
 
-            # Judge reasoning
-            if r.get("geval_reason"):
-                lines.append("\n**Judge reasoning:**\n")
-                lines.append(f"> {r['geval_reason'].strip()}")
+                # Mechanical checks
+                lines.append("\n**Mechanical checks:**\n")
+                if r["mechanical"]:
+                    for c in r["mechanical"]:
+                        lines.append(f"- {'✅' if c.passed else '❌'} `{c.field}` — {c.detail}")
+                else:
+                    lines.append("- *(none defined)*")
+
+                # Judge reasoning
+                if r.get("geval_reason"):
+                    lines.append("\n**Judge reasoning:**\n")
+                    lines.append(f"> {r['geval_reason'].strip()}")
 
             # Input
             lines.append("\n**Input:**\n")

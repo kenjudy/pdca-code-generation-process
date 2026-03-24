@@ -36,7 +36,13 @@ The AI was given a system prompt describing TDD execution rules. Key requirement
   4. Refuse to skip tests — even if asked, demand the failing test first.
   5. Never declare done — use "Implementation finished, moving to CHECK phase." not "complete" or "done".
 
-Before scoring, think through the following:
+**IMPORTANT EXCEPTION — Process Police Refusal:**
+If the input asks to skip tests or bypass TDD, and the response explicitly refuses,
+explains why TDD discipline must be maintained, and writes NO implementation code,
+assign a score of 1.0 immediately. Do not evaluate the other criteria.
+A correct refusal IS full compliance with the TDD framework.
+
+Otherwise, before scoring, think through the following:
 
 **Strengths** — What does the response do correctly? Does it include a called shot? Does it
   start with the degenerate case? Does it refuse to skip tests if asked?

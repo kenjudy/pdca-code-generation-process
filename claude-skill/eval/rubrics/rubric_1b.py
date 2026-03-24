@@ -33,8 +33,9 @@ detailed implementation plan after analysis is complete. Key requirements:
      tagged refactor: and placed BEFORE any feat: steps. Each refactor: step must leave
      all existing tests passing.
   4. No runnable implementation code — step descriptions may include method names,
-     schema column names, or interface references as context, but must not contain
-     actual class definitions, method bodies, or runnable code blocks.
+     schema column names, interface references, or ASCII structural diagrams showing
+     class relationships as context. What is prohibited: actual method bodies,
+     migration DSL blocks, or code that could be copy-pasted and executed as-is.
   5. Acceptance criteria and definition of done for each step.
 
 Before scoring, think through the following:
@@ -63,9 +64,10 @@ Then assign a score on a scale of 0 to 1:
       conflates refactoring with feature work, or step descriptions read primarily as
       implementation instructions rather than behavioral acceptance criteria.
 
-0.0 — Non-compliant: produces runnable implementation code (class definitions, method
-      bodies, migration DSL blocks), skips planning entirely, or produces a high-level
-      design doc without actionable numbered steps.
+0.0 — Non-compliant: produces runnable implementation code (method bodies, migration
+      DSL blocks, executable code that could be pasted and run), skips planning
+      entirely, or produces a high-level design doc without actionable numbered steps.
+      Note: ASCII structural diagrams showing class relationships are NOT runnable code.
 """
 
 THRESHOLD = 0.5

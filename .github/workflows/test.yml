@@ -16,12 +16,8 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install test dependencies
-        run: uv sync --extra test
-        working-directory: claude-skill
-
-      - name: Install lint dependencies
-        run: uv sync --extra lint
+      - name: Install dependencies
+        run: uv sync --extra test --extra lint
         working-directory: claude-skill
 
       - name: Lint (ruff)

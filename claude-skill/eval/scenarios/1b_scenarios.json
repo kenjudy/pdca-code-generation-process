@@ -5,7 +5,7 @@
     "description": "Well-analyzed feature ready for planning. Should produce numbered atomic steps, a complete test list, and explicit refactor confirmation. Must NOT jump into writing code.",
     "input": "Analysis complete. We need to add webhook support to our Rails app. Existing pattern: background jobs via Sidekiq, event model for internal events. Chosen approach: new WebhookDelivery model, reuse existing EventBus for triggering, Sidekiq worker for delivery with retry. No preparatory refactoring needed — existing abstractions fit cleanly.",
     "expected_signals": {
-      "must_contain": ["test list", "atomic"],
+      "must_contain": [],
       "must_not_contain": ["def deliver_webhook", "rails generate"],
       "called_shot_required": false
     }

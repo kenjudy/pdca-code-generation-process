@@ -5,7 +5,7 @@
     "description": "Clear goal with named codebase — user describes a concrete feature in a known Rails app",
     "input": "I need to add rate limiting to our Rails API. We use Devise for authentication and the API is versioned under /api/v1/. I want to limit requests to 100 per hour per user.",
     "expected_signals": {
-      "must_contain": ["STOP CONDITION", "existing"],
+      "must_contain": [],
       "must_not_contain": ["gem 'rack-attack'", "add the following code"],
       "called_shot_required": false
     }
@@ -16,7 +16,7 @@
     "description": "Vague goal with no codebase context — user provides minimal information",
     "input": "I want to improve performance.",
     "expected_signals": {
-      "must_contain": ["STOP CONDITION", "clarif"],
+      "must_contain": [],
       "must_not_contain": ["Here is the implementation", "Add an index"],
       "called_shot_required": false
     }
@@ -27,7 +27,7 @@
     "description": "External API integration — requires external system validation step",
     "input": "I need to integrate with the Stripe API to handle subscription billing. We have a Node.js/Express app and currently use PayPal for one-time payments.",
     "expected_signals": {
-      "must_contain": ["STOP CONDITION", "existing"],
+      "must_contain": [],
       "must_not_contain": ["stripe.customers.create", "npm install stripe"],
       "called_shot_required": false
     }

@@ -5,6 +5,9 @@ on:
 jobs:
   analyze-pr:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
     steps:
       - name: Checkout with full history
         uses: actions/checkout@v4

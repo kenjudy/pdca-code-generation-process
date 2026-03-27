@@ -1,0 +1,82 @@
+[
+  {
+    "query": "I need to add OAuth2 authentication to our Express API. We currently use JWT tokens. Let's use the PDCA framework.",
+    "should_trigger": true
+  },
+  {
+    "query": "We need to migrate our monolith to microservices. I want to use a systematic approach with proper test coverage.",
+    "should_trigger": true
+  },
+  {
+    "query": "I want to add a new billing feature to our Rails app. This is complex and I want to make sure we do it right with AI assistance.",
+    "should_trigger": true
+  },
+  {
+    "query": "Let's build a new API endpoint for user notifications. I want to follow TDD and keep humans in the loop.",
+    "should_trigger": true
+  },
+  {
+    "query": "We're refactoring our data access layer. I want structured analysis and planning before we write any code.",
+    "should_trigger": true
+  },
+  {
+    "query": "I need to implement a caching layer with Redis. Let's do this methodically with proper testing.",
+    "should_trigger": true
+  },
+  {
+    "query": "Starting a new coding session to add rate limiting. I want systematic quality control on this AI-assisted work.",
+    "should_trigger": true
+  },
+  {
+    "query": "We need to add multi-tenancy support to our SaaS app. Complex change — I want plan-do-check-act discipline.",
+    "should_trigger": true
+  },
+  {
+    "query": "I'm going to work with Claude on a production code change and want to maintain accountability and code quality.",
+    "should_trigger": true
+  },
+  {
+    "query": "Help me plan and implement a new search feature with proper TDD discipline and human oversight at each step.",
+    "should_trigger": true
+  },
+  {
+    "query": "What is the capital of France?",
+    "should_trigger": false
+  },
+  {
+    "query": "Write a fibonacci function in Python.",
+    "should_trigger": false
+  },
+  {
+    "query": "Explain how React hooks work.",
+    "should_trigger": false
+  },
+  {
+    "query": "Summarize this article for me.",
+    "should_trigger": false
+  },
+  {
+    "query": "What's the difference between TCP and UDP?",
+    "should_trigger": false
+  },
+  {
+    "query": "Translate this sentence to Spanish: 'Good morning, how are you?'",
+    "should_trigger": false
+  },
+  {
+    "query": "Help me debug this null pointer exception in my Java code.",
+    "should_trigger": false
+  },
+  {
+    "query": "What are the best practices for writing commit messages?",
+    "should_trigger": false
+  },
+  {
+    "query": "Can you review this pull request diff and give me feedback?",
+    "should_trigger": false
+  },
+  {
+    "query": "How do I center a div in CSS?",
+    "should_trigger": false
+  }
+]

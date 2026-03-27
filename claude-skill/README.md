@@ -455,7 +455,7 @@ Help improve the framework:
 
 ## Version Information
 
-**Current Version:** v1.0.0
+**Current Version:** v1.0.2
 **License:** Creative Commons Attribution 4.0 International (CC BY 4.0)
 **Attribution:** Ken Judy with Claude Anthropic 4
 **Last Updated:** 2026-03-23

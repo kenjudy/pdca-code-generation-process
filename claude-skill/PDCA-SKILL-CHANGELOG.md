@@ -1,5 +1,18 @@
 # PDCA Framework Skill - Update Summary
 
+## v1.0.2 (2026-03-27)
+
+### Added
+- `testing-anti-patterns.md` reference file in DO phase — adapted from obra/superpowers (MIT) with PDCA-specific additions covering six common TDD anti-patterns
+- SKILL.md now links to the anti-patterns reference from the DO phase description
+- CLAUDE.md at repo root incorporating session startup, beads workflow, and supervision rules from AGENTS.md for Claude Code auto-loading
+- `.gitignore` suppresses iCloud sync conflict duplicates (`* 2.*`)
+
+### Fixed
+- `rubric_1b.py` clarified that ASCII structural diagrams are not "runnable code" violations
+- Build pipeline (bash + PS1) and test_build.py updated for new anti-patterns file
+- Enhanced GitHub Actions metrics workflows with percentile stats and commit quality scoring
+
 ## What Changed
 
 Your PDCA skill has been updated with your latest prompts and working agreements from your GitHub repository.

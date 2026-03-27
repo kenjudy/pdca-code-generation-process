@@ -19,48 +19,103 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
 
       - name: Collect Commit Metrics
-        uses: actions/github-script@v8
+        uses: actions/github-script@v7
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           script: |
             const fs = require('fs');
-            
+
+            // ---------------------------------------------------------------
+            // Inline helpers (mirrors local-code-metrics.js logic)
+            // ---------------------------------------------------------------
+
+            const CONVENTIONAL_COMMIT_RE = /^(feat|fix|refactor|test|chore|docs|perf|ci|build|revert)(\(.+\))?:/i;
+            function scoreMessageQuality(message) {
+              if (!message) return false;
+              if (CONVENTIONAL_COMMIT_RE.test(message)) return true;
+              return message.split(/\s+/).filter(Boolean).length >= 10;
+            }
+
+            function quantile(sorted, p) {
+              if (sorted.length === 0) return 0;
+              if (sorted.length === 1) return sorted[0];
+              const idx = p * (sorted.length - 1);
+              const lo = Math.floor(idx);
+              const hi = Math.ceil(idx);
+              return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+            }
+
+            function computeStats(values) {
+              if (values.length === 0) return { p50: 0, p90: 0, p95: 0, mean: 0, stddev: 0 };
+              const sorted = [...values].sort((a, b) => a - b);
+              const mean = values.reduce((s, v) => s + v, 0) / values.length;
+              const variance = values.reduce((s, v) => s + (v - mean) ** 2, 0) / values.length;
+              return {
+                p50: quantile(sorted, 0.5),
+                p90: quantile(sorted, 0.9),
+                p95: quantile(sorted, 0.95),
+                mean,
+                stddev: Math.sqrt(variance)
+              };
+            }
+
+            function computeVelocityTrend(timestamps) {
+              if (timestamps.length < 2) return 'stable';
+              const ms = timestamps.map(t => new Date(t).getTime()).sort((a, b) => a - b);
+              const spanDays = (ms[ms.length - 1] - ms[0]) / 86400000 || 1;
+              const midMs = (ms[0] + ms[ms.length - 1]) / 2;
+              const halfSpan = spanDays / 2 || 1;
+              const firstRate = ms.filter(t => t <= midMs).length / halfSpan;
+              const secondRate = ms.filter(t => t > midMs).length / halfSpan;
+              if (secondRate > firstRate * 1.25) return 'accelerating';
+              if (secondRate < firstRate * 0.75) return 'decelerating';
+              return 'stable';
+            }
+
+            function classifyDoraArchetype(large, sprawling, testFirst, msgQuality) {
+              if (large < 20 && sprawling < 10 && testFirst > 50 && msgQuality > 60) return 'harmonious-high-achiever';
+              if (sprawling > 25 && large > 30) return 'legacy-bottleneck';
+              if (large > 40 || (testFirst < 30 && large > 20)) return 'foundational-challenges';
+              return 'mixed-signals';
+            }
+
+            // ---------------------------------------------------------------
+            // Main collection
+            // ---------------------------------------------------------------
+
             async function collectMetrics() {
               const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
               const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-              
+
               console.log(`Repository: ${owner}/${repo}`);
               console.log(`Looking for commits since: ${since}`);
-              
+
               try {
-                const repoInfo = await github.rest.repos.get({
-                  owner,
-                  repo
-                });
+                const repoInfo = await github.rest.repos.get({ owner, repo });
                 console.log(`Repository access confirmed: ${repoInfo.data.full_name}`);
-                
+
                 const branches = await github.paginate(github.rest.repos.listBranches, {
                   owner,
                   repo,
                   per_page: 100
                 });
-                
-                const featureBranches = branches.filter(branch => 
+
+                const featureBranches = branches.filter(branch =>
                   !['main', 'master'].includes(branch.name.toLowerCase())
                 );
-                
+
                 console.log(`Found ${branches.length} total branches`);
                 console.log(`Analyzing ${featureBranches.length} feature branches: ${featureBranches.map(b => b.name).join(', ')}`);
-                
+
                 let allCommits = [];
                 let branchCommitCounts = {};
-                
+
                 for (const branch of featureBranches) {
                   try {
                     console.log(`Fetching commits from branch: ${branch.name}`);
@@ -71,28 +126,27 @@ jobs:
                       since,
                       per_page: 100
                     });
-                    
+
                     branchCommitCounts[branch.name] = branchCommits.length;
                     allCommits = allCommits.concat(branchCommits.map(commit => ({
                       ...commit,
                       source_branch: branch.name
                     })));
-                    
+
                     await new Promise(resolve => setTimeout(resolve, 200));
-                    
                   } catch (error) {
                     console.log(`Error fetching commits from branch ${branch.name}: ${error.message}`);
                     branchCommitCounts[branch.name] = 0;
                   }
                 }
-                
-                const uniqueCommits = allCommits.filter((commit, index, self) => 
+
+                const uniqueCommits = allCommits.filter((commit, index, self) =>
                   index === self.findIndex(c => c.sha === commit.sha)
                 );
-                
+
                 console.log(`Found ${allCommits.length} total commits, ${uniqueCommits.length} unique commits`);
                 console.log('Commits per branch:', branchCommitCounts);
-                
+
                 if (uniqueCommits.length === 0) {
                   console.log('No commits found in feature branches in the last 30 days.');
                   const emptyMetrics = [];
@@ -101,22 +155,31 @@ jobs:
                     branches_analyzed: featureBranches.map(b => b.name),
                     branch_commit_counts: branchCommitCounts,
                     large_commits_pct: "0.00",
-                    sprawling_commits_pct: "0.00", 
+                    sprawling_commits_pct: "0.00",
                     test_first_pct: "0.00",
                     avg_files_changed: "0.00",
                     avg_lines_changed: "0.00",
                     avg_prod_lines_changed: "0.00",
+                    message_quality_pct: "0.00",
+                    p50_lines_changed: 0,
+                    p90_lines_changed: 0,
+                    p95_lines_changed: 0,
+                    stddev_lines_changed: 0,
+                    velocity_trend: "stable",
+                    additions_ratio_median: 0,
+                    additions_ratio_p90: 0,
+                    dora_archetype: "mixed-signals",
                     note: "Feature branches only - main/master excluded. Large commit threshold applied to production code only."
                   };
-                  
+
                   fs.writeFileSync('commit_metrics.json', JSON.stringify(emptyMetrics, null, 2));
                   fs.writeFileSync('metrics_summary.json', JSON.stringify(summary, null, 2));
                   return;
                 }
-                
+
                 const metrics = [];
                 console.log(`Processing ${Math.min(uniqueCommits.length, 50)} commits...`);
-                
+
                 for (const commit of uniqueCommits.slice(0, 50)) {
                   try {
                     const detail = await github.rest.repos.getCommit({
@@ -124,7 +187,7 @@ jobs:
                       repo,
                       ref: commit.sha
                     });
-                    
+
                     const testFiles = detail.data.files?.filter(f =>
                       /\.(test|spec)\.|Tests?\.cs$|Test\.cs$|__tests__|\/tests?\//i.test(f.filename)
                     ) || [];
@@ -132,11 +195,13 @@ jobs:
                     const prodFiles = detail.data.files?.filter(f =>
                       !/\.(test|spec)\.|Tests?\.cs$|Test\.cs$|__tests__|\/tests?\//i.test(f.filename)
                     ) || [];
-                    
+
+                    const message = commit.commit.message.split('\n')[0];
+
                     metrics.push({
                       sha: commit.sha,
                       date: commit.commit.committer.date,
-                      message: commit.commit.message.split('\n')[0],
+                      message,
                       author: commit.commit.author.name,
                       source_branch: commit.source_branch,
                       total_additions: detail.data.stats.additions,
@@ -145,58 +210,78 @@ jobs:
                       test_files_count: testFiles.length,
                       prod_files_count: prodFiles.length,
                       test_first_indicator: testFiles.length > 0 && prodFiles.length > 0,
-                      
-                      // Calculate production code changes only
                       prod_additions: prodFiles.reduce((sum, f) => sum + f.additions, 0),
                       prod_deletions: prodFiles.reduce((sum, f) => sum + f.deletions, 0),
-                      
-                      // Base "large commit" on production code only
                       large_commit: (prodFiles.reduce((sum, f) => sum + f.additions + f.deletions, 0)) > 100,
-                      
                       sprawling_commit: (detail.data.files?.length || 0) > 5,
+                      message_quality: scoreMessageQuality(message),
                       commit_type: "feature_branch"
                     });
-                    
+
                     await new Promise(resolve => setTimeout(resolve, 100));
                   } catch (error) {
                     console.log(`Error processing commit ${commit.sha}: ${error.message}`);
                   }
                 }
-                
+
                 console.log(`Saving metrics for ${metrics.length} commits`);
                 fs.writeFileSync('commit_metrics.json', JSON.stringify(metrics, null, 2));
-                
-                // Calculate summary AFTER all commits are processed
+
+                // Statistical distributions
+                const lineSizes = metrics.map(m => m.total_additions + m.total_deletions);
+                const lineStats = computeStats(lineSizes);
+                const fileStats = computeStats(metrics.map(m => m.files_changed));
+                const ratios = metrics.map(m => m.total_additions / (m.total_deletions || 1));
+                const ratioStats = computeStats([...ratios].sort((a, b) => a - b).map((_, i, a) => a[i]));
+                const velocityTrend = computeVelocityTrend(metrics.map(m => m.date));
+
+                const qualityCount = metrics.filter(m => m.message_quality).length;
+                const msgQualityPct = metrics.length > 0
+                  ? ((qualityCount / metrics.length) * 100).toFixed(2)
+                  : "0.00";
+
+                const largePct = parseFloat((metrics.filter(m => m.large_commit).length / metrics.length * 100).toFixed(2));
+                const sprawlingPct = parseFloat((metrics.filter(m => m.sprawling_commit).length / metrics.length * 100).toFixed(2));
+                const testFirstPct = parseFloat((metrics.filter(m => m.test_first_indicator).length / metrics.length * 100).toFixed(2));
+
                 const summary = {
                   total_commits: metrics.length,
                   filtered_from: uniqueCommits.length,
                   branches_analyzed: featureBranches.map(b => b.name),
                   branch_commit_counts: branchCommitCounts,
-                  large_commits_pct: (metrics.filter(m => m.large_commit).length / metrics.length * 100).toFixed(2),
-                  sprawling_commits_pct: (metrics.filter(m => m.sprawling_commit).length / metrics.length * 100).toFixed(2),
-                  test_first_pct: (metrics.filter(m => m.test_first_indicator).length / metrics.length * 100).toFixed(2),
+                  large_commits_pct: largePct.toFixed(2),
+                  sprawling_commits_pct: sprawlingPct.toFixed(2),
+                  test_first_pct: testFirstPct.toFixed(2),
                   avg_files_changed: (metrics.reduce((sum, m) => sum + m.files_changed, 0) / metrics.length).toFixed(2),
-                  
-                  // Use production code lines for average (both total and prod-only metrics)
                   avg_lines_changed: (metrics.reduce((sum, m) => sum + (m.prod_additions || 0) + (m.prod_deletions || 0), 0) / metrics.length).toFixed(2),
                   avg_prod_lines_changed: (metrics.reduce((sum, m) => sum + (m.prod_additions || 0) + (m.prod_deletions || 0), 0) / metrics.length).toFixed(2),
-                  
+                  p50_lines_changed: Math.round(lineStats.p50),
+                  p90_lines_changed: Math.round(lineStats.p90),
+                  p95_lines_changed: Math.round(lineStats.p95),
+                  stddev_lines_changed: Math.round(lineStats.stddev),
+                  p50_files_changed: Math.round(fileStats.p50),
+                  p90_files_changed: Math.round(fileStats.p90),
+                  velocity_trend: velocityTrend,
+                  additions_ratio_median: parseFloat(ratioStats.p50.toFixed(2)),
+                  additions_ratio_p90: parseFloat(ratioStats.p90.toFixed(2)),
+                  message_quality_pct: msgQualityPct,
+                  dora_archetype: classifyDoraArchetype(largePct, sprawlingPct, testFirstPct, parseFloat(msgQualityPct)),
                   note: "Feature branches only - main/master excluded. Large commit threshold applied to production code only."
                 };
-                
+
                 fs.writeFileSync('metrics_summary.json', JSON.stringify(summary, null, 2));
                 console.log('Summary:', summary);
-                
+
               } catch (error) {
                 console.error('Error in collectMetrics:', error);
                 throw error;
               }
             }
-            
+
             collectMetrics();
 
       - name: Upload metrics artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: code-metrics-${{ github.run_number }}
@@ -207,7 +292,7 @@ jobs:
 
       - name: Create Issue with Results
         if: github.event_name == 'schedule'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
@@ -217,32 +302,68 @@ jobs:
               .map(([branch, count]) => `- ${branch}: ${count} commits`)
               .join('\n');
 
+            function statusMark(value, threshold, direction = 'below') {
+              const ok = direction === 'below' ? parseFloat(value) < threshold : parseFloat(value) > threshold;
+              return ok ? 'OK' : 'Warning';
+            }
+
+            const archetypeDescriptions = {
+              'harmonious-high-achiever': 'Strong foundational practices; AI tools likely amplifying positive outcomes.',
+              'foundational-challenges': 'Weak testing or batch discipline; AI tools may be accelerating debt accumulation.',
+              'legacy-bottleneck': 'Architectural scatter combined with large commits; AI making cross-cutting changes worse.',
+              'mixed-signals': 'Inconsistent patterns across metrics; investigate specific outlier commits.'
+            };
+
+            const archetype = summary.dora_archetype || 'mixed-signals';
+            const archetypeDesc = archetypeDescriptions[archetype] || '';
+
             const bodyLines = [
               '## Weekly Code Metrics Report',
               '',
-              '**Period:** Last 30 days',
+              `**Period:** Last 30 days`,
               `**Commits Analyzed:** ${summary.total_commits}`,
               `**Branches Analyzed:** ${summary.branches_analyzed?.join(', ') || 'N/A'}`,
               '',
               '### Key Metrics',
               '',
-              `**Large Commits (>100 production lines):** ${summary.large_commits_pct}%`,
-              `**Sprawling Commits (>5 files):** ${summary.sprawling_commits_pct}%`,
-              `**Test-First Discipline:** ${summary.test_first_pct}%`,
-              `**Avg Files Changed:** ${summary.avg_files_changed}`,
-              `**Avg Production Lines Changed:** ${summary.avg_prod_lines_changed}`,
+              '| Metric | Value | Target | Status |',
+              '|--------|-------|--------|--------|',
+              `| Large Commits (>100 prod lines) | ${summary.large_commits_pct}% | <20% | ${statusMark(summary.large_commits_pct, 20)} |`,
+              `| Sprawling Commits (>5 files) | ${summary.sprawling_commits_pct}% | <10% | ${statusMark(summary.sprawling_commits_pct, 10)} |`,
+              `| Test-First Discipline | ${summary.test_first_pct}% | >50% | ${statusMark(summary.test_first_pct, 50, 'above')} |`,
+              `| Message Quality | ${summary.message_quality_pct}% | >60% | ${statusMark(summary.message_quality_pct, 60, 'above')} |`,
+              `| Additions Ratio (median) | ${summary.additions_ratio_median} | <3.0 | ${parseFloat(summary.additions_ratio_median) < 3.0 ? 'OK' : 'Warning'} |`,
+              '',
+              '### Commit Size Distribution',
+              '',
+              '| Percentile | Lines Changed |',
+              '|------------|---------------|',
+              `| p50 (median) | ${summary.p50_lines_changed} |`,
+              `| p90 | ${summary.p90_lines_changed} |`,
+              `| p95 | ${summary.p95_lines_changed} |`,
+              `| Std Dev | ${summary.stddev_lines_changed} |`,
+              '',
+              `**Commit size trend:** ${summary.velocity_trend === 'accelerating' ? 'Accelerating (monitor closely)' : summary.velocity_trend === 'decelerating' ? 'Decelerating' : 'Stable'}`,
+              '',
+              '### DORA Team Archetype',
+              '',
+              `**${archetype}**`,
+              '',
+              archetypeDesc,
               '',
               '### Branch Activity',
+              '',
               branchActivity,
               '',
               '### Interpretation',
               '',
-              'Target: <20% large commits, <10% sprawling commits',
-              'Test-first discipline should trend upward',
-              'Large commits now measured by production code only (excludes test files)',
-              'Consider investigation if metrics worsen significantly',
+              '- Target: <20% large commits, <10% sprawling commits',
+              '- Test-first discipline should remain above 50%',
+              '- Message quality above 60% indicates disciplined commit practices',
+              '- Large commits measured by production code only (excludes test files)',
+              '- p90 > 500 lines warrants investigation of review burden',
               '',
-              '_Generated by PDCA Code Metrics Workflow_'
+              '_Generated by Code Metrics Workflow_'
             ];
 
             const body = bodyLines.join('\n');

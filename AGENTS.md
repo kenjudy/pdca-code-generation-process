@@ -69,7 +69,13 @@ claude-skill/
 - `4. Act/4. Retrospect for continuous improvement.md`
 - `Human Working Agreements.md`
 
-**To make prompt content changes:** edit the Obsidian master files, then run `bash claude-skill/build-skill.sh`.
+**To make prompt content changes:** edit the Obsidian master files, then rebuild.
 **To make skill structure changes:** edit `src/core/SKILL.md` or beads addon files, then rebuild.
 **To install after build:** `unzip -o claude-skill/pdca-framework.skill -d ~/.claude/skills/pdca-framework/`
+
+**⚠️ Dual build scripts — update BOTH when adding/removing files:**
+- macOS/Linux: `bash claude-skill/build-skill.sh`
+- Windows: `claude-skill/build-skill.ps1`
+
+Any change to master source files, beads addon files, or the ZIP manifest must be reflected in both scripts.
 

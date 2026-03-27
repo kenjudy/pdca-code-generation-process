@@ -11,6 +11,9 @@ claude-code/*.ps1
 .DS_Store
 _DS_Store
 
+# iCloud sync conflict duplicates (e.g. "file 2.py", "file 2.json")
+* 2.*
+
 # Python project artifacts
 .venv/
 **/__pycache__/

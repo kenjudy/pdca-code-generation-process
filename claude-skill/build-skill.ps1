@@ -15,6 +15,7 @@ $SrcDir = Join-Path $ScriptDir "src"
 $Master1A = Join-Path (Join-Path $RepoRoot "1. Plan") "1a Analyze to determine approach for achieving the goal.md"
 $Master1B = Join-Path (Join-Path $RepoRoot "1. Plan") "1b Create a detailed implementation plan.md"
 $Master2 = Join-Path (Join-Path $RepoRoot "2. Do") "2. Test Drive the Change.md"
+$MasterAntiPatterns = Join-Path (Join-Path $RepoRoot "2. Do") "Testing Anti-Patterns.md"
 $Master3 = Join-Path (Join-Path $RepoRoot "3. Check") "3. Completeness Check.md"
 $Master4 = Join-Path (Join-Path $RepoRoot "4. Act") "4. Retrospect for continuous improvement.md"
 $MasterWorkingAgreements = Join-Path $RepoRoot "Human Working Agreements.md"
@@ -26,10 +27,11 @@ $OutputDo = Join-Path $referencesPath "do-prompts.md"
 $OutputCheck = Join-Path $referencesPath "check-prompts.md"
 $OutputAct = Join-Path $referencesPath "act-prompts.md"
 $OutputWorkingAgreements = Join-Path $referencesPath "working-agreements.md"
+$OutputAntiPatterns = Join-Path $referencesPath "testing-anti-patterns.md"
 
 # Verify master files exist
 Write-Host "Verifying master source files..." -ForegroundColor Blue
-$masterFiles = @($Master1A, $Master1B, $Master2, $Master3, $Master4, $MasterWorkingAgreements)
+$masterFiles = @($Master1A, $Master1B, $Master2, $MasterAntiPatterns, $Master3, $Master4, $MasterWorkingAgreements)
 foreach ($file in $masterFiles) {
     if (-not (Test-Path $file)) {
         Write-Host "Error: Master file not found: $file" -ForegroundColor Red
@@ -82,6 +84,11 @@ Write-Host "Building working-agreements.md..." -ForegroundColor Blue
 Copy-Item $MasterWorkingAgreements -Destination $OutputWorkingAgreements -Force
 Write-Host ([char]0x2713 + " Created working-agreements.md") -ForegroundColor Green
 
+# Build testing-anti-patterns.md
+Write-Host "Building testing-anti-patterns.md..." -ForegroundColor Blue
+Copy-Item $MasterAntiPatterns -Destination $OutputAntiPatterns -Force
+Write-Host ([char]0x2713 + " Created testing-anti-patterns.md") -ForegroundColor Green
+
 # SKILL.md is manually maintained, so we don't overwrite it
 $skillMdPath = Join-Path $SrcDir "SKILL.md"
 if (-not (Test-Path $skillMdPath)) {
@@ -113,6 +120,7 @@ Copy-Item $OutputDo -Destination $tempReferencesDir -Force
 Copy-Item $OutputCheck -Destination $tempReferencesDir -Force
 Copy-Item $OutputAct -Destination $tempReferencesDir -Force
 Copy-Item $OutputWorkingAgreements -Destination $tempReferencesDir -Force
+Copy-Item $OutputAntiPatterns -Destination $tempReferencesDir -Force
 
 # Create ZIP first (Compress-Archive only supports .zip extension)
 $tempZipFile = Join-Path $ScriptDir "pdca-framework.zip"

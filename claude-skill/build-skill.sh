@@ -27,6 +27,7 @@ BEADS_DIR="$SRC_DIR/beads-addon"
 MASTER_1A="$REPO_ROOT/1. Plan/1a Analyze to determine approach for achieving the goal.md"
 MASTER_1B="$REPO_ROOT/1. Plan/1b Create a detailed implementation plan.md"
 MASTER_2="$REPO_ROOT/2. Do/2. Test Drive the Change.md"
+MASTER_ANTI_PATTERNS="$REPO_ROOT/2. Do/Testing Anti-Patterns.md"
 MASTER_3="$REPO_ROOT/3. Check/3. Completeness Check.md"
 MASTER_4="$REPO_ROOT/4. Act/4. Retrospect for continuous improvement.md"
 MASTER_WORKING_AGREEMENTS="$REPO_ROOT/Human Working Agreements.md"
@@ -41,7 +42,7 @@ BEADS_WORKFLOW="$BEADS_DIR/sources/beads-workflow.md"
 
 # Verify master files exist
 echo -e "${BLUE}Verifying master source files...${NC}"
-for file in "$MASTER_1A" "$MASTER_1B" "$MASTER_2" "$MASTER_3" "$MASTER_4" "$MASTER_WORKING_AGREEMENTS"; do
+for file in "$MASTER_1A" "$MASTER_1B" "$MASTER_2" "$MASTER_ANTI_PATTERNS" "$MASTER_3" "$MASTER_4" "$MASTER_WORKING_AGREEMENTS"; do
     if [ ! -f "$file" ]; then
         echo -e "${RED}Error: Master file not found: $file${NC}"
         exit 1
@@ -95,6 +96,10 @@ echo -e "${GREEN}✓ Built plan-prompts.md${NC}"
 echo -e "${BLUE}Building do-prompts.md...${NC}"
 strip_license "$MASTER_2" > "$CORE_DIR/references/do-prompts.md"
 echo -e "${GREEN}✓ Built do-prompts.md${NC}"
+
+echo -e "${BLUE}Building testing-anti-patterns.md...${NC}"
+cp "$MASTER_ANTI_PATTERNS" "$CORE_DIR/references/testing-anti-patterns.md"
+echo -e "${GREEN}✓ Built testing-anti-patterns.md${NC}"
 
 echo -e "${BLUE}Building check-prompts.md...${NC}"
 strip_license "$MASTER_3" > "$CORE_DIR/references/check-prompts.md"
@@ -155,6 +160,7 @@ zip -r "$SKILL_FILE" \
     pdca-framework/references/act-beads-addon.md \
     pdca-framework/references/beads-setup.md \
     pdca-framework/references/beads-workflow.md \
+    pdca-framework/references/testing-anti-patterns.md \
     -x "*.DS_Store" \
     -q
 rm "$SRC_DIR/pdca-framework"

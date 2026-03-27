@@ -36,12 +36,14 @@ EXPECTED_FILES = [
     f"{SKILL_NAME}/references/act-beads-addon.md",
     f"{SKILL_NAME}/references/beads-setup.md",
     f"{SKILL_NAME}/references/beads-workflow.md",
+    f"{SKILL_NAME}/references/testing-anti-patterns.md",
 ]
 
 MASTER_FILES = [
     REPO_ROOT / "1. Plan" / "1a Analyze to determine approach for achieving the goal.md",
     REPO_ROOT / "1. Plan" / "1b Create a detailed implementation plan.md",
     REPO_ROOT / "2. Do" / "2. Test Drive the Change.md",
+    REPO_ROOT / "2. Do" / "Testing Anti-Patterns.md",
     REPO_ROOT / "3. Check" / "3. Completeness Check.md",
     REPO_ROOT / "4. Act" / "4. Retrospect for continuous improvement.md",
     REPO_ROOT / "Human Working Agreements.md",

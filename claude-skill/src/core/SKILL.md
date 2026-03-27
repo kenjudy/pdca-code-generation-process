@@ -52,6 +52,7 @@ Each step has distinct prompts and human commitments:
 - **TDD Implementation**: Red-green-refactor with checklist-based guidance
 - **Active Oversight**: Follow agent's work, intervene early and often
 - See `references/do-prompts.md` for implementation checklists
+- **Anti-patterns**: See `references/testing-anti-patterns.md` for common TDD violations to avoid
 - **Beads (Optional)**: See `references/do-beads-addon.md` for TDD step tracking
 
 ### 3. CHECK: Validate (2-5 min)

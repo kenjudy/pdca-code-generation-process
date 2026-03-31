@@ -281,7 +281,7 @@ jobs:
             collectMetrics();
 
       - name: Upload metrics artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: code-metrics-${{ github.run_number }}

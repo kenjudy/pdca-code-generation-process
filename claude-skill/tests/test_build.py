@@ -563,5 +563,92 @@ class TestHookInfrastructure(unittest.TestCase):
         )
 
 
+class TestBeadsTemplateCompleteness(unittest.TestCase):
+    """Beads addon templates must include acceptance criteria and resumption context."""
+
+    def _read_source(self, filename):
+        return (BEADS_ADDON_DIR / filename).read_text()
+
+    # --- plan-beads-addon.md ---
+
+    def test_plan_epic_template_has_acceptance_criteria(self):
+        content = self._read_source("plan-beads-addon.md")
+        self.assertIn(
+            "## Acceptance Criteria",
+            content,
+            "plan-beads-addon.md epic template must include an Acceptance Criteria section",
+        )
+
+    def test_plan_epic_template_has_out_of_scope(self):
+        content = self._read_source("plan-beads-addon.md")
+        self.assertIn(
+            "## Out of Scope",
+            content,
+            "plan-beads-addon.md epic template must include an Out of Scope section",
+        )
+
+    def test_plan_epic_template_has_resumption_context(self):
+        content = self._read_source("plan-beads-addon.md")
+        self.assertIn(
+            "## Resumption Context",
+            content,
+            "plan-beads-addon.md epic template must include a Resumption Context section",
+        )
+
+    # --- do-beads-addon.md ---
+
+    def test_do_task_template_has_before_state(self):
+        content = self._read_source("do-beads-addon.md")
+        self.assertIn(
+            "Before:",
+            content,
+            "do-beads-addon.md task template must include a Before: field",
+        )
+
+    def test_do_task_template_has_after_state(self):
+        content = self._read_source("do-beads-addon.md")
+        self.assertIn(
+            "After:",
+            content,
+            "do-beads-addon.md task template must include an After: field",
+        )
+
+    def test_do_task_template_has_done_when(self):
+        content = self._read_source("do-beads-addon.md")
+        self.assertIn(
+            "Done when:",
+            content,
+            "do-beads-addon.md task template must include a Done when: field",
+        )
+
+    # --- check-beads-addon.md ---
+
+    def test_check_verifies_acceptance_criteria(self):
+        content = self._read_source("check-beads-addon.md")
+        self.assertIn(
+            "Acceptance criteria",
+            content,
+            "check-beads-addon.md verification checklist must include an acceptance criteria step",
+        )
+
+    # --- beads-workflow.md ---
+
+    def test_workflow_plan_section_has_acceptance_criteria(self):
+        content = self._read_source("beads-workflow.md")
+        self.assertIn(
+            "Acceptance Criteria",
+            content,
+            "beads-workflow.md PLAN section must include Acceptance Criteria template",
+        )
+
+    def test_workflow_do_section_has_done_when(self):
+        content = self._read_source("beads-workflow.md")
+        self.assertIn(
+            "Done when:",
+            content,
+            "beads-workflow.md DO section must include Done when: field in task template",
+        )
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

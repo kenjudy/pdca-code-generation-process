@@ -226,7 +226,7 @@ class TestProjectSetup(unittest.TestCase):
     def test_eval_pytest_marker_registered(self):
         """pytest --markers must list the eval marker — confirms pyproject.toml registers it."""
         result = subprocess.run(
-            ["python3", "-m", "pytest", "--markers"],
+            ["python3", "-m", "pytest", "--markers", "--ignore=tests/test_evals.py"],
             cwd=str(CLAUDE_SKILL_DIR),
             capture_output=True,
             text=True,
@@ -437,41 +437,39 @@ class TestSkillPackage(unittest.TestCase):
 
 
 class TestBuildScript(unittest.TestCase):
-    """Run the build script and verify it succeeds."""
+    """Run the build script once and verify its outputs.
 
-    def test_build_script_exits_zero(self):
-        result = subprocess.run(
+    Uses setUpClass to build a single time — avoids running build-skill.sh
+    three times (~30s each) for independent output checks.
+    """
+
+    _build_result = None
+
+    @classmethod
+    def setUpClass(cls):
+        beads_skill = CLAUDE_SKILL_DIR / "pdca-framework-beads.skill"
+        if beads_skill.exists():
+            beads_skill.unlink()
+        cls._build_result = subprocess.run(
             ["bash", "build-skill.sh"],
             cwd=str(CLAUDE_SKILL_DIR),
             capture_output=True,
             text=True,
         )
+
+    def test_build_script_exits_zero(self):
         self.assertEqual(
-            result.returncode,
+            self._build_result.returncode,
             0,
-            f"build-skill.sh failed:\nSTDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}",
+            f"build-skill.sh failed:\nSTDOUT:\n{self._build_result.stdout}\nSTDERR:\n{self._build_result.stderr}",
         )
 
     def test_build_produces_skill_file(self):
-        subprocess.run(
-            ["bash", "build-skill.sh"],
-            cwd=str(CLAUDE_SKILL_DIR),
-            capture_output=True,
-        )
         self.assertTrue(SKILL_FILE.exists(), "build-skill.sh did not produce pdca-framework.skill")
 
     def test_build_does_not_produce_beads_skill(self):
         """The retired pdca-framework-beads.skill should not be regenerated."""
         beads_skill = CLAUDE_SKILL_DIR / "pdca-framework-beads.skill"
-        # Remove it first to test that build doesn't recreate it
-        existed_before = beads_skill.exists()
-        if existed_before:
-            beads_skill.unlink()
-        subprocess.run(
-            ["bash", "build-skill.sh"],
-            cwd=str(CLAUDE_SKILL_DIR),
-            capture_output=True,
-        )
         self.assertFalse(
             beads_skill.exists(),
             "build-skill.sh produced pdca-framework-beads.skill — it should only build one unified package",

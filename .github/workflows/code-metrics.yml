@@ -166,8 +166,8 @@ jobs:
                     p95_lines_changed: 0,
                     stddev_lines_changed: 0,
                     velocity_trend: "stable",
-                    additions_ratio_median: 0,
-                    additions_ratio_p90: 0,
+                    net_additions_ratio_median: 0,
+                    net_additions_ratio_p90: 0,
                     dora_archetype: "mixed-signals",
                     note: "Feature branches only - main/master excluded. Large commit threshold applied to production code only."
                   };
@@ -231,8 +231,11 @@ jobs:
                 const lineSizes = metrics.map(m => m.total_additions + m.total_deletions);
                 const lineStats = computeStats(lineSizes);
                 const fileStats = computeStats(metrics.map(m => m.files_changed));
-                const ratios = metrics.map(m => m.total_additions / (m.total_deletions || 1));
-                const ratioStats = computeStats([...ratios].sort((a, b) => a - b).map((_, i, a) => a[i]));
+                const ratios = metrics.map(m => {
+                  const t = m.total_additions + m.total_deletions;
+                  return t === 0 ? 0 : (m.total_additions - m.total_deletions) / t;
+                });
+                const ratioStats = computeStats(ratios);
                 const velocityTrend = computeVelocityTrend(metrics.map(m => m.date));
 
                 const qualityCount = metrics.filter(m => m.message_quality).length;
@@ -262,8 +265,8 @@ jobs:
                   p50_files_changed: Math.round(fileStats.p50),
                   p90_files_changed: Math.round(fileStats.p90),
                   velocity_trend: velocityTrend,
-                  additions_ratio_median: parseFloat(ratioStats.p50.toFixed(2)),
-                  additions_ratio_p90: parseFloat(ratioStats.p90.toFixed(2)),
+                  net_additions_ratio_median: parseFloat(ratioStats.p50.toFixed(2)),
+                  net_additions_ratio_p90: parseFloat(ratioStats.p90.toFixed(2)),
                   message_quality_pct: msgQualityPct,
                   dora_archetype: classifyDoraArchetype(largePct, sprawlingPct, testFirstPct, parseFloat(msgQualityPct)),
                   note: "Feature branches only - main/master excluded. Large commit threshold applied to production code only."
@@ -332,7 +335,7 @@ jobs:
               `| Sprawling Commits (>5 files) | ${summary.sprawling_commits_pct}% | <10% | ${statusMark(summary.sprawling_commits_pct, 10)} |`,
               `| Test-First Discipline | ${summary.test_first_pct}% | >50% | ${statusMark(summary.test_first_pct, 50, 'above')} |`,
               `| Message Quality | ${summary.message_quality_pct}% | >60% | ${statusMark(summary.message_quality_pct, 60, 'above')} |`,
-              `| Additions Ratio (median) | ${summary.additions_ratio_median} | <3.0 | ${parseFloat(summary.additions_ratio_median) < 3.0 ? 'OK' : 'Warning'} |`,
+              `| Net Additions Ratio (median) | ${summary.net_additions_ratio_median} | <0.50 | ${parseFloat(summary.net_additions_ratio_median) < 0.50 ? 'OK' : 'Warning'} |`,
               '',
               '### Commit Size Distribution',
               '',

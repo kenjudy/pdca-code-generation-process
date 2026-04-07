@@ -87,7 +87,8 @@ jobs:
                 const prodChanges = commitProdFiles.reduce((sum, f) => sum + f.additions + f.deletions, 0);
                 const testChanges = commitTestFiles.reduce((sum, f) => sum + f.additions + f.deletions, 0);
                 const additions = detail.data.stats?.additions || 0;
-                const deletions = detail.data.stats?.deletions || 1;
+                const deletions = detail.data.stats?.deletions || 0;
+                const totalChurn = additions + deletions;
                 const message = commit.commit.message.split('\n')[0];
 
                 commitMetrics.push({
@@ -107,7 +108,7 @@ jobs:
                   test_only: commitTestFiles.length > 0 && commitProdFiles.length === 0,
                   prod_only: commitProdFiles.length > 0 && commitTestFiles.length === 0,
                   test_ratio: prodChanges > 0 ? (testChanges / prodChanges) : 0,
-                  additions_ratio: (additions / (deletions || 1)).toFixed(2),
+                  net_additions_ratio: (totalChurn === 0 ? 0 : (additions - deletions) / totalChurn).toFixed(2),
                   message_quality: scoreMessageQuality(message)
                 });
 
@@ -157,7 +158,7 @@ jobs:
             const msgQualityPct = commitMetrics.length > 0 ? (qualityCommits / commitMetrics.length * 100) : 0;
 
             const medianAdditionsRatio = (() => {
-              const ratios = commitMetrics.map(c => parseFloat(c.additions_ratio)).sort((a, b) => a - b);
+              const ratios = commitMetrics.map(c => parseFloat(c.net_additions_ratio)).sort((a, b) => a - b);
               if (ratios.length === 0) return 0;
               const mid = Math.floor(ratios.length / 2);
               return ratios.length % 2 !== 0 ? ratios[mid] : (ratios[mid - 1] + ratios[mid]) / 2;
@@ -207,8 +208,8 @@ jobs:
               concerns.push(`${sprawlingCommits}/${commitMetrics.length} commits touch more than 5 files`);
             }
 
-            if (medianAdditionsRatio > 3.0) {
-              concerns.push(`Median additions ratio ${medianAdditionsRatio.toFixed(2)} exceeds 3.0 - possible batch-acceptance pattern`);
+            if (medianAdditionsRatio > 0.50) {
+              concerns.push(`Median net additions ratio ${medianAdditionsRatio.toFixed(2)} exceeds 0.50 - possible batch-acceptance pattern`);
             }
 
             if (msgQualityPct < 40) {
@@ -316,7 +317,7 @@ jobs:
               `| Small Batches | Sprawling commit % | ${sprawlingPct.toFixed(0)}% | <10% |`,
               `| Version Control | Test-first discipline | ${testFirstPct.toFixed(0)}% | >50% |`,
               `| Version Control | Message quality | ${msgQualityPct.toFixed(0)}% | >60% |`,
-              `| AI Risk Signal | Additions ratio (median) | ${medianAdditionsRatio.toFixed(2)} | <3.0 |`
+              `| AI Risk Signal | Net additions ratio (median) | ${medianAdditionsRatio.toFixed(2)} | <0.50 |`
             ].join('\n') : '';
 
             const commentParts = [
@@ -346,7 +347,7 @@ jobs:
               `| Sprawling commits (>5 files) | ${sprawlingCommits}/${commitMetrics.length} (${sprawlingPct.toFixed(0)}%) |`,
               `| Test-first discipline | ${testFirstCommits}/${commitMetrics.length} (${testFirstPct.toFixed(0)}%) |`,
               `| Message quality | ${qualityCommits}/${commitMetrics.length} (${msgQualityPct.toFixed(0)}%) |`,
-              `| Median additions ratio | ${medianAdditionsRatio.toFixed(2)} |`,
+              `| Median net additions ratio | ${medianAdditionsRatio.toFixed(2)} |`,
               `| Test-only commits | ${testOnlyCommits} |`,
               `| Production-only commits | ${prodOnlyCommits} |`,
               '',

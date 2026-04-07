@@ -18,23 +18,9 @@ jobs:
           script: |
             const pr = context.payload.pull_request;
 
-            // ---------------------------------------------------------------
-            // Inline helpers (mirrors local-code-metrics.js logic)
-            // ---------------------------------------------------------------
-
-            const CONVENTIONAL_COMMIT_RE = /^(feat|fix|refactor|test|chore|docs|perf|ci|build|revert)(\(.+\))?:/i;
-            function scoreMessageQuality(message) {
-              if (!message) return false;
-              if (CONVENTIONAL_COMMIT_RE.test(message)) return true;
-              return message.split(/\s+/).filter(Boolean).length >= 10;
-            }
-
-            function classifyDoraArchetype(large, sprawling, testFirst, msgQuality) {
-              if (large < 20 && sprawling < 10 && testFirst > 50 && msgQuality > 60) return 'harmonious-high-achiever';
-              if (sprawling > 25 && large > 30) return 'legacy-bottleneck';
-              if (large > 40 || (testFirst < 30 && large > 20)) return 'foundational-challenges';
-              return 'mixed-signals';
-            }
+            // lib/ modules are available after checkout — require() resolves from $GITHUB_WORKSPACE
+            const { CONFIG } = require('./lib/config');
+            const { scoreMessageQuality, classifyDoraArchetype, isTestFile } = require('./lib/metrics');
 
             // ---------------------------------------------------------------
             // Fetch PR data
@@ -56,13 +42,8 @@ jobs:
 
             console.log(`Analyzing ${commits.length} commits and ${files.length} files in PR`);
 
-            const testFiles = files.filter(f =>
-              /\.(test|spec)\.|Tests?\.cs$|Test\.cs$|__tests__|\/tests?\//i.test(f.filename)
-            );
-
-            const prodFiles = files.filter(f =>
-              !/\.(test|spec)\.|Tests?\.cs$|Test\.cs$|__tests__|\/tests?\//i.test(f.filename)
-            );
+            const testFiles = files.filter(f => isTestFile(f.filename));
+            const prodFiles = files.filter(f => !isTestFile(f.filename));
 
             // ---------------------------------------------------------------
             // Per-commit analysis
@@ -77,13 +58,8 @@ jobs:
                   ref: commit.sha
                 });
 
-                const commitTestFiles = detail.data.files?.filter(f =>
-                  /\.(test|spec)\.|Tests?\.cs$|Test\.cs$|__tests__|\/tests?\//i.test(f.filename)
-                ) || [];
-
-                const commitProdFiles = detail.data.files?.filter(f =>
-                  !/\.(test|spec)\.|Tests?\.cs$|Test\.cs$|__tests__|\/tests?\//i.test(f.filename)
-                ) || [];
+                const commitTestFiles = detail.data.files?.filter(f => isTestFile(f.filename)) || [];
+                const commitProdFiles = detail.data.files?.filter(f => !isTestFile(f.filename)) || [];
 
                 const prodChanges = commitProdFiles.reduce((sum, f) => sum + f.additions + f.deletions, 0);
                 const testChanges = commitTestFiles.reduce((sum, f) => sum + f.additions + f.deletions, 0);
@@ -103,9 +79,11 @@ jobs:
                   prod_changes: prodChanges,
                   test_changes: testChanges,
                   total_changes: detail.data.stats.additions + detail.data.stats.deletions,
-                  large_commit: prodChanges > 100,
-                  sprawling_commit: (detail.data.files?.length || 0) > 5,
+                  large_commit: prodChanges > CONFIG.LARGE_COMMIT_THRESHOLD,
+                  sprawling_commit: (detail.data.files?.length || 0) > CONFIG.SPRAWLING_COMMIT_THRESHOLD,
                   test_first_indicator: commitTestFiles.length > 0 && commitProdFiles.length > 0,
+                  test_only_commit: commitTestFiles.length > 0 && commitProdFiles.length === 0,
+                  uncovered_prod_commit: commitTestFiles.length === 0 && commitProdFiles.length > 0 && prodChanges > CONFIG.LARGE_COMMIT_THRESHOLD,
                   test_only: commitTestFiles.length > 0 && commitProdFiles.length === 0,
                   prod_only: commitProdFiles.length > 0 && commitTestFiles.length === 0,
                   test_ratio: prodChanges > 0 ? (testChanges / prodChanges) : 0,
@@ -156,6 +134,8 @@ jobs:
             const largePct = commitMetrics.length > 0 ? (largeCommits / commitMetrics.length * 100) : 0;
             const sprawlingPct = commitMetrics.length > 0 ? (sprawlingCommits / commitMetrics.length * 100) : 0;
             const testFirstPct = commitMetrics.length > 0 ? (testFirstCommits / commitMetrics.length * 100) : 0;
+            const testCoveragePct = testFirstPct;
+            const uncoveredProdPct = commitMetrics.length > 0 ? (commitMetrics.filter(c => c.uncovered_prod_commit).length / commitMetrics.length * 100) : 0;
             const msgQualityPct = commitMetrics.length > 0 ? (qualityCommits / commitMetrics.length * 100) : 0;
 
             const medianAdditionsRatio = (() => {
@@ -275,7 +255,7 @@ jobs:
             // ---------------------------------------------------------------
 
             const archetype = commitMetrics.length > 0
-              ? classifyDoraArchetype(largePct, sprawlingPct, testFirstPct, msgQualityPct)
+              ? classifyDoraArchetype({ large_commits_pct: largePct.toFixed(2), sprawling_commits_pct: sprawlingPct.toFixed(2), test_coverage_rate: testCoveragePct.toFixed(2), uncovered_prod_rate: uncoveredProdPct.toFixed(2), message_quality_pct: msgQualityPct.toFixed(2) })
               : 'mixed-signals';
 
             const archetypeDescriptions = {

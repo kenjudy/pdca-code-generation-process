@@ -12,6 +12,7 @@ A disciplined framework for AI-assisted code generation using Plan-Do-Check-Act 
 - **Experience:** Automatic prompt loading, progressive disclosure
 - **Token efficiency:** Loads only what's needed in background
 - **Maintenance:** Update once, improves everywhere
+- **Platforms:** macOS, Linux, Windows
 
 📦 **[Get started with Standard Skill →](claude-skill/README.md)**
 
@@ -34,8 +35,9 @@ A disciplined framework for AI-assisted code generation using Plan-Do-Check-Act 
 - **Experience:** 100% visible in conversation, full control
 - **Flexibility:** Easy to customize per-session
 - **Portability:** Works with any AI tool, not just Claude
+- **Platforms:** macOS, Linux, Windows
 
-📝 **[Get started with Manual Prompts →](claude-code/README.md)**
+📝 **[Get started with Manual Prompts →](#manual-prompt-setup-claude-code)**
 
 ---
 
@@ -74,13 +76,14 @@ The PDCA workflow consists of four phases:
 
 The rest of this document describes how to set up the manual prompt workflow in Claude Code using symlinked files.
 
-For the Claude Skill setup, see **[claude-skill/README.md](claude-skill/README.md)** instead.
+For the Claude Skill setup (recommended), see **[claude-skill/README.md](claude-skill/README.md)** instead.
 
 ## Prerequisites
 
-- Windows 10/11 with Developer Mode enabled (for symlinks without admin rights)
 - Claude Code CLI installed
-- Git configured with `core.symlinks = true`
+- Git
+
+**Windows only:** Windows 10/11 with Developer Mode enabled (for symlinks without admin rights)
 
 ## Project Structure
 
@@ -98,40 +101,55 @@ your-project/
 │   │   └── 4. Retrospect for continuous improvement.md
 │   └── validation.md            # Pre-commit checklist
 ├── .claudeignore                # Files for Claude to ignore
-└── LinkPrompts.ps1              # Script to create symlinks (optional)
+└── LinkPrompts.ps1              # Windows only: script to create symlinks
 ```
 
 ## Setup Steps
 
-### 1. Enable Developer Mode (Windows)
-
-To create symlinks without admin rights:
-1. Open Settings → Update & Security → For Developers
-2. Turn on **Developer Mode**
-3. Restart PowerShell/Terminal
-
-### 2. Configure Git for Symlinks
+### 1. Configure Git for Symlinks
 
 ```bash
 git config core.symlinks true
 ```
 
-### 3. Create Directory Structure
+**Windows only:** Enable Developer Mode first:
+1. Open Settings → Update & Security → For Developers
+2. Turn on **Developer Mode**
+3. Restart PowerShell/Terminal
 
-From your project root:
+### 2. Create Directory Structure
 
+**macOS/Linux:**
+```bash
+mkdir -p .claude/prompts
+```
+
+**Windows (PowerShell):**
 ```powershell
-# Create .claude directory structure
 New-Item -ItemType Directory -Path ".claude\prompts" -Force
 ```
 
-### 4. Create Symlinks to Prompt Templates
+### 3. Create Symlinks to Prompt Templates
 
-**Option A: Manual Creation**
-
-```powershell
-# From your project root
+**macOS/Linux:**
+```bash
 # Replace $TEMPLATES_PATH with your actual path to the PDCA templates
+TEMPLATES_PATH="/path/to/pdca-templates"
+
+ln -s "$TEMPLATES_PATH/1. Plan/1a Analyze to determine approach for achieving the goal.md" \
+  ".claude/prompts/1a Analyze to determine approach for achieving the goal.md"
+ln -s "$TEMPLATES_PATH/1. Plan/1b Create a detailed implementation plan.md" \
+  ".claude/prompts/1b Create a detailed implementation plan.md"
+ln -s "$TEMPLATES_PATH/2. Do/2. Test Drive the Change.md" \
+  ".claude/prompts/2. Test Drive the Change.md"
+ln -s "$TEMPLATES_PATH/3. Check/3. Completeness Check.md" \
+  ".claude/prompts/3. Completeness Check.md"
+ln -s "$TEMPLATES_PATH/4. Act/4. Retrospect for continuous improvement.md" \
+  ".claude/prompts/4. Retrospect for continuous improvement.md"
+```
+
+**Windows (PowerShell):**
+```powershell
 $TEMPLATES_PATH = "C:\path\to\pdca-templates"
 
 New-Item -ItemType SymbolicLink -Path ".claude\prompts\1a Analyze to determine approach for achieving the goal.md" -Target "$TEMPLATES_PATH\1. Plan\1a Analyze to determine approach for achieving the goal.md"
@@ -141,19 +159,44 @@ New-Item -ItemType SymbolicLink -Path ".claude\prompts\3. Completeness Check.md"
 New-Item -ItemType SymbolicLink -Path ".claude\prompts\4. Retrospect for continuous improvement.md" -Target "$TEMPLATES_PATH\4. Act\4. Retrospect for continuous improvement.md"
 ```
 
-**Option B: Using Script**
+### 4. Create `.claudeignore`
 
-Create `LinkPrompts.ps1` in your project root (or a shared location) and run it from each project directory.
+Create `.claudeignore` in your project root with patterns appropriate for your stack. Example:
 
-### 5. Create `.claudeignore`
+```gitignore
+# Build outputs
+**/bin
+**/obj
+**/dist
+**/build
+node_modules/
 
-Create `.claudeignore` in your project root with appropriate patterns for your C# project (see section below).
+# IDE and editor files
+**/.vs
+**/.idea
+**/.vscode
 
-### 6. Create `.claude/instructions.md`
+# OS files
+**/.DS_Store
+**/Thumbs.db
+
+# Test outputs
+**/TestResults
+**/*.trx
+**/coverage/
+
+# Logs
+*.log
+
+# Git
+.git/
+```
+
+### 5. Create `.claude/instructions.md`
 
 Create the main instructions file that Claude Code will read automatically (see section below).
 
-### 7. Create `.claude/validation.md` (Optional)
+### 6. Create `.claude/validation.md` (Optional)
 
 Create a validation checklist for pre-commit checks (see section below).
 
@@ -198,12 +241,6 @@ This project follows a strict PDCA (Plan-Do-Check-Act) development process with 
 - Extract actionable insights
 - Update working agreements
 
-## Testing Conventions
-- NUnit with Assert.That syntax
-- Leverage TestUtils.cs and fixtures directory
-- Add tests to existing fixtures when coherent
-- Avoid proliferating new test files
-
 ## Process Checkpoints
 Before proceeding with implementation:
 - [ ] Have I searched for similar implementations?
@@ -213,57 +250,6 @@ Before proceeding with implementation:
 
 ## Detailed Phase Instructions
 See `.claude/prompts/` directory for detailed instructions for each phase.
-```
-
-### `.claudeignore`
-
-```gitignore csharp project
-# Build outputs
-**/bin
-obj
-**/obj
-
-# IDE and editor files
-**/.vs
-**/.idea
-**/.vscode
-**/*.DotSettings
-**/*.user
-**/*.suo
-
-# OS files
-**/.DS_Store
-**/Thumbs.db
-**/._.DS_Store
-**/._*.*
-**/._*
-
-# Test outputs
-**/test-output
-**/TestResults
-**/*.trx
-**/*.dcvr
-
-**/fixtures/output
-
-# Logs
-*.log
-
-# NuGet
-packages/
-.nuget/
-
-# Git
-.git/
-
-# Config
-.lfsconfig
-
-# Binaries
-*.dll
-*.exe
-*.pdb
-*.cache
 ```
 
 ### `.claude/validation.md`
@@ -292,7 +278,7 @@ Always work through phases sequentially:
 #### Phase 1a: Analysis
 
 ```bash
-claude-code "Following .claude/prompts/1a: Analyze implementing [feature description]. 
+claude "Following .claude/prompts/1a: Analyze implementing [feature description]. 
 Search codebase for similar patterns before proposing approach. 
 STOP after analysis and wait for approval."
 ```
@@ -302,7 +288,7 @@ STOP after analysis and wait for approval."
 #### Phase 1b: Planning
 
 ```bash
-claude-code "Based on approved analysis, create detailed implementation plan 
+claude "Based on approved analysis, create detailed implementation plan 
 following .claude/prompts/1b. Break into atomic TDD steps."
 ```
 
@@ -312,7 +298,7 @@ following .claude/prompts/1b. Break into atomic TDD steps."
 
 ```bash
 # For each planned step:
-claude-code "Test-drive step [N]: [specific requirement]. 
+claude "Test-drive step [N]: [specific requirement]. 
 Follow .claude/prompts/2 TDD discipline strictly. 
 Write failing test FIRST, then minimal implementation."
 ```
@@ -326,14 +312,14 @@ Write failing test FIRST, then minimal implementation."
 #### Phase 3: Completeness Check
 
 ```bash
-claude-code "Run completeness check per .claude/prompts/3. 
+claude "Run completeness check per .claude/prompts/3. 
 Verify all planned steps complete and process followed."
 ```
 
 #### Phase 4: Retrospection
 
 ```bash
-claude-code "Retrospect on this implementation session following .claude/prompts/4. 
+claude "Retrospect on this implementation session following .claude/prompts/4. 
 Identify what worked well and what to improve."
 ```
 
@@ -367,10 +353,16 @@ Each implementation step should be:
 ## Troubleshooting
 
 ### Symlinks Not Working
+
+**macOS/Linux:**
+- Check that `git config core.symlinks` is true
+- Verify you have write permissions to the project directory
+- Try creating one symlink manually to test permissions
+
+**Windows:**
 - Verify Developer Mode is enabled
 - Check that `git config core.symlinks` is true
-- Ensure you're running PowerShell from project root
-- Try creating one symlink manually to test permissions
+- Ensure you're running PowerShell from the project root
 
 ### Claude Not Following Process
 - Explicitly reference `.claude/prompts/[phase].md` in commands
@@ -393,26 +385,43 @@ Each implementation step should be:
 
 To use these prompts across multiple projects:
 
-1. Keep your master prompts in a central location (e.g., iCloud/Obsidian)
-2. Create a shared `LinkPrompts.ps1` script that takes project path as parameter
-3. Run the script once per project to set up symlinks
-4. All projects stay in sync with your master PDCA templates
+1. Keep your master prompts in a central location (e.g., iCloud, Dropbox, or a shared drive)
+2. Create symlinks per project pointing to those masters
+3. All projects stay in sync with your master PDCA templates
 
+**macOS/Linux — shared script example:**
+```bash
+#!/bin/bash
+# link-prompts.sh — run from your project root
+TEMPLATES_PATH="${1:-$HOME/pdca-templates}"
+mkdir -p .claude/prompts
+for f in "1a Analyze to determine approach for achieving the goal" \
+         "1b Create a detailed implementation plan"; do
+  ln -sf "$TEMPLATES_PATH/1. Plan/$f.md" ".claude/prompts/$f.md"
+done
+# ... remaining phases
+```
+
+**Windows — shared script example:**
 ```powershell
-# Shared script usage (adjust path to your script location)
-& "C:\path\to\your\LinkPrompts.ps1" -ProjectPath "C:\path\to\project"
+# LinkPrompts.ps1 — run from your project root
+param([string]$TemplatesPath = "C:\pdca-templates")
+New-Item -ItemType Directory -Path ".claude\prompts" -Force
+# ... symlink creation
 ```
 
 ## Resources
 
-- [Claude Code Documentation](https://docs.claude.com/en/docs/claude-code)
+- [Claude Code Documentation](https://docs.anthropic.com/en/docs/claude-code)
 - [PDCA Process Repository](https://github.com/kenjudy/human-ai-collaboration-process)
-- Project-specific testing conventions: See `TestUtils.cs` and `fixtures/` directory
+- [claude-skill/README.md](claude-skill/README.md) — recommended skill-based setup
 
 ## License
 
-This setup guide is part of the Human-AI PDCA Collaboration Process framework, licensed under CC BY 4.0.
+This setup guide is part of the Human-AI PDCA Collaboration Process framework, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Attribution:** Ken Judy with Claude Anthropic
 
 ---
 
-*Last Updated: 2025*
+*Last Updated: 2026*

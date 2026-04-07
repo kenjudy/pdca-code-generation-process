@@ -26,6 +26,19 @@ bd update [epic-id] --add-message "$(cat <<'EOF'
 - [Chosen approach and rationale]
 - [Dependencies identified]
 - [Complexity assessment]
+
+## Acceptance Criteria
+- [ ] [Observable outcome 1 — user-visible or test-verifiable]
+- [ ] [Observable outcome 2]
+- [ ] [Edge cases explicitly handled or deferred]
+
+## Out of Scope
+- [What this cycle explicitly does NOT cover]
+
+## Resumption Context
+- Start point: [file:line or entry command to begin next session]
+- Key constraint: [the thing most likely to trip up a fresh session]
+- Open questions: [anything unresolved at session end, or "none"]
 EOF
 )"
 ```

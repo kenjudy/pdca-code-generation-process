@@ -38,6 +38,7 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "--ignore=tests/test_evals.py"
 markers = [
     "eval: marks tests as LLM evaluation tests (require ANTHROPIC_API_KEY, incur API costs — run with: uv run ./run-evals.sh)",
 ]

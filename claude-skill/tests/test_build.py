@@ -226,7 +226,7 @@ class TestProjectSetup(unittest.TestCase):
     def test_eval_pytest_marker_registered(self):
         """pytest --markers must list the eval marker — confirms pyproject.toml registers it."""
         result = subprocess.run(
-            ["python3", "-m", "pytest", "--markers"],
+            ["python3", "-m", "pytest", "--markers", "--ignore=tests/test_evals.py"],
             cwd=str(CLAUDE_SKILL_DIR),
             capture_output=True,
             text=True,
@@ -437,41 +437,40 @@ class TestSkillPackage(unittest.TestCase):
 
 
 class TestBuildScript(unittest.TestCase):
-    """Run the build script and verify it succeeds."""
+    """Run the build script once and verify its outputs.
 
-    def test_build_script_exits_zero(self):
-        result = subprocess.run(
+    Uses setUpClass to build a single time — avoids running build-skill.sh
+    three times (~30s each) for independent output checks.
+    """
+
+    _build_result: "subprocess.CompletedProcess[str] | None" = None
+
+    @classmethod
+    def setUpClass(cls):
+        beads_skill = CLAUDE_SKILL_DIR / "pdca-framework-beads.skill"
+        if beads_skill.exists():
+            beads_skill.unlink()
+        cls._build_result = subprocess.run(
             ["bash", "build-skill.sh"],
             cwd=str(CLAUDE_SKILL_DIR),
             capture_output=True,
             text=True,
         )
+
+    def test_build_script_exits_zero(self):
+        assert self._build_result is not None, "setUpClass did not run"
         self.assertEqual(
-            result.returncode,
+            self._build_result.returncode,
             0,
-            f"build-skill.sh failed:\nSTDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}",
+            f"build-skill.sh failed:\nSTDOUT:\n{self._build_result.stdout}\nSTDERR:\n{self._build_result.stderr}",
         )
 
     def test_build_produces_skill_file(self):
-        subprocess.run(
-            ["bash", "build-skill.sh"],
-            cwd=str(CLAUDE_SKILL_DIR),
-            capture_output=True,
-        )
         self.assertTrue(SKILL_FILE.exists(), "build-skill.sh did not produce pdca-framework.skill")
 
     def test_build_does_not_produce_beads_skill(self):
         """The retired pdca-framework-beads.skill should not be regenerated."""
         beads_skill = CLAUDE_SKILL_DIR / "pdca-framework-beads.skill"
-        # Remove it first to test that build doesn't recreate it
-        existed_before = beads_skill.exists()
-        if existed_before:
-            beads_skill.unlink()
-        subprocess.run(
-            ["bash", "build-skill.sh"],
-            cwd=str(CLAUDE_SKILL_DIR),
-            capture_output=True,
-        )
         self.assertFalse(
             beads_skill.exists(),
             "build-skill.sh produced pdca-framework-beads.skill — it should only build one unified package",
@@ -562,6 +561,93 @@ class TestHookInfrastructure(unittest.TestCase):
             "run-tests.sh",
             workflow.read_text(),
             "Workflow must invoke run-tests.sh",
+        )
+
+
+class TestBeadsTemplateCompleteness(unittest.TestCase):
+    """Beads addon templates must include acceptance criteria and resumption context."""
+
+    def _read_source(self, filename):
+        return (BEADS_ADDON_DIR / filename).read_text()
+
+    # --- plan-beads-addon.md ---
+
+    def test_plan_epic_template_has_acceptance_criteria(self):
+        content = self._read_source("plan-beads-addon.md")
+        self.assertIn(
+            "## Acceptance Criteria",
+            content,
+            "plan-beads-addon.md epic template must include an Acceptance Criteria section",
+        )
+
+    def test_plan_epic_template_has_out_of_scope(self):
+        content = self._read_source("plan-beads-addon.md")
+        self.assertIn(
+            "## Out of Scope",
+            content,
+            "plan-beads-addon.md epic template must include an Out of Scope section",
+        )
+
+    def test_plan_epic_template_has_resumption_context(self):
+        content = self._read_source("plan-beads-addon.md")
+        self.assertIn(
+            "## Resumption Context",
+            content,
+            "plan-beads-addon.md epic template must include a Resumption Context section",
+        )
+
+    # --- do-beads-addon.md ---
+
+    def test_do_task_template_has_before_state(self):
+        content = self._read_source("do-beads-addon.md")
+        self.assertIn(
+            "Before:",
+            content,
+            "do-beads-addon.md task template must include a Before: field",
+        )
+
+    def test_do_task_template_has_after_state(self):
+        content = self._read_source("do-beads-addon.md")
+        self.assertIn(
+            "After:",
+            content,
+            "do-beads-addon.md task template must include an After: field",
+        )
+
+    def test_do_task_template_has_done_when(self):
+        content = self._read_source("do-beads-addon.md")
+        self.assertIn(
+            "Done when:",
+            content,
+            "do-beads-addon.md task template must include a Done when: field",
+        )
+
+    # --- check-beads-addon.md ---
+
+    def test_check_verifies_acceptance_criteria(self):
+        content = self._read_source("check-beads-addon.md")
+        self.assertIn(
+            "Acceptance criteria",
+            content,
+            "check-beads-addon.md verification checklist must include an acceptance criteria step",
+        )
+
+    # --- beads-workflow.md ---
+
+    def test_workflow_plan_section_has_acceptance_criteria(self):
+        content = self._read_source("beads-workflow.md")
+        self.assertIn(
+            "Acceptance Criteria",
+            content,
+            "beads-workflow.md PLAN section must include Acceptance Criteria template",
+        )
+
+    def test_workflow_do_section_has_done_when(self):
+        content = self._read_source("beads-workflow.md")
+        self.assertIn(
+            "Done when:",
+            content,
+            "beads-workflow.md DO section must include Done when: field in task template",
         )
 
 

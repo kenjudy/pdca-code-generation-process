@@ -23,6 +23,7 @@ bd show [epic-id]
 
 - [ ] All planned subtasks are closed
 - [ ] No tasks marked `in_progress` (finish or create follow-up)
+- [ ] Acceptance criteria from epic verified against actual outcomes
 - [ ] Commit hashes documented in task messages
 - [ ] Any discovered blockers have follow-up tasks created
 

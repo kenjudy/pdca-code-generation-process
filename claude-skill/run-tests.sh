@@ -33,7 +33,7 @@ set -e
 echo ""
 echo "=== Running Test Suite ==="
 set +e
-(cd "$SCRIPT_DIR" && uv run python -m pytest tests/ --ignore=tests/test_evals.py -v) 2>&1
+(cd "$SCRIPT_DIR" && uv run python -m pytest tests/ -v) 2>&1
 TEST_EXIT=$?
 set -e
 

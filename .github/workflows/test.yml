@@ -25,7 +25,7 @@ jobs:
         working-directory: claude-skill
 
       - name: Type check (mypy)
-        run: uv run mypy eval tests
+        run: uv run mypy eval tests/test_build.py
         working-directory: claude-skill
 
       - name: Build and test

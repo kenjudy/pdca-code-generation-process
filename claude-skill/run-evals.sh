@@ -20,5 +20,5 @@ echo ""
 if [ $# -gt 0 ]; then
   (cd "$SCRIPT_DIR" && uv run python -m pytest -m eval -v "$@")
 else
-  (cd "$SCRIPT_DIR" && uv run python -m pytest tests/ -m eval -v)
+  (cd "$SCRIPT_DIR" && uv run python -m pytest tests/test_evals.py -m eval -v)
 fi

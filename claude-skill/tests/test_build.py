@@ -443,7 +443,7 @@ class TestBuildScript(unittest.TestCase):
     three times (~30s each) for independent output checks.
     """
 
-    _build_result = None
+    _build_result: "subprocess.CompletedProcess[str] | None" = None
 
     @classmethod
     def setUpClass(cls):
@@ -458,6 +458,7 @@ class TestBuildScript(unittest.TestCase):
         )
 
     def test_build_script_exits_zero(self):
+        assert self._build_result is not None, "setUpClass did not run"
         self.assertEqual(
             self._build_result.returncode,
             0,

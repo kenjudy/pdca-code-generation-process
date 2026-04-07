@@ -26,6 +26,19 @@ bd update [epic-id] --add-message "$(cat <<'EOF'
 - [Key architectural patterns discovered]
 - [Chosen approach and rationale]
 - [Dependencies identified]
+
+## Acceptance Criteria
+- [ ] [Observable outcome 1 — user-visible or test-verifiable]
+- [ ] [Observable outcome 2]
+- [ ] [Edge cases explicitly handled or deferred]
+
+## Out of Scope
+- [What this cycle explicitly does NOT cover]
+
+## Resumption Context
+- Start point: [file:line or entry command to begin next session]
+- Key constraint: [the thing most likely to trip up a fresh session]
+- Open questions: [anything unresolved at session end, or "none"]
 EOF
 )"
 ```
@@ -41,6 +54,12 @@ EOF
 ```bash
 bd create "Step [N]: [description]" --parent [epic-id] --type task
 bd update [task-id] --claim --status in_progress
+bd update [task-id] --add-message "$(cat <<'EOF'
+Before: [current behavior or failing test name]
+After: [expected behavior when this step is done]
+Done when: [specific test passes or explicit verifiable condition]
+EOF
+)"
 ```
 
 **After RED → GREEN → REFACTOR:**

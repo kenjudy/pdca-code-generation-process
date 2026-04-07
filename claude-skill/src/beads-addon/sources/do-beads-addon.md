@@ -16,6 +16,17 @@ bd create "Step [N]: [description]" --parent [epic-id] --type task
 bd update [task-id] --claim --status in_progress
 ```
 
+Add context so the task is self-contained:
+
+```bash
+bd update [task-id] --add-message "$(cat <<'EOF'
+Before: [current behavior or failing test name]
+After: [expected behavior when this step is done]
+Done when: [specific test passes or explicit verifiable condition]
+EOF
+)"
+```
+
 ## After RED → GREEN → REFACTOR
 
 ```bash

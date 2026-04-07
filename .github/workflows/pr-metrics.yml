@@ -5,6 +5,7 @@ on:
 jobs:
   analyze-pr:
     runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
     steps:
       - name: Checkout with full history
         uses: actions/checkout@v4

@@ -148,11 +148,11 @@ Use the installation script for automatic setup:
 #### Manual Install - Personal Skill (Available Across All Projects)
 
 ```bash
-# Create the directory
-mkdir -p ~/.claude/skills/pdca-framework
+# Create the parent directory
+mkdir -p ~/.claude/skills
 
-# Extract the skill package
-unzip pdca-framework.skill -d ~/.claude/skills/pdca-framework
+# Extract the skill package (zip contains pdca-framework/ at root)
+unzip pdca-framework.skill -d ~/.claude/skills
 
 # Result:
 # ~/.claude/skills/pdca-framework/
@@ -175,10 +175,10 @@ unzip pdca-framework.skill -d ~/.claude/skills/pdca-framework
 
 ```bash
 # From your project directory
-mkdir -p .claude/skills/pdca-framework
+mkdir -p .claude/skills
 
-# Extract the skill package
-unzip /path/to/pdca-framework.skill -d .claude/skills/pdca-framework
+# Extract the skill package (zip contains pdca-framework/ at root)
+unzip /path/to/pdca-framework.skill -d .claude/skills
 
 # Commit to share with team
 git add .claude/skills/

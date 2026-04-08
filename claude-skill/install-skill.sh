@@ -89,8 +89,8 @@ fi
 
 # Extract skill package
 echo -e "${BLUE}Extracting skill package...${NC}"
-mkdir -p "$INSTALL_DIR"
-unzip "$SKILL_FILE" -d "$INSTALL_DIR"
+mkdir -p "$(dirname "$INSTALL_DIR")"
+unzip "$SKILL_FILE" -d "$(dirname "$INSTALL_DIR")"
 
 # Verify installation
 if [ ! -f "$INSTALL_DIR/SKILL.md" ]; then

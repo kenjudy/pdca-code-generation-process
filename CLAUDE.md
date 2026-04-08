@@ -33,7 +33,7 @@ Reads master prompt files, generates `claude-skill/src/core/references/`, zips i
 
 **Install locally after build:**
 ```bash
-unzip -o claude-skill/pdca-framework.skill -d ~/.claude/skills/pdca-framework/
+unzip -o claude-skill/pdca-framework.skill -d ~/.claude/skills/
 ```
 
 **Eval tests (requires `ANTHROPIC_API_KEY`, ~$2–5/run, manual only):**

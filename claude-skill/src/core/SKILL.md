@@ -115,6 +115,6 @@ The PDCA cycle itself provides rapid feedback for incremental prompt evolution.
 
 **Attribution:** Process framework developed by [Ken Judy](https://github.com/kenjudy) with Claude Anthropic 4
 
-**Source:** [Human-AI Collaboration Process Repository](https://github.com/kenjudy/human-ai-collaboration-process)
+**Source:** [PDCA Framework Repository](https://github.com/kenjudy/pdca-framework)
 
 **Living Framework:** These prompts and working agreements should be continuously refined based on retrospective learnings from each collaboration session.

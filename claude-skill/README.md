@@ -381,6 +381,8 @@ The skill is based on documented research showing AI code generation quality iss
 
 Read the full framework paper: [SOSA 2025 Notes](https://github.com/kenjudy/pdca-framework/blob/main/presentations/SOSA%202025/SOSA%202025%20Notes.md)
 
+Presentation prepared for [XP 2026](https://kenjudy.us/presentations/human-centric-ai-code-generation/)
+
 ### Philosophy
 This framework embodies agile principles:
 - **Individuals and interactions** over processes and tools (human oversight)

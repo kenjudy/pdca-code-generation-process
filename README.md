@@ -62,6 +62,19 @@ A disciplined framework for AI-assisted code generation using Plan-Do-Check-Act 
 
 ---
 
+## Why This Framework
+
+Research shows AI code generation without human oversight leads to measurable quality degradation:
+- 10x increase in duplicated code (GitClear 2024)
+- 7.2% decrease in delivery stability per 25% AI adoption increase (Google DORA 2024)
+- 19% slower development with AI tools vs. without (METR 2025)
+
+PDCA Framework keeps humans actively engaged, empowered, and accountable while using structured prompts to regulate agent behavior toward transparency and discipline.
+
+Read the full framework paper: [SOSA 2025 Notes](https://github.com/kenjudy/pdca-framework/blob/main/presentations/SOSA%202025/SOSA%202025%20Notes.md) — Presentation prepared for [XP 2026](https://kenjudy.us/presentations/human-centric-ai-code-generation/)
+
+---
+
 ## PDCA Framework Overview
 
 The PDCA workflow consists of four phases:

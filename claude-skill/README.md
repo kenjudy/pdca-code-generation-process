@@ -24,7 +24,7 @@ This skill provides a disciplined framework for AI-assisted code generation that
 - ✅ Beads integration files included (optional — only load them if beads is installed)
 - 📦 **Size**: 20K
 
-**Beads** adds persistent task tracking across sessions (multi-day features, searchable retrospectives). It's built in and optional — see [Beads Integration](#beads-integration) if you want it.
+**Beads** (by [Steve Yegge](https://github.com/steveyegge)) adds persistent task tracking across sessions (multi-day features, searchable retrospectives). It's built in and optional — see [Beads Integration](#beads-integration) if you want it.
 
 ---
 
@@ -508,7 +508,7 @@ They are not run in CI — invoke manually when iterating on phase prompt qualit
 
 ## Beads Integration
 
-**Optional** — the skill works without beads. Set it up when you want persistent task tracking across multi-day sessions.
+**Optional** — the skill works without beads. Set it up when you want persistent task tracking across multi-day sessions. Beads is created by [Steve Yegge](https://github.com/steveyegge).
 
 All beads commands in the prompts are optional. The skill includes `references/beads-setup.md` (first-time install guide) and `references/beads-workflow.md` (per-session reference) that Claude loads only when needed.
 

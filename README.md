@@ -1,4 +1,4 @@
-# Human-AI PDCA Collaboration Framework
+# PDCA Framework
 
 A disciplined framework for AI-assisted code generation using Plan-Do-Check-Act methodology with strict TDD discipline.
 
@@ -413,7 +413,7 @@ New-Item -ItemType Directory -Path ".claude\prompts" -Force
 ## Resources
 
 - [Claude Code Documentation](https://docs.anthropic.com/en/docs/claude-code)
-- [PDCA Process Repository](https://github.com/kenjudy/human-ai-collaboration-process)
+- [PDCA Process Repository](https://github.com/kenjudy/pdca-framework)
 - [claude-skill/README.md](claude-skill/README.md) — recommended skill-based setup
 
 ## License

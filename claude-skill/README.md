@@ -14,45 +14,6 @@ This skill provides a disciplined framework for AI-assisted code generation that
 
 ---
 
-## Development Setup
-
-**Requirements:** Python 3.11+, [uv](https://docs.astral.sh/uv/) (`brew install uv` or `curl -LsSf https://astral.sh/uv/install.sh | sh`)
-
-### For running unit tests (no API key needed)
-
-```bash
-cd claude-skill
-uv sync --extra test
-bash run-tests.sh
-```
-
-### For running eval tests (requires Anthropic API key, ~$2-5/full run)
-
-LLM-as-judge evaluations check whether each PDCA phase prompt produces compliant responses
-across a range of scenarios. Claude Haiku acts as the judge, scoring outputs against a
-chain-of-thought rubric (strengths → weaknesses → reasoning → score).
-
-```bash
-cd claude-skill
-uv sync --extra eval
-cp .env.example .env          # add your ANTHROPIC_API_KEY
-bash run-evals.sh             # run all prompt evals
-```
-
-To run a single prompt's evals:
-
-```bash
-bash run-evals.sh tests/test_evals.py::TestPrompt1aEvals
-```
-
-Eval tests are tagged `@pytest.mark.eval` and are **excluded from the default test suite**.
-They are not run in CI — invoke manually when iterating on phase prompt quality.
-
-> **Note:** Unit tests (`run-tests.sh`) run in CI on every push. Eval tests cost API tokens
-> and are intentionally on-demand only.
-
----
-
 ## 📦 One Unified Package
 
 `pdca-framework.skill` includes everything:
@@ -94,7 +55,7 @@ This generates `pdca-framework.skill` from the source prompts. See [BUILD.md](BU
 This is the primary distribution path — upload `pdca-framework.skill` directly in Claude's UI.
 
 1. **Download the skill file**
-   - [**Download pdca-framework.skill**](https://github.com/kenjudy/pdca-code-generation-process/releases/latest/download/pdca-framework.skill) (latest release)
+   - [**Download pdca-framework.skill**](https://github.com/kenjudy/pdca-framework/releases/latest/download/pdca-framework.skill) (latest release)
    - Or build from source: `cd claude-skill && bash build-skill.sh`
 
 2. **Open Claude Settings**
@@ -418,7 +379,7 @@ The skill is based on documented research showing AI code generation quality iss
 - Google DORA 2024: 7.2% stability decrease per 25% AI adoption
 - METR 2025: 19% slower development with AI tools
 
-Read the full framework paper: [SOSA 2025 Notes](https://github.com/kenjudy/human-ai-collaboration-process/blob/main/presentations/SOSA%202025/SOSA%202025%20Notes.md)
+Read the full framework paper: [SOSA 2025 Notes](https://github.com/kenjudy/pdca-framework/blob/main/presentations/SOSA%202025/SOSA%202025%20Notes.md)
 
 ### Philosophy
 This framework embodies agile principles:
@@ -430,9 +391,9 @@ This framework embodies agile principles:
 ### Contributing
 The PDCA framework is open source under CC BY 4.0.
 
-**Repository:** https://github.com/kenjudy/human-ai-collaboration-process
-**Issues/Suggestions:** [Create GitHub issue](https://github.com/kenjudy/human-ai-collaboration-process/issues/new)
-**Discussions:** [GitHub Discussions](https://github.com/kenjudy/human-ai-collaboration-process/discussions)
+**Repository:** https://github.com/kenjudy/pdca-framework
+**Issues/Suggestions:** [Create GitHub issue](https://github.com/kenjudy/pdca-framework/issues/new)
+**Discussions:** [GitHub Discussions](https://github.com/kenjudy/pdca-framework/discussions)
 
 ---
 
@@ -504,8 +465,46 @@ Print this card and keep it visible during coding sessions!
 
 ---
 
-## 
-gration
+## Development Setup
+
+**Requirements:** Python 3.11+, [uv](https://docs.astral.sh/uv/) (`brew install uv` or `curl -LsSf https://astral.sh/uv/install.sh | sh`)
+
+### For running unit tests (no API key needed)
+
+```bash
+cd claude-skill
+uv sync --extra test
+bash run-tests.sh
+```
+
+### For running eval tests (requires Anthropic API key, ~$2-5/full run)
+
+LLM-as-judge evaluations check whether each PDCA phase prompt produces compliant responses
+across a range of scenarios. Claude Haiku acts as the judge, scoring outputs against a
+chain-of-thought rubric (strengths → weaknesses → reasoning → score).
+
+```bash
+cd claude-skill
+uv sync --extra eval
+cp .env.example .env          # add your ANTHROPIC_API_KEY
+bash run-evals.sh             # run all prompt evals
+```
+
+To run a single prompt's evals:
+
+```bash
+bash run-evals.sh tests/test_evals.py::TestPrompt1aEvals
+```
+
+Eval tests are tagged `@pytest.mark.eval` and are **excluded from the default test suite**.
+They are not run in CI — invoke manually when iterating on phase prompt quality.
+
+> **Note:** Unit tests (`run-tests.sh`) run in CI on every push. Eval tests cost API tokens
+> and are intentionally on-demand only.
+
+---
+
+## Beads Integration
 
 **Optional** — the skill works without beads. Set it up when you want persistent task tracking across multi-day sessions.
 

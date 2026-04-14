@@ -15,7 +15,7 @@ test = [
 ]
 # Eval harness — install separately: uv sync --extra eval
 eval = [
-    "deepeval>=3.9",
+    "deepeval>=3.9.6",
     "anthropic>=0.40",
     "python-dotenv>=1.0",
 ]

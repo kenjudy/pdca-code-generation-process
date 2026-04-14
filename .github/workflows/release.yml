@@ -28,7 +28,7 @@ jobs:
         run: bash claude-skill/build-skill.sh
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: claude-skill/pdca-framework.skill
           generate_release_notes: false

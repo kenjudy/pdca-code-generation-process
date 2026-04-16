@@ -8,7 +8,7 @@
 
 ```bash
 # Add retrospective to epic
-bd update [epic-id] --add-message "$(cat <<'EOF'
+bd update [epic-id] --append-notes "$(cat <<'EOF'
 ## Retrospective
 
 **Session goal:** [original objective]

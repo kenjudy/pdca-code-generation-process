@@ -95,7 +95,7 @@ bd create "Feature: Add user authentication" --type epic
 # Returns: PDCA Process-a1b2
 
 # Capture analysis notes
-bd update PDCA Process-a1b2 --add-message "$(cat <<'EOF'
+bd update PDCA Process-a1b2 --append-notes "$(cat <<'EOF'
 ## Analysis Summary
 - Examined existing auth patterns in codebase
 - Decided on JWT-based approach
@@ -161,7 +161,7 @@ bd show PDCA Process-a1b2
 
 ```bash
 # Add retrospective message
-bd update PDCA Process-a1b2 --add-message "$(cat <<'EOF'
+bd update PDCA Process-a1b2 --append-notes "$(cat <<'EOF'
 ## Retrospective
 
 **What worked:**
@@ -266,7 +266,7 @@ bd close <id>               # Mark complete
 ### Messages & Metadata
 
 ```bash
-bd update <id> --add-message "Note text"
+bd update <id> --append-notes "Note text"
 bd update <id> --metadata key=value
 bd comments <id>            # View all messages
 ```

@@ -659,7 +659,7 @@ bd list --parent myproject-a1b2 --status open,in_progress
 **ACT Phase:**
 ```bash
 # Store retrospective
-bd update myproject-a1b2 --add-message "Retrospective: TDD kept scope focused..."
+bd update myproject-a1b2 --append-notes "Retrospective: TDD kept scope focused..."
 bd close myproject-a1b2
 ```
 

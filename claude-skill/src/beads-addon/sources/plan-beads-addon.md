@@ -20,7 +20,7 @@ After completing your analysis, store key decisions:
 
 ```bash
 # Add analysis summary to epic
-bd update [epic-id] --add-message "$(cat <<'EOF'
+bd update [epic-id] --append-notes "$(cat <<'EOF'
 ## Analysis Summary
 - [Key architectural patterns discovered]
 - [Chosen approach and rationale]

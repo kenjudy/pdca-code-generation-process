@@ -61,7 +61,6 @@ Before behavioral steps begin, identify any structural cleanup required to make 
 
 _Plan is verbose and I don't add it to any tracking_
 
-
 ---
 
 ## License & Attribution

@@ -233,6 +233,72 @@ class TestPrompt3Evals:
         _assert_and_store(scenario, reporter)
 
 
+class TestBaselineComparison:
+    """Validate that the skill prompt causes measurable improvement over no prompt.
+
+    Runs all 15 scenarios twice: once with the skill prompt (standard) and once
+    without (include_skill_prompt=False). Asserts that the prompt produces a
+    higher or equal GEval score for at least 10 of the 15 scenarios.
+
+    A failure here means the prompt is not causing the behaviors the rubrics
+    measure -- investigate before concluding the prompts need revision, as
+    LLM-judge variance can affect individual scores. Re-run 2-3 times if the
+    count is close to the threshold.
+
+    Requires ANTHROPIC_API_KEY. Run with: bash run-evals.sh -k TestBaselineComparison
+    Cost: approximately doubles the standard eval run cost.
+    """
+
+    def test_baseline_comparison_shows_positive_delta_for_majority_of_scenarios(self, reporter):
+        positive_delta_count = 0
+        results = []
+
+        for prompt_id in ["1a", "1b", "2", "3", "4"]:
+            for scenario in load_scenarios(prompt_id):
+                if scenario["expected_signals"].get("skip_geval"):
+                    continue
+                phase_prompt_path = PHASE_PROMPTS_DIR / PROMPT_FILE[prompt_id]
+                criteria, threshold = _rubric_for_prompt(prompt_id)
+
+                with_output = run_phase(phase_prompt_path, scenario["input"])
+                without_output = run_phase(
+                    phase_prompt_path, scenario["input"], include_skill_prompt=False
+                )
+
+                def _score(output: str) -> float:
+                    metric = GEval(
+                        name=f"pdca_{prompt_id}_compliance",
+                        criteria=criteria,
+                        evaluation_params=[LLMTestCaseParams.INPUT, LLMTestCaseParams.ACTUAL_OUTPUT],
+                        threshold=threshold,
+                        model=JUDGE_MODEL,
+                    )
+                    metric.measure(LLMTestCase(input=scenario["input"], actual_output=output))
+                    return metric.score or 0.0
+
+                with_score = _score(with_output)
+                without_score = _score(without_output)
+                delta = with_score - without_score
+                if delta >= 0:
+                    positive_delta_count += 1
+                results.append({
+                    "scenario_id": scenario["scenario_id"],
+                    "with_score": round(with_score, 3),
+                    "without_score": round(without_score, 3),
+                    "delta": round(delta, 3),
+                })
+
+        total = len(results)
+        detail = "\n".join(
+            f"  {r['scenario_id']}: with={r['with_score']} without={r['without_score']} delta={r['delta']:+.3f}"
+            for r in sorted(results, key=lambda r: r["delta"])
+        )
+        assert positive_delta_count >= 10, (
+            f"Only {positive_delta_count}/{total} scenarios showed non-negative delta.\n"
+            f"Per-scenario scores (sorted by delta):\n{detail}"
+        )
+
+
 class TestPrompt4Evals:
     """End-to-end LLM eval for PDCA prompt 4 (Act / Retrospection)."""
 

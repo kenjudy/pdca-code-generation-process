@@ -181,3 +181,36 @@ cd claude-skill && bash run-evals.sh -k "TestPrompt1aEvals or TestPrompt1bEvals"
   2. Re-run the scenario 1–3 times — LLM-judge scores vary naturally
   3. If the rubric is misapplying a criterion, fix the rubric (targeted change only) and re-run
 - Do not commit prompt or rubric changes that regress a passing scenario
+
+---
+
+## Validating Trigger Accuracy
+
+The process compliance evals above test what the skill *does* once invoked. Trigger accuracy tests whether Claude invokes the skill at the right moments. These are separate concerns and use a separate tool.
+
+**Trigger accuracy is validated via the `skill-creator` skill**, not this test suite. The scenario inputs live in `eval/trigger-eval.json` (35 entries: 20 should-trigger, 15 should-not-trigger).
+
+### Running a trigger accuracy check
+
+From a new Claude Code session:
+
+```
+/skill-creator
+```
+
+Then ask it to run trigger optimization on the pdca-framework skill using `eval/trigger-eval.json` as the scenario input. Results are written to `eval/trigger-optimization-report.json`.
+
+### Interpreting results
+
+The report shows precision and recall across iterations:
+
+- **Recall = 0%** on should-trigger cases means the skill description is not broad enough. The skill never fires on realistic session-start prompts. This was the finding from the April 2026 run -- all 5 description variants failed to trigger on positive cases.
+- **Low precision** (false triggers) means the description is too broad and fires on unrelated requests.
+
+### When to re-run
+
+Re-run trigger accuracy after any change to:
+- `claude-skill/src/core/SKILL.md` (the description field specifically)
+- `eval/trigger-eval.json` (scenario quality improvements)
+
+The current scenario set includes ambiguous should-trigger cases (complex features, reliability problems, messy codebases) alongside obvious ones, to prevent the optimizer from overfitting to explicit PDCA/TDD keyword mentions.

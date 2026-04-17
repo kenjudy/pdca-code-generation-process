@@ -55,7 +55,12 @@ class EvalReporter:
             phase = PHASE_NAMES.get(r["prompt_id"], r["prompt_id"])
             mech_ok = r["shots_mech_passed"] >= 2 if r.get("retried") else all(c.passed for c in r["mechanical"])
             if r.get("retried"):
-                score_str = f"{r['shots_geval_passed']}/{r['shots_total']} shots"
+                mean = r.get("shot_mean")
+                stddev = r.get("shot_stddev")
+                if mean is not None and stddev is not None:
+                    score_str = f"{mean} ± {stddev}"
+                else:
+                    score_str = f"{r['shots_geval_passed']}/{r['shots_total']} shots"
             else:
                 score_str = f"{r['geval_score']:.2f}" if r["geval_score"] is not None else "n/a"
             lines.append(
@@ -119,6 +124,21 @@ class EvalReporter:
             lines.append(r["output"].strip())
             lines.append("```")
 
+            lines.append("")
+
+        # Analyst notes: flag high-variance retried scenarios
+        high_variance = [
+            r for r in self.results
+            if r.get("retried") and (r.get("shot_stddev") or 0.0) > 0.2
+        ]
+        if high_variance:
+            lines.append("## Analyst Notes\n")
+            lines.append("The following scenarios show high score variance (stddev > 0.2) across retry shots.")
+            lines.append("These may be flaky or sensitive to minor prompt wording changes.\n")
+            for r in high_variance:
+                lines.append(
+                    f"- **{r['scenario_id']}**: mean={r.get('shot_mean')}, stddev={r.get('shot_stddev')}"
+                )
             lines.append("")
 
         return "\n".join(lines)

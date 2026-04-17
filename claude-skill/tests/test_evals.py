@@ -23,7 +23,7 @@ from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 
 from eval.executor import run_phase
 from eval.mechanical import check_mechanical
-from eval.reporter import EvalReporter
+from eval.reporter import EvalReporter, compute_shot_stats
 from eval.rubrics.rubric_1a import CRITERIA as CRITERIA_1A
 from eval.rubrics.rubric_1a import THRESHOLD as THRESHOLD_1A
 from eval.rubrics.rubric_1b import CRITERIA as CRITERIA_1B
@@ -162,6 +162,9 @@ def _assert_and_store(scenario: dict, reporter: EvalReporter) -> None:
     mech_pass_count = sum(1 for r in all_results if _result_passed(r)[0])
     geval_pass_count = sum(1 for r in all_results if _result_passed(r)[1])
 
+    shot_scores = [r["geval_score"] for r in all_results if r["geval_score"] is not None]
+    stats = compute_shot_stats(shot_scores) if shot_scores else {"shot_mean": None, "shot_stddev": None}
+
     # Replace reporter entry with retry-aware summary so report reflects true verdict.
     reporter.results.pop()
     reporter.add({
@@ -172,6 +175,7 @@ def _assert_and_store(scenario: dict, reporter: EvalReporter) -> None:
         "shots_mech_passed": mech_pass_count,
         "shots_total": 3,
         "geval_passed": geval_pass_count >= 2,
+        **stats,
     })
 
     sid = result["scenario_id"]

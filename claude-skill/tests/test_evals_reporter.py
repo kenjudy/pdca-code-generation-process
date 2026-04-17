@@ -140,6 +140,83 @@ class TestEvalReporter:
         content = path.read_text()
         assert "2/3" in content
 
+    def test_retried_result_shows_mean_and_stddev_in_summary(self, tmp_path):
+        shot1 = _make_result(geval_passed=False, geval_score=0.20)
+        shot2 = _make_result(geval_passed=True, geval_score=0.90)
+        shot3 = _make_result(geval_passed=True, geval_score=0.80)
+        retried = {
+            **shot1,
+            "retried": True,
+            "shots": [shot1, shot2, shot3],
+            "shots_geval_passed": 2,
+            "shots_mech_passed": 3,
+            "shots_total": 3,
+            "geval_passed": True,
+            "shot_mean": 0.633,
+            "shot_stddev": 0.361,
+        }
+        reporter = EvalReporter()
+        reporter.add(retried)
+        path = tmp_path / "report.md"
+        reporter.write_report(path)
+        content = path.read_text()
+        assert "0.633 ± 0.361" in content, (
+            "Summary table must show 'mean ± stddev' for retried scenarios"
+        )
+
+    def test_analyst_notes_section_appears_when_high_variance_scenario_present(self, tmp_path):
+        shot1 = _make_result(scenario_id="2-first-step", prompt_id="2",
+                             geval_passed=False, geval_score=0.10)
+        shot2 = _make_result(scenario_id="2-first-step", prompt_id="2",
+                             geval_passed=True, geval_score=0.90)
+        shot3 = _make_result(scenario_id="2-first-step", prompt_id="2",
+                             geval_passed=True, geval_score=0.80)
+        retried = {
+            **shot1,
+            "retried": True,
+            "shots": [shot1, shot2, shot3],
+            "shots_geval_passed": 2,
+            "shots_mech_passed": 3,
+            "shots_total": 3,
+            "geval_passed": True,
+            "shot_mean": 0.600,
+            "shot_stddev": 0.436,  # > 0.2 threshold
+        }
+        reporter = EvalReporter()
+        reporter.add(retried)
+        path = tmp_path / "report.md"
+        reporter.write_report(path)
+        content = path.read_text()
+        assert "## Analyst Notes" in content, (
+            "Report must include Analyst Notes section when any scenario has stddev > 0.2"
+        )
+        assert "2-first-step" in content.split("## Analyst Notes")[-1], (
+            "Analyst Notes must name the high-variance scenario"
+        )
+
+    def test_analyst_notes_absent_when_all_low_variance(self, tmp_path):
+        shot1 = _make_result(geval_passed=True, geval_score=0.80)
+        shot2 = _make_result(geval_passed=True, geval_score=0.85)
+        shot3 = _make_result(geval_passed=True, geval_score=0.90)
+        retried = {
+            **shot1,
+            "retried": True,
+            "shots": [shot1, shot2, shot3],
+            "shots_geval_passed": 3,
+            "shots_mech_passed": 3,
+            "shots_total": 3,
+            "geval_passed": True,
+            "shot_mean": 0.850,
+            "shot_stddev": 0.050,  # <= 0.2 threshold
+        }
+        reporter = EvalReporter()
+        reporter.add(retried)
+        path = tmp_path / "report.md"
+        reporter.write_report(path)
+        assert "## Analyst Notes" not in path.read_text(), (
+            "Analyst Notes section must not appear when all stddev <= 0.2"
+        )
+
     def test_retried_result_shows_shot_details(self, tmp_path):
         shot1 = _make_result(geval_passed=False, geval_score=0.20)
         shot2 = _make_result(geval_passed=True, geval_score=0.90)

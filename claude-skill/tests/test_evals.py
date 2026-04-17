@@ -23,7 +23,7 @@ from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 
 from eval.executor import run_phase
 from eval.mechanical import check_mechanical
-from eval.reporter import EvalReporter
+from eval.reporter import EvalReporter, compute_shot_stats
 from eval.rubrics.rubric_1a import CRITERIA as CRITERIA_1A
 from eval.rubrics.rubric_1a import THRESHOLD as THRESHOLD_1A
 from eval.rubrics.rubric_1b import CRITERIA as CRITERIA_1B
@@ -162,6 +162,9 @@ def _assert_and_store(scenario: dict, reporter: EvalReporter) -> None:
     mech_pass_count = sum(1 for r in all_results if _result_passed(r)[0])
     geval_pass_count = sum(1 for r in all_results if _result_passed(r)[1])
 
+    shot_scores = [r["geval_score"] for r in all_results if r["geval_score"] is not None]
+    stats = compute_shot_stats(shot_scores) if shot_scores else {"shot_mean": None, "shot_stddev": None}
+
     # Replace reporter entry with retry-aware summary so report reflects true verdict.
     reporter.results.pop()
     reporter.add({
@@ -172,6 +175,7 @@ def _assert_and_store(scenario: dict, reporter: EvalReporter) -> None:
         "shots_mech_passed": mech_pass_count,
         "shots_total": 3,
         "geval_passed": geval_pass_count >= 2,
+        **stats,
     })
 
     sid = result["scenario_id"]
@@ -227,6 +231,72 @@ class TestPrompt3Evals:
     @pytest.mark.parametrize("scenario", load_scenarios("3"), ids=lambda s: s["scenario_id"])
     def test_3_scenario(self, scenario, reporter):
         _assert_and_store(scenario, reporter)
+
+
+class TestBaselineComparison:
+    """Validate that the skill prompt causes measurable improvement over no prompt.
+
+    Runs all 15 scenarios twice: once with the skill prompt (standard) and once
+    without (include_skill_prompt=False). Asserts that the prompt produces a
+    higher or equal GEval score for at least 10 of the 15 scenarios.
+
+    A failure here means the prompt is not causing the behaviors the rubrics
+    measure -- investigate before concluding the prompts need revision, as
+    LLM-judge variance can affect individual scores. Re-run 2-3 times if the
+    count is close to the threshold.
+
+    Requires ANTHROPIC_API_KEY. Run with: bash run-evals.sh -k TestBaselineComparison
+    Cost: approximately doubles the standard eval run cost.
+    """
+
+    def test_baseline_comparison_shows_positive_delta_for_majority_of_scenarios(self, reporter):
+        positive_delta_count = 0
+        results = []
+
+        for prompt_id in ["1a", "1b", "2", "3", "4"]:
+            for scenario in load_scenarios(prompt_id):
+                if scenario["expected_signals"].get("skip_geval"):
+                    continue
+                phase_prompt_path = PHASE_PROMPTS_DIR / PROMPT_FILE[prompt_id]
+                criteria, threshold = _rubric_for_prompt(prompt_id)
+
+                with_output = run_phase(phase_prompt_path, scenario["input"])
+                without_output = run_phase(
+                    phase_prompt_path, scenario["input"], include_skill_prompt=False
+                )
+
+                def _score(output: str) -> float:
+                    metric = GEval(
+                        name=f"pdca_{prompt_id}_compliance",
+                        criteria=criteria,
+                        evaluation_params=[LLMTestCaseParams.INPUT, LLMTestCaseParams.ACTUAL_OUTPUT],
+                        threshold=threshold,
+                        model=JUDGE_MODEL,
+                    )
+                    metric.measure(LLMTestCase(input=scenario["input"], actual_output=output))
+                    return metric.score or 0.0
+
+                with_score = _score(with_output)
+                without_score = _score(without_output)
+                delta = with_score - without_score
+                if delta >= 0:
+                    positive_delta_count += 1
+                results.append({
+                    "scenario_id": scenario["scenario_id"],
+                    "with_score": round(with_score, 3),
+                    "without_score": round(without_score, 3),
+                    "delta": round(delta, 3),
+                })
+
+        total = len(results)
+        detail = "\n".join(
+            f"  {r['scenario_id']}: with={r['with_score']} without={r['without_score']} delta={r['delta']:+.3f}"
+            for r in sorted(results, key=lambda r: r["delta"])
+        )
+        assert positive_delta_count >= 10, (
+            f"Only {positive_delta_count}/{total} scenarios showed non-negative delta.\n"
+            f"Per-scenario scores (sorted by delta):\n{detail}"
+        )
 
 
 class TestPrompt4Evals:

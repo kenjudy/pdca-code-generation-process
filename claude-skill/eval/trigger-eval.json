@@ -40,6 +40,46 @@
     "should_trigger": true
   },
   {
+    "query": "We keep shipping bugs on this service. I want to slow down and do this properly with Claude.",
+    "should_trigger": true
+  },
+  {
+    "query": "I need to add Stripe integration to our checkout flow before the end of the sprint.",
+    "should_trigger": true
+  },
+  {
+    "query": "Our codebase has gotten really messy from AI-generated code. Let's refactor this module.",
+    "should_trigger": true
+  },
+  {
+    "query": "I want to rebuild our authentication system. It's been broken for a while and I don't want to make it worse.",
+    "should_trigger": true
+  },
+  {
+    "query": "We're getting paged every day on this endpoint. Let's fix it properly, not just patch it.",
+    "should_trigger": true
+  },
+  {
+    "query": "I need to migrate our database schema. There are a dozen tables involved and I'm nervous about getting it wrong.",
+    "should_trigger": true
+  },
+  {
+    "query": "Let's add real-time notifications. I've tried this before and it always turns into a mess.",
+    "should_trigger": true
+  },
+  {
+    "query": "We need to implement GDPR compliance across the user data pipeline. It's a lot of touchpoints.",
+    "should_trigger": true
+  },
+  {
+    "query": "I want to extract this 800-line class into something maintainable. Where do we start?",
+    "should_trigger": true
+  },
+  {
+    "query": "We're switching our background job system from Sidekiq to Temporal. Help me plan the migration.",
+    "should_trigger": true
+  },
+  {
     "query": "What is the capital of France?",
     "should_trigger": false
   },
@@ -77,6 +117,26 @@
   },
   {
     "query": "How do I center a div in CSS?",
+    "should_trigger": false
+  },
+  {
+    "query": "What does this regex pattern match?",
+    "should_trigger": false
+  },
+  {
+    "query": "Can you add a docstring to this function?",
+    "should_trigger": false
+  },
+  {
+    "query": "I'm getting a 404 on this API call. Here's the curl command.",
+    "should_trigger": false
+  },
+  {
+    "query": "What's the time complexity of this algorithm?",
+    "should_trigger": false
+  },
+  {
+    "query": "Convert this JSON to a Python dataclass.",
     "should_trigger": false
   }
 ]

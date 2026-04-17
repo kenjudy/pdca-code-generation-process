@@ -3,6 +3,23 @@
 import textwrap
 from pathlib import Path
 
+
+def compute_shot_stats(shot_scores: list[float]) -> dict:
+    """Compute mean and sample stddev from a list of GEval shot scores.
+
+    Uses sample stddev (divides by n-1) to avoid underestimating variance.
+    Returns stddev of 0.0 when fewer than 2 scores are provided.
+    """
+    n = len(shot_scores)
+    mean = sum(shot_scores) / n if n > 0 else 0.0
+    if n < 2:
+        stddev = 0.0
+    else:
+        variance = sum((s - mean) ** 2 for s in shot_scores) / (n - 1)
+        stddev = variance ** 0.5
+    return {"shot_mean": round(mean, 4), "shot_stddev": round(stddev, 4)}
+
+
 PHASE_NAMES = {
     "1a": "Analysis",
     "1b": "Planning",

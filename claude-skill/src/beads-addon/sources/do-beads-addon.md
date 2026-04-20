@@ -19,7 +19,7 @@ bd update [task-id] --claim --status in_progress
 Add context so the task is self-contained:
 
 ```bash
-bd update [task-id] --add-message "$(cat <<'EOF'
+bd update [task-id] --append-notes "$(cat <<'EOF'
 Before: [current behavior or failing test name]
 After: [expected behavior when this step is done]
 Done when: [specific test passes or explicit verifiable condition]
@@ -45,7 +45,7 @@ If a step reveals a dependency:
 bd create "Blocker: [issue description]" --type bug
 
 # Link dependency
-bd dep add [current-task-id] [blocker-id] blocks
+bd dep add [current-task-id] [blocker-id]
 ```
 
 **Why use beads in DO phase:**

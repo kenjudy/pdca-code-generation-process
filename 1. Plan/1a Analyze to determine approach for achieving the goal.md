@@ -9,6 +9,8 @@
 
 If provided, run this prompt in "Planning mode"
 
+> **Tool check:** Before running this analysis, does Claude Code have a command to explore codebase structure to support pattern discovery? (e.g., `/codebase-memory-exploring`) Would entering a planning mode help scope this analysis? (e.g., `/plan`)
+
 ---
 ``` markdown
 
@@ -66,6 +68,8 @@ Based on the problem scope and architectural patterns discovered:
 **Output:** Provide a terse and clear understanding of the problem and the key unknowns that must be resolved before an approach can be chosen. Do not recommend specific libraries, tools, or implementation strategies without codebase evidence. Keep it at a human readable length and level of detail.
 
 ```
+
+> **Tool check:** Now that pattern discovery is complete, is there a Claude Code tool to trace how these patterns connect across the codebase? (e.g., `/codebase-memory-tracing`)
 
 **Refine the analysis with questions**
 

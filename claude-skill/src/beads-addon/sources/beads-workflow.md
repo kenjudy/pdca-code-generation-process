@@ -2,6 +2,18 @@
 
 > Load this during active PDCA sessions when beads is installed.
 
+## Prerequisites
+
+If this is the first PDCA session in this repo, initialize beads before any other command:
+
+```bash
+bd init    # creates .beads/ database; only needed once per repo
+```
+
+`bd init` will fail with `no beads database found` if skipped. If beads is already initialized, this command is safe to re-run — it will report the existing configuration.
+
+---
+
 ## PDCA → Beads Mapping
 
 | PDCA Phase | Beads Task Type | Purpose |
@@ -21,7 +33,7 @@
 bd create "Feature: [goal description]" --type epic
 # Returns: [prefix]-a1b2 (your epic ID)
 
-bd update [epic-id] --add-message "$(cat <<'EOF'
+bd update [epic-id] --append-notes "$(cat <<'EOF'
 ## Analysis Summary
 - [Key architectural patterns discovered]
 - [Chosen approach and rationale]
@@ -54,7 +66,7 @@ EOF
 ```bash
 bd create "Step [N]: [description]" --parent [epic-id] --type task
 bd update [task-id] --claim --status in_progress
-bd update [task-id] --add-message "$(cat <<'EOF'
+bd update [task-id] --append-notes "$(cat <<'EOF'
 Before: [current behavior or failing test name]
 After: [expected behavior when this step is done]
 Done when: [specific test passes or explicit verifiable condition]
@@ -92,7 +104,7 @@ All planned subtasks closed? No tasks in-progress? → Proceed to ACT.
 ### ACT: Store Retrospective
 
 ```bash
-bd update [epic-id] --add-message "$(cat <<'EOF'
+bd update [epic-id] --append-notes "$(cat <<'EOF'
 ## Retrospective
 **What worked:** [practices that accelerated progress]
 **What to improve:** [process breakdowns or inefficiencies]
@@ -129,8 +141,8 @@ bd show <id>                    # Detail view
 bd update <id> --status in_progress
 bd close <id>
 
-# Dependencies
-bd dep add <blocked> <blocker> blocks
+# Dependencies (type defaults to "blocks" — do not pass it as a positional arg)
+bd dep add <blocked-issue-id> <blocker-issue-id>
 bd blocked
 
 # Search past cycles

@@ -56,6 +56,16 @@ Treating integration coverage as optional cleanup after unit tests are written m
 
 ---
 
+## 7. Vacuous Greens
+
+A test that passes immediately against the current stub without any production code change. Vacuous greens feel like progress but provide no genuine RED phase — you cannot know the test is testing the right thing.
+
+*Diagnosis:* If the next test in sequence would pass trivially against the current stub, it is a vacuous green.
+
+*Rule:* Skip to the first test in your sequence that the current stub cannot satisfy — that is your genuine RED. Document the skipped tests as guards to add after real implementation replaces the stub. State the called shot for the test you are actually going to write, not the one you are skipping.
+
+---
+
 ## Quick Check Before Committing
 
 - [ ] Every assertion is on real behavior, not mock call counts

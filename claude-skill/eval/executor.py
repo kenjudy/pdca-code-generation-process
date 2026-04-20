@@ -26,6 +26,7 @@ def run_phase(
     scenario_input: str,
     model: str = DEFAULT_MODEL,
     _client: Any = None,
+    include_skill_prompt: bool = True,
 ) -> str:
     """Run a PDCA phase prompt against a scenario input.
 
@@ -41,11 +42,12 @@ def run_phase(
         The model's response as a string.
     """
     client = _client if _client is not None else _make_client()
-    system_prompt = phase_prompt_path.read_text()
-    response = client.messages.create(
-        model=model,
-        max_tokens=MAX_TOKENS,
-        system=system_prompt,
-        messages=[{"role": "user", "content": scenario_input}],
-    )
+    kwargs: dict = {
+        "model": model,
+        "max_tokens": MAX_TOKENS,
+        "messages": [{"role": "user", "content": scenario_input}],
+    }
+    if include_skill_prompt:
+        kwargs["system"] = phase_prompt_path.read_text()
+    response = client.messages.create(**kwargs)
     return response.content[0].text

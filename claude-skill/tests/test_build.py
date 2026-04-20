@@ -651,5 +651,83 @@ class TestBeadsTemplateCompleteness(unittest.TestCase):
         )
 
 
+class TestExecutorBaselineMode(unittest.TestCase):
+    """run_phase must support include_skill_prompt=False for baseline comparison."""
+
+    def test_run_phase_without_skill_prompt_sends_no_system_message(self):
+        from unittest.mock import MagicMock, patch
+
+        from eval.executor import run_phase
+
+        mock_response = MagicMock()
+        mock_response.content[0].text = "response text"
+        mock_client = MagicMock()
+        mock_client.messages.create.return_value = mock_response
+
+        phase_path = Path("/fake/plan-prompts.md")
+        with patch.object(Path, "read_text", return_value="system content"):
+            run_phase(phase_path, "scenario input", include_skill_prompt=False, _client=mock_client)
+
+        call_kwargs = mock_client.messages.create.call_args.kwargs
+        self.assertNotIn(
+            "system",
+            call_kwargs,
+            "run_phase with include_skill_prompt=False must not pass a 'system' argument to the client",
+        )
+
+    def test_run_phase_with_skill_prompt_still_passes_system_message(self):
+        """Non-regression: default behavior must be unchanged."""
+        from unittest.mock import MagicMock, patch
+
+        from eval.executor import run_phase
+
+        mock_response = MagicMock()
+        mock_response.content[0].text = "response text"
+        mock_client = MagicMock()
+        mock_client.messages.create.return_value = mock_response
+
+        phase_path = Path("/fake/plan-prompts.md")
+        with patch.object(Path, "read_text", return_value="system content"):
+            run_phase(phase_path, "scenario input", _client=mock_client)
+
+        call_kwargs = mock_client.messages.create.call_args.kwargs
+        self.assertIn(
+            "system",
+            call_kwargs,
+            "run_phase default (include_skill_prompt=True) must still pass 'system' to the client",
+        )
+        self.assertEqual(call_kwargs["system"], "system content")
+
+
+class TestShotStats(unittest.TestCase):
+    """compute_shot_stats must return mean and sample stddev from shot scores."""
+
+    def test_compute_shot_stats_returns_mean_and_stddev(self):
+        from eval.reporter import compute_shot_stats
+
+        result = compute_shot_stats([0.9, 0.5, 0.7])
+
+        self.assertIn("shot_mean", result, "compute_shot_stats must return 'shot_mean' key")
+        self.assertIn("shot_stddev", result, "compute_shot_stats must return 'shot_stddev' key")
+        self.assertAlmostEqual(result["shot_mean"], 0.7, places=3)
+        self.assertAlmostEqual(result["shot_stddev"], 0.2, places=1)
+
+    def test_compute_shot_stats_single_score_has_zero_stddev(self):
+        from eval.reporter import compute_shot_stats
+
+        result = compute_shot_stats([0.85])
+
+        self.assertAlmostEqual(result["shot_mean"], 0.85, places=3)
+        self.assertEqual(result["shot_stddev"], 0.0)
+
+    def test_compute_shot_stats_identical_scores_have_zero_stddev(self):
+        from eval.reporter import compute_shot_stats
+
+        result = compute_shot_stats([0.8, 0.8, 0.8])
+
+        self.assertAlmostEqual(result["shot_mean"], 0.8, places=3)
+        self.assertEqual(result["shot_stddev"], 0.0)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

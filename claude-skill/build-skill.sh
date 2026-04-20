@@ -19,9 +19,8 @@ echo -e "${BLUE}═════════════════════�
 # Paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-SRC_DIR="$SCRIPT_DIR/src"
-CORE_DIR="$SRC_DIR/core"
-BEADS_DIR="$SRC_DIR/beads-addon"
+CORE_DIR="$SCRIPT_DIR/pdca-framework"
+BEADS_DIR="$CORE_DIR/beads-addon"
 
 # Master source files (Obsidian notes — source of truth for prompt content)
 MASTER_1A="$REPO_ROOT/1. Plan/1a Analyze to determine approach for achieving the goal.md"
@@ -140,13 +139,10 @@ fi
 
 echo -e "${BLUE}Creating pdca-framework.skill package...${NC}"
 # Marketplace requirement: ZIP root folder must match the skill name.
-# Build by zipping from SRC_DIR with core/ renamed to pdca-framework/.
 SKILL_FILE="$SCRIPT_DIR/pdca-framework.skill"
 [ -f "$SKILL_FILE" ] && rm "$SKILL_FILE"
 
-# Temporarily symlink core/ -> pdca-framework/ so zip picks up the right folder name
-ln -s "$CORE_DIR" "$SRC_DIR/pdca-framework"
-cd "$SRC_DIR"
+cd "$SCRIPT_DIR"
 zip -r "$SKILL_FILE" \
     pdca-framework/SKILL.md \
     pdca-framework/references/plan-prompts.md \
@@ -163,9 +159,6 @@ zip -r "$SKILL_FILE" \
     pdca-framework/references/testing-anti-patterns.md \
     -x "*.DS_Store" \
     -q
-rm "$SRC_DIR/pdca-framework"
-
-cd "$SCRIPT_DIR"
 
 if [ ! -f "$SKILL_FILE" ]; then
     echo -e "${RED}Error: Failed to create pdca-framework.skill${NC}"
@@ -190,7 +183,7 @@ unzip -l "$SKILL_FILE"
 echo ""
 
 echo -e "${BLUE}Next steps:${NC}"
-echo "1. Review generated files in src/core/references/"
+echo "1. Review generated files in pdca-framework/references/"
 echo "2. Install: unzip -o pdca-framework.skill -d ~/.claude/skills/pdca-framework/"
 echo "3. Commit changes if everything looks good"
 echo ""

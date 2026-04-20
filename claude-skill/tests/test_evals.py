@@ -72,11 +72,11 @@ def _rubric_for_prompt(prompt_id: str) -> tuple[str, float]:
     return rubrics[prompt_id]
 
 
-def _run_scenario(scenario: dict) -> dict:
+def _run_scenario(scenario: dict, include_skill_prompt: bool = True) -> dict:
     prompt_id = scenario["prompt_id"]
     phase_prompt_path = PHASE_PROMPTS_DIR / PROMPT_FILE[prompt_id]
 
-    output = run_phase(phase_prompt_path, scenario["input"])
+    output = run_phase(phase_prompt_path, scenario["input"], include_skill_prompt=include_skill_prompt)
     mechanical_results = check_mechanical(output, scenario["expected_signals"])
 
     if scenario["expected_signals"].get("skip_geval"):
@@ -251,33 +251,25 @@ class TestBaselineComparison:
 
     def test_baseline_comparison_shows_positive_delta_for_majority_of_scenarios(self, reporter):
         positive_delta_count = 0
+        skipped_count = 0
         results = []
 
         for prompt_id in ["1a", "1b", "2", "3", "4"]:
             for scenario in load_scenarios(prompt_id):
                 if scenario["expected_signals"].get("skip_geval"):
                     continue
-                phase_prompt_path = PHASE_PROMPTS_DIR / PROMPT_FILE[prompt_id]
-                criteria, threshold = _rubric_for_prompt(prompt_id)
 
-                with_output = run_phase(phase_prompt_path, scenario["input"])
-                without_output = run_phase(
-                    phase_prompt_path, scenario["input"], include_skill_prompt=False
-                )
+                with_result = _run_scenario(scenario, include_skill_prompt=True)
+                without_result = _run_scenario(scenario, include_skill_prompt=False)
 
-                def _score(output: str) -> float:
-                    metric = GEval(
-                        name=f"pdca_{prompt_id}_compliance",
-                        criteria=criteria,
-                        evaluation_params=[LLMTestCaseParams.INPUT, LLMTestCaseParams.ACTUAL_OUTPUT],
-                        threshold=threshold,
-                        model=JUDGE_MODEL,
-                    )
-                    metric.measure(LLMTestCase(input=scenario["input"], actual_output=output))
-                    return metric.score or 0.0
+                with_score = with_result["geval_score"]
+                without_score = without_result["geval_score"]
 
-                with_score = _score(with_output)
-                without_score = _score(without_output)
+                # Skip pair if either score is None (DeepEval parse error)
+                if with_score is None or without_score is None:
+                    skipped_count += 1
+                    continue
+
                 delta = with_score - without_score
                 if delta >= 0:
                     positive_delta_count += 1
@@ -293,8 +285,9 @@ class TestBaselineComparison:
             f"  {r['scenario_id']}: with={r['with_score']} without={r['without_score']} delta={r['delta']:+.3f}"
             for r in sorted(results, key=lambda r: r["delta"])
         )
+        skip_note = f" ({skipped_count} skipped due to judge errors)" if skipped_count else ""
         assert positive_delta_count >= 10, (
-            f"Only {positive_delta_count}/{total} scenarios showed non-negative delta.\n"
+            f"Only {positive_delta_count}/{total} scenarios showed non-negative delta{skip_note}.\n"
             f"Per-scenario scores (sorted by delta):\n{detail}"
         )
 

@@ -41,7 +41,7 @@ pytestmark = pytest.mark.eval
 
 CLAUDE_SKILL_DIR = Path(__file__).parent.parent
 SCENARIOS_DIR = CLAUDE_SKILL_DIR / "eval" / "scenarios"
-PHASE_PROMPTS_DIR = CLAUDE_SKILL_DIR / "src" / "core" / "references"
+PHASE_PROMPTS_DIR = CLAUDE_SKILL_DIR / "pdca-framework" / "references"
 RESULTS_DIR = CLAUDE_SKILL_DIR / "eval" / "results"
 
 PROMPT_FILE = {

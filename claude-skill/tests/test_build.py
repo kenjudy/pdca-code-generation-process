@@ -18,8 +18,8 @@ from pathlib import Path
 CLAUDE_SKILL_DIR = Path(__file__).parent.parent
 REPO_ROOT = CLAUDE_SKILL_DIR.parent
 SKILL_FILE = CLAUDE_SKILL_DIR / "pdca-framework.skill"
-SKILL_SRC = CLAUDE_SKILL_DIR / "src" / "core" / "SKILL.md"
-BEADS_ADDON_DIR = CLAUDE_SKILL_DIR / "src" / "beads-addon" / "sources"
+SKILL_SRC = CLAUDE_SKILL_DIR / "pdca-framework" / "SKILL.md"
+BEADS_ADDON_DIR = CLAUDE_SKILL_DIR / "pdca-framework" / "beads-addon" / "sources"
 
 SKILL_NAME = "pdca-framework"
 

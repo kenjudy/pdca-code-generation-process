@@ -17,7 +17,7 @@ test = [
 eval = [
     "anthropic>=0.94.1",
     "deepeval>=3.9.6",
-    "python-dotenv>=1.0",
+    "python-dotenv>=1.2.2",
 ]
 lint = [
     "mypy>=1.19.1",

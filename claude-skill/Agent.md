@@ -210,7 +210,7 @@ The report shows precision and recall across iterations:
 ### When to re-run
 
 Re-run trigger accuracy after any change to:
-- `claude-skill/src/core/SKILL.md` (the description field specifically)
+- `claude-skill/pdca-framework/SKILL.md` (the description field specifically)
 - `eval/trigger-eval.json` (scenario quality improvements)
 
 The current scenario set includes ambiguous should-trigger cases (complex features, reliability problems, messy codebases) alongside obvious ones, to prevent the optimizer from overfitting to explicit PDCA/TDD keyword mentions.

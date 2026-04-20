@@ -425,7 +425,7 @@ pip install pyyaml  # if not already installed
 
 ```bash
 cd /tmp/anthropics-skills/skills/skill-creator
-python3 -m scripts.quick_validate "/path/to/claude-skill/src/core"
+python3 -m scripts.quick_validate "/path/to/claude-skill/pdca-framework"
 # Expected output: Skill is valid!
 ```
 

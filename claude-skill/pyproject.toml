@@ -20,8 +20,8 @@ eval = [
     "python-dotenv>=1.2.2",
 ]
 lint = [
+    "ruff>=0.15.11",
     "mypy>=1.20.1",
-    "ruff>=0.15.10",
 ]
 
 [tool.ruff]

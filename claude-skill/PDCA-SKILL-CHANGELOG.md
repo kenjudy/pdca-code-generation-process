@@ -5,7 +5,7 @@
 ### Added
 - `beads-setup.md`: Pre-flight Check section before Installation -- checks `bd --version`, `dolt version`, and `brew outdated beads dolt` before proceeding, with explicit upgrade commands and a warning against running `bd init` on outdated installs
 - `beads-setup.md`: MCP server status check (`pip3 show beads-mcp`, `grep` against `claude_desktop_config.json`) before install instructions -- user knows whether to proceed without opening config manually
-- `beads-setup.md`: "Initializing Beads in a Project" section with "Post-Init: Align CLAUDE.md with Working Agreements" subsection -- patches the autonomous-agent rules `bd init` generates to cooperate with human-in-the-loop working agreements; includes `.gitignore` reversal step
+- `beads-setup.md`: "Initializing Beads in a Project" section with "Post-Init: Align CLAUDE.md with Working Agreements" subsection -- patches the autonomous-agent rules `bd init` generates to cooperate with human-in-the-loop working agreements; includes two-strategy `.gitignore` guidance (git-native JSONL vs Dolt-native `bd dolt push`)
 - `beads-workflow.md`: "Resume a Session" section immediately after Prerequisites -- `bd ready`, `bd list --status in_progress`, `bd show` orientation commands, now the first thing to read when returning to in-progress work
 - `beads-workflow.md`: `brew outdated beads dolt` one-liner appended to Resume section as a periodic version check reminder
 - `beads-workflow.md`: "Export Requirements Document" section with `export-requirements.sh` usage and a copyable `.claude/commands/requirements-doc.md` slash command template
@@ -15,11 +15,15 @@
 ### Changed
 - `beads-workflow.md` Git Integration section: removed bare `git push` autonomous instruction; replaced with commit-only guidance and explicit note that pushing is human-initiated per working agreements
 - `act-beads-addon.md` closing checklist: "Stored in git (.beads/dolt/)" updated to "Committed to git (.beads/) -- push when ready per working agreements"
-- `build-skill.sh` post-build note: removed `.beads/*` `.gitignore` template that contradicted commit guidance; replaced with "commit .beads/ like any other project file"
-- `.gitignore`: removed `.beads/` exclusion block -- beads data now committed in full alongside the code it tracks
+- `build-skill.sh` post-build note: updated to present both git-native JSONL and Dolt-native `bd dolt push` strategies instead of a single mandate
+- `README.md` Beads Integration section: replaced "Commit .beads/ to your project" step 4 with two-strategy framing (git-native vs Dolt-native)
+- `.gitignore`: removed `.beads/` exclusion block from project root -- beads gitignore handles its own exclusions
+- `.beads/.gitignore`: added `embeddeddolt/.lock`, `export-state.json`, and `dolt-monitor.pid.lock` -- machine-specific runtime files missing from beads' own gitignore
+- 2 new tests in `TestBeadsWorkflowContent`: `test_setup_gitignore_no_mandate` and `test_setup_gitignore_presents_both_strategies`
 
 ### Fixed
-- `beads-setup.md` and `build-skill.sh` no longer instruct users to exclude `.beads/` from version control, which conflicted with the goal of persistent cross-session task tracking
+- `beads-setup.md` no longer mandates committing all of `.beads/` as a regular project file; now presents the git-native (JSONL) vs Dolt-native (`bd dolt push`) choice
+- `.beads/.gitignore` gap: `dolt-monitor.pid.lock` was not excluded despite `dolt-monitor.pid` being listed
 
 ---
 

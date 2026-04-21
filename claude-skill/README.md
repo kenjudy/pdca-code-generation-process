@@ -527,7 +527,7 @@ All beads commands in the prompts are optional. The skill includes `references/b
 - PDCA cycles are project-specific (features, bugs, experiments for that codebase)
 - Retrospectives make sense in project context ("How did auth work in THIS app?")
 - Searching is more relevant: `bd list --closed` shows THIS project's history
-- Team collaboration: Commit `.beads/` to share retrospectives and task history with teammates
+- Team collaboration: share issue history via git (JSONL files) or Dolt remote (`bd dolt push`)
 - Clean separation: No mixing dashboard tasks with unrelated projects
 
 **Why NOT one global beads database?**
@@ -618,16 +618,36 @@ cd ~/Projects/frontend && bd init       # Creates ~/Projects/frontend/.beads/
 
 Each project gets its own independent beads database for tracking its PDCA cycles.
 
-#### 4. Commit .beads/ to your project
+#### 4. Choose a .beads/ sharing strategy
 
-Beads data belongs in version control alongside the code it tracks. Do not add `.beads/` to `.gitignore`.
+`bd init` may add `.beads/` to `.gitignore`. Decide how you want to share beads data with collaborators:
 
-```bash
-git add .beads/
-git commit -m "chore: initialize beads tracking"
+**Option A: Git-native (commit JSONL bridge files)**
+
+Keep `.beads/` excluded but allow the JSONL files that serve as the git-friendly bridge. Add to `.gitignore`:
+
+```gitignore
+.beads/
+!.beads/.gitignore
+!.beads/config.yaml
+!.beads/metadata.json
+!.beads/issues.jsonl
+!.beads/interactions.jsonl
+!.beads/hooks/
 ```
 
-If `bd init` added `.beads/` to your `.gitignore`, remove those lines before committing. See `references/beads-setup.md` for the full post-init checklist including CLAUDE.md alignment.
+The binary `embeddeddolt/` data is Dolt's own versioning territory -- do not commit it to git.
+
+**Option B: Dolt-native (bd dolt push)**
+
+Leave `.beads/` excluded from git and share via Dolt's remote:
+
+```bash
+bd dolt push   # push to Dolt remote
+bd dolt pull   # pull on another machine
+```
+
+See `references/beads-setup.md` for the full post-init checklist including CLAUDE.md alignment.
 
 ### Using Beads with PDCA
 

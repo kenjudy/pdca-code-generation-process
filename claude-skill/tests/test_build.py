@@ -858,6 +858,32 @@ class TestBeadsWorkflowContent(unittest.TestCase):
             "beads-workflow.md contains a bare git push instruction in Git Integration section",
         )
 
+    def test_setup_gitignore_no_mandate(self):
+        """beads-setup.md must not mandate committing all of .beads/ as a regular project file."""
+        content = self._read_source("beads-setup.md")
+        self.assertNotIn(
+            "Commit `.beads/` like any other project file",
+            content,
+            "beads-setup.md incorrectly mandates committing all of .beads/ as a regular project file",
+        )
+
+    def test_setup_gitignore_presents_both_strategies(self):
+        """beads-setup.md post-init section must present both git-native and Dolt-native sharing strategies."""
+        content = self._read_source("beads-setup.md")
+        init_pos = content.find("## Initializing Beads in a Project")
+        self.assertNotEqual(init_pos, -1, "Initializing Beads in a Project section not found")
+        init_section = content[init_pos:]
+        self.assertIn(
+            "bd dolt push",
+            init_section,
+            "Post-init section must mention 'bd dolt push' as the Dolt-native sharing strategy",
+        )
+        self.assertIn(
+            "issues.jsonl",
+            init_section,
+            "Post-init section must mention 'issues.jsonl' as the git-native sharing option",
+        )
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

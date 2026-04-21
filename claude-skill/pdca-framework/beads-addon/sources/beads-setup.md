@@ -136,17 +136,38 @@ Replace with:
 
 The quick reference commands (`bd ready`, `bd show`, `bd update`, `bd close`) should be kept unchanged -- they are informational, not behavioral mandates.
 
-**3. Update .gitignore:**
+**3. Decide on a .beads/ sharing strategy:**
 
-`bd init` may add `.beads/` to `.gitignore`. Revert this -- beads data should be committed alongside the code it tracks:
+`bd init` may add `.beads/` to `.gitignore`. How you share beads data with collaborators determines what belongs in git.
 
-```bash
-# Remove .beads/ exclusions if bd init added them
-grep -n '\.beads' .gitignore   # check what was added
-# Then edit .gitignore to remove any .beads/ exclusion lines
+**Option A: Git-native (commit JSONL bridge files)**
+
+Beads writes human-readable JSONL files alongside the Dolt binary database. These are the git-friendly bridge. Keep `.beads/` excluded in `.gitignore` but allow the JSONL and config files:
+
+```gitignore
+.beads/
+!.beads/.gitignore
+!.beads/config.yaml
+!.beads/metadata.json
+!.beads/issues.jsonl
+!.beads/interactions.jsonl
+!.beads/hooks/
 ```
 
-Commit `.beads/` like any other project file. Push when your working agreements allow.
+The binary `embeddeddolt/` data is Dolt's versioning territory -- do not commit it to git.
+
+**Option B: Dolt-native (bd dolt push)**
+
+Leave `.beads/` excluded from git entirely and share via Dolt's own remote:
+
+```bash
+bd dolt push   # push Dolt database to remote
+bd dolt pull   # pull from remote on another machine
+```
+
+This requires configuring a Dolt remote for the project (see `bd help dolt`).
+
+**Choosing:** Option A works with any git remote and gives readable diffs. Option B gives full Dolt commit history but requires a Dolt remote setup. Pick one per project -- do not mix.
 
 ---
 

@@ -418,10 +418,10 @@ Help improve the framework:
 
 ## Version Information
 
-**Current Version:** v1.0.2
+**Current Version:** v1.0.3
 **License:** Creative Commons Attribution 4.0 International (CC BY 4.0)
 **Attribution:** Ken Judy with Claude Anthropic 4
-**Last Updated:** 2026-03-23
+**Last Updated:** 2026-04-21
 
 ---
 
@@ -527,7 +527,7 @@ All beads commands in the prompts are optional. The skill includes `references/b
 - PDCA cycles are project-specific (features, bugs, experiments for that codebase)
 - Retrospectives make sense in project context ("How did auth work in THIS app?")
 - Searching is more relevant: `bd list --closed` shows THIS project's history
-- Team collaboration: Commit `.beads/issues.jsonl` to share retrospectives with teammates
+- Team collaboration: Commit `.beads/` to share retrospectives and task history with teammates
 - Clean separation: No mixing dashboard tasks with unrelated projects
 
 **Why NOT one global beads database?**
@@ -618,16 +618,16 @@ cd ~/Projects/frontend && bd init       # Creates ~/Projects/frontend/.beads/
 
 Each project gets its own independent beads database for tracking its PDCA cycles.
 
-#### 4. Add .beads/ to .gitignore
+#### 4. Commit .beads/ to your project
+
+Beads data belongs in version control alongside the code it tracks. Do not add `.beads/` to `.gitignore`.
 
 ```bash
-# Track issues.jsonl and config.yaml, exclude binary dolt database
-echo ".beads/*" >> .gitignore
-echo "!.beads/issues.jsonl" >> .gitignore
-echo "!.beads/config.yaml" >> .gitignore
+git add .beads/
+git commit -m "chore: initialize beads tracking"
 ```
 
-**Note:** Use `.beads/*` (not `.beads/`) so git negation rules can selectively track specific files inside the directory.
+If `bd init` added `.beads/` to your `.gitignore`, remove those lines before committing. See `references/beads-setup.md` for the full post-init checklist including CLAUDE.md alignment.
 
 ### Using Beads with PDCA
 

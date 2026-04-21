@@ -37,6 +37,7 @@ EXPECTED_FILES = [
     f"{SKILL_NAME}/references/beads-setup.md",
     f"{SKILL_NAME}/references/beads-workflow.md",
     f"{SKILL_NAME}/references/testing-anti-patterns.md",
+    f"{SKILL_NAME}/references/scripts/export-requirements.sh",
 ]
 
 MASTER_FILES = [
@@ -727,6 +728,135 @@ class TestShotStats(unittest.TestCase):
 
         self.assertAlmostEqual(result["shot_mean"], 0.8, places=3)
         self.assertEqual(result["shot_stddev"], 0.0)
+
+
+class TestBeadsWorkflowContent(unittest.TestCase):
+    """Validate human-in-the-loop alignment of beads workflow and setup files."""
+
+    def _read_source(self, filename):
+        return (BEADS_ADDON_DIR / filename).read_text()
+
+    def test_export_script_exists(self):
+        """export-requirements.sh must exist in beads-addon/scripts/."""
+        script = BEADS_ADDON_DIR.parent / "scripts" / "export-requirements.sh"
+        self.assertTrue(script.exists(), f"export-requirements.sh not found at {script}")
+
+    def test_export_script_is_executable(self):
+        """export-requirements.sh must be executable."""
+        script = BEADS_ADDON_DIR.parent / "scripts" / "export-requirements.sh"
+        if not script.exists():
+            self.skipTest("export-requirements.sh not found")
+        self.assertTrue(os.access(script, os.X_OK), "export-requirements.sh must be executable")
+
+    def test_workflow_has_requirements_export_section(self):
+        """beads-workflow.md must have an Export Requirements Document section."""
+        content = self._read_source("beads-workflow.md")
+        self.assertIn(
+            "Export Requirements Document",
+            content,
+            "beads-workflow.md missing 'Export Requirements Document' section",
+        )
+
+    def test_setup_has_postinit_alignment(self):
+        """beads-setup.md must have a Post-Init CLAUDE.md alignment subsection."""
+        content = self._read_source("beads-setup.md")
+        self.assertIn(
+            "Post-Init: Align CLAUDE.md",
+            content,
+            "beads-setup.md missing 'Post-Init: Align CLAUDE.md' subsection",
+        )
+
+    def test_setup_mcp_has_status_check(self):
+        """MCP section of beads-setup.md must contain pip3 show beads-mcp before install command."""
+        content = self._read_source("beads-setup.md")
+        mcp_start = content.find("MCP Server")
+        self.assertNotEqual(mcp_start, -1, "MCP Server section not found in beads-setup.md")
+        mcp_section = content[mcp_start:]
+        pip_show_pos = mcp_section.find("pip3 show beads-mcp")
+        pip_install_pos = mcp_section.find("pip3 install beads-mcp")
+        self.assertNotEqual(
+            pip_show_pos, -1,
+            "MCP section missing 'pip3 show beads-mcp' status check",
+        )
+        self.assertLess(
+            pip_show_pos,
+            pip_install_pos,
+            "pip3 show beads-mcp status check must appear before pip3 install beads-mcp",
+        )
+
+    def test_setup_has_preflight_section(self):
+        """beads-setup.md must have Pre-flight Check before System Requirements."""
+        content = self._read_source("beads-setup.md")
+        preflight_pos = content.find("## Pre-flight Check")
+        requirements_pos = content.find("## System Requirements")
+        self.assertNotEqual(preflight_pos, -1, "beads-setup.md missing 'Pre-flight Check' section")
+        self.assertNotEqual(requirements_pos, -1, "beads-setup.md missing 'System Requirements' section")
+        self.assertLess(
+            preflight_pos,
+            requirements_pos,
+            "Pre-flight Check must appear before System Requirements",
+        )
+
+    def test_resume_has_brew_outdated(self):
+        """Resume a Session section must contain brew outdated beads dolt."""
+        content = self._read_source("beads-workflow.md")
+        resume_start = content.find("## Resume a Session")
+        self.assertNotEqual(resume_start, -1, "Resume a Session section not found")
+        next_section = content.find("\n## ", resume_start + 1)
+        resume_section = content[resume_start:next_section] if next_section != -1 else content[resume_start:]
+        self.assertIn(
+            "brew outdated beads dolt",
+            resume_section,
+            "Resume a Session section missing 'brew outdated beads dolt' version check",
+        )
+
+    def test_workflow_has_resume_section(self):
+        """beads-workflow.md must have a Resume a Session heading."""
+        content = self._read_source("beads-workflow.md")
+        self.assertIn(
+            "## Resume a Session",
+            content,
+            "beads-workflow.md missing 'Resume a Session' section",
+        )
+
+    def test_resume_before_pdca_mapping(self):
+        """Resume a Session section must appear before PDCA -> Beads Mapping."""
+        content = self._read_source("beads-workflow.md")
+        resume_pos = content.find("## Resume a Session")
+        mapping_pos = content.find("## PDCA")
+        self.assertNotEqual(resume_pos, -1, "Resume a Session section not found")
+        self.assertNotEqual(mapping_pos, -1, "PDCA mapping section not found")
+        self.assertLess(
+            resume_pos,
+            mapping_pos,
+            "Resume a Session section must appear before the PDCA mapping table",
+        )
+
+    def test_act_addon_committed_not_stored(self):
+        """act-beads-addon.md closing checklist must say 'Committed to git' not 'Stored in git'."""
+        content = self._read_source("act-beads-addon.md")
+        self.assertNotIn(
+            "Stored in git",
+            content,
+            "act-beads-addon.md still uses old 'Stored in git' phrasing",
+        )
+        self.assertIn(
+            "Committed to git",
+            content,
+            "act-beads-addon.md must use 'Committed to git -- push when ready per working agreements'",
+        )
+
+    def test_workflow_no_bare_git_push(self):
+        """Git Integration section must not contain git push as an autonomous instruction."""
+        content = self._read_source("beads-workflow.md")
+        git_section_start = content.find("## Git Integration")
+        self.assertNotEqual(git_section_start, -1, "Git Integration section not found")
+        git_section = content[git_section_start:]
+        self.assertNotIn(
+            "git push",
+            git_section,
+            "beads-workflow.md contains a bare git push instruction in Git Integration section",
+        )
 
 
 if __name__ == "__main__":

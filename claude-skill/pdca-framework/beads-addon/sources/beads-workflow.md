@@ -14,6 +14,32 @@ bd init    # creates .beads/ database; only needed once per repo
 
 ---
 
+## Resume a Session
+
+Before running any phase commands, orient yourself:
+
+```bash
+bd ready                              # unblocked open tasks
+bd list --status in_progress          # anything claimed but not closed
+bd show [epic-id]                     # full context if you have the epic ID
+```
+
+If you do not have the epic ID:
+
+```bash
+bd list --type epic --status open     # find open epics
+```
+
+Pick up from the last open `in_progress` task or the first `ready` task under your epic.
+
+Also worth running at the start of any new PDCA cycle:
+
+```bash
+brew outdated beads dolt    # update if anything shows
+```
+
+---
+
 ## PDCA → Beads Mapping
 
 | PDCA Phase | Beads Task Type | Purpose |
@@ -151,10 +177,38 @@ bd list --closed --type epic | grep -i [domain]
 
 ---
 
+## Export Requirements Document
+
+Generate a structured markdown document from all open epics and their tasks (open or closed). Useful for handoffs, reviews, and planning the next PDCA cycle.
+
+```bash
+bash .claude/skills/pdca-framework/references/scripts/export-requirements.sh requirements.md
+```
+
+The script uses `bd graph --all --compact` for a dependency overview, then iterates all open epics and their child tasks via `bd show`.
+
+**Slash command (optional):** Add the following as `.claude/commands/requirements-doc.md` in your project to get `/requirements-doc`:
+
+```markdown
+Generate a requirements document from all open beads epics and their tasks.
+
+Run:
+```bash
+bash .claude/skills/pdca-framework/references/scripts/export-requirements.sh requirements.md
+```
+
+Then present the contents of requirements.md to the user.
+```
+
+---
+
 ## Git Integration
+
+Commit `.beads/` changes like any other project file. Beads data lives in `.beads/` and should be committed alongside the code it tracks:
 
 ```bash
 git add .beads/
-git commit -m "Complete [feature] epic ([epic-id])"
-git push
+git commit -m "chore: update beads tracking for [epic-id]"
 ```
+
+Pushing is human-initiated per working agreements. Do not push on behalf of the user unless explicitly asked.

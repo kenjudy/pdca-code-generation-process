@@ -1,5 +1,28 @@
 # PDCA Framework Skill - Update Summary
 
+## v1.0.3 (2026-04-21)
+
+### Added
+- `beads-setup.md`: Pre-flight Check section before Installation -- checks `bd --version`, `dolt version`, and `brew outdated beads dolt` before proceeding, with explicit upgrade commands and a warning against running `bd init` on outdated installs
+- `beads-setup.md`: MCP server status check (`pip3 show beads-mcp`, `grep` against `claude_desktop_config.json`) before install instructions -- user knows whether to proceed without opening config manually
+- `beads-setup.md`: "Initializing Beads in a Project" section with "Post-Init: Align CLAUDE.md with Working Agreements" subsection -- patches the autonomous-agent rules `bd init` generates to cooperate with human-in-the-loop working agreements; includes `.gitignore` reversal step
+- `beads-workflow.md`: "Resume a Session" section immediately after Prerequisites -- `bd ready`, `bd list --status in_progress`, `bd show` orientation commands, now the first thing to read when returning to in-progress work
+- `beads-workflow.md`: `brew outdated beads dolt` one-liner appended to Resume section as a periodic version check reminder
+- `beads-workflow.md`: "Export Requirements Document" section with `export-requirements.sh` usage and a copyable `.claude/commands/requirements-doc.md` slash command template
+- `beads-addon/scripts/export-requirements.sh`: new script to generate a structured requirements document from all open epics and their tasks (open or closed) using `bd graph --all --compact` for the dependency overview and `bd list --parent` for per-epic task detail
+- 11 new tests in `TestBeadsWorkflowContent` covering all content changes above
+
+### Changed
+- `beads-workflow.md` Git Integration section: removed bare `git push` autonomous instruction; replaced with commit-only guidance and explicit note that pushing is human-initiated per working agreements
+- `act-beads-addon.md` closing checklist: "Stored in git (.beads/dolt/)" updated to "Committed to git (.beads/) -- push when ready per working agreements"
+- `build-skill.sh` post-build note: removed `.beads/*` `.gitignore` template that contradicted commit guidance; replaced with "commit .beads/ like any other project file"
+- `.gitignore`: removed `.beads/` exclusion block -- beads data now committed in full alongside the code it tracks
+
+### Fixed
+- `beads-setup.md` and `build-skill.sh` no longer instruct users to exclude `.beads/` from version control, which conflicted with the goal of persistent cross-session task tracking
+
+---
+
 ## v1.0.2 (2026-03-27)
 
 ### Added

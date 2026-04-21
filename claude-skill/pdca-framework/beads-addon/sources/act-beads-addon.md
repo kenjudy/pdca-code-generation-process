@@ -70,7 +70,7 @@ bd list --closed --metadata domain=auth
 **PDCA Cycle Complete!**
 
 Your analysis, implementation steps, and retrospective are now:
-- ✓ Stored in git (.beads/dolt/)
+- ✓ Committed to git (.beads/) -- push when ready per working agreements
 - ✓ Searchable via `bd` commands
 - ✓ Preserved across sessions
 - ✓ Available to future work

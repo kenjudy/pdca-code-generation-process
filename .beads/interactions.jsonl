@@ -1,0 +1,7 @@
+{"id":"int-be0f65f0","kind":"field_change","created_at":"2026-04-17T18:44:50.476521Z","actor":"Ken Judy","issue_id":"pdca-0g8","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"Closed"}}
+{"id":"int-e08d68a0","kind":"field_change","created_at":"2026-04-17T18:44:51.649838Z","actor":"Ken Judy","issue_id":"pdca-800","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"Closed"}}
+{"id":"int-30944403","kind":"field_change","created_at":"2026-04-17T19:04:06.54031Z","actor":"Ken Judy","issue_id":"pdca-gha","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"Closed"}}
+{"id":"int-d22b0ea3","kind":"field_change","created_at":"2026-04-17T19:07:00.20487Z","actor":"Ken Judy","issue_id":"pdca-05g","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"Closed"}}
+{"id":"int-39d07d83","kind":"field_change","created_at":"2026-04-17T19:07:00.442801Z","actor":"Ken Judy","issue_id":"pdca-dvi","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"Closed"}}
+{"id":"int-26658c01","kind":"field_change","created_at":"2026-04-17T19:17:48.021478Z","actor":"Ken Judy","issue_id":"pdca-dsi","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"Closed"}}
+{"id":"int-e3afc07d","kind":"field_change","created_at":"2026-04-20T14:20:55.347379Z","actor":"Ken Judy","issue_id":"pdca-a82","extra":{"field":"status","new_value":"closed","old_value":"open","reason":"Closed"}}

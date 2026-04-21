@@ -418,10 +418,10 @@ Help improve the framework:
 
 ## Version Information
 
-**Current Version:** v1.0.2
+**Current Version:** v1.0.3
 **License:** Creative Commons Attribution 4.0 International (CC BY 4.0)
 **Attribution:** Ken Judy with Claude Anthropic 4
-**Last Updated:** 2026-03-23
+**Last Updated:** 2026-04-21
 
 ---
 
@@ -527,7 +527,7 @@ All beads commands in the prompts are optional. The skill includes `references/b
 - PDCA cycles are project-specific (features, bugs, experiments for that codebase)
 - Retrospectives make sense in project context ("How did auth work in THIS app?")
 - Searching is more relevant: `bd list --closed` shows THIS project's history
-- Team collaboration: Commit `.beads/issues.jsonl` to share retrospectives with teammates
+- Team collaboration: share issue history via git (JSONL files) or Dolt remote (`bd dolt push`)
 - Clean separation: No mixing dashboard tasks with unrelated projects
 
 **Why NOT one global beads database?**
@@ -618,16 +618,36 @@ cd ~/Projects/frontend && bd init       # Creates ~/Projects/frontend/.beads/
 
 Each project gets its own independent beads database for tracking its PDCA cycles.
 
-#### 4. Add .beads/ to .gitignore
+#### 4. Choose a .beads/ sharing strategy
 
-```bash
-# Track issues.jsonl and config.yaml, exclude binary dolt database
-echo ".beads/*" >> .gitignore
-echo "!.beads/issues.jsonl" >> .gitignore
-echo "!.beads/config.yaml" >> .gitignore
+`bd init` may add `.beads/` to `.gitignore`. Decide how you want to share beads data with collaborators:
+
+**Option A: Git-native (commit JSONL bridge files)**
+
+Keep `.beads/` excluded but allow the JSONL files that serve as the git-friendly bridge. Add to `.gitignore`:
+
+```gitignore
+.beads/
+!.beads/.gitignore
+!.beads/config.yaml
+!.beads/metadata.json
+!.beads/issues.jsonl
+!.beads/interactions.jsonl
+!.beads/hooks/
 ```
 
-**Note:** Use `.beads/*` (not `.beads/`) so git negation rules can selectively track specific files inside the directory.
+The binary `embeddeddolt/` data is Dolt's own versioning territory -- do not commit it to git.
+
+**Option B: Dolt-native (bd dolt push)**
+
+Leave `.beads/` excluded from git and share via Dolt's remote:
+
+```bash
+bd dolt push   # push to Dolt remote
+bd dolt pull   # pull on another machine
+```
+
+See `references/beads-setup.md` for the full post-init checklist including CLAUDE.md alignment.
 
 ### Using Beads with PDCA
 

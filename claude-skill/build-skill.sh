@@ -38,6 +38,7 @@ BEADS_CHECK_ADDON="$BEADS_DIR/sources/check-beads-addon.md"
 BEADS_ACT_ADDON="$BEADS_DIR/sources/act-beads-addon.md"
 BEADS_SETUP="$BEADS_DIR/sources/beads-setup.md"
 BEADS_WORKFLOW="$BEADS_DIR/sources/beads-workflow.md"
+BEADS_EXPORT_SCRIPT="$BEADS_DIR/scripts/export-requirements.sh"
 
 # Verify master files exist
 echo -e "${BLUE}Verifying master source files...${NC}"
@@ -51,7 +52,7 @@ echo -e "${GREEN}✓ All master files found${NC}\n"
 
 # Verify beads addon files exist
 echo -e "${BLUE}Verifying beads addon files...${NC}"
-for file in "$BEADS_PLAN_ADDON" "$BEADS_DO_ADDON" "$BEADS_CHECK_ADDON" "$BEADS_ACT_ADDON" "$BEADS_SETUP" "$BEADS_WORKFLOW"; do
+for file in "$BEADS_PLAN_ADDON" "$BEADS_DO_ADDON" "$BEADS_CHECK_ADDON" "$BEADS_ACT_ADDON" "$BEADS_SETUP" "$BEADS_WORKFLOW" "$BEADS_EXPORT_SCRIPT"; do
     if [ ! -f "$file" ]; then
         echo -e "${RED}Error: Beads addon file not found: $file${NC}"
         exit 1
@@ -126,7 +127,10 @@ cp "$BEADS_CHECK_ADDON" "$CORE_DIR/references/check-beads-addon.md"
 cp "$BEADS_ACT_ADDON"   "$CORE_DIR/references/act-beads-addon.md"
 cp "$BEADS_SETUP"       "$CORE_DIR/references/beads-setup.md"
 cp "$BEADS_WORKFLOW"    "$CORE_DIR/references/beads-workflow.md"
-echo -e "${GREEN}✓ Copied 6 beads addon files${NC}\n"
+mkdir -p "$CORE_DIR/references/scripts"
+cp "$BEADS_EXPORT_SCRIPT" "$CORE_DIR/references/scripts/export-requirements.sh"
+chmod +x "$CORE_DIR/references/scripts/export-requirements.sh"
+echo -e "${GREEN}✓ Copied 6 beads addon files + 1 script${NC}\n"
 
 # ═══════════════════════════════════════════════════════
 # PACKAGE UNIFIED SKILL
@@ -157,6 +161,7 @@ zip -r "$SKILL_FILE" \
     pdca-framework/references/beads-setup.md \
     pdca-framework/references/beads-workflow.md \
     pdca-framework/references/testing-anti-patterns.md \
+    pdca-framework/references/scripts/export-requirements.sh \
     -x "*.DS_Store" \
     -q
 
@@ -187,10 +192,8 @@ echo "1. Review generated files in pdca-framework/references/"
 echo "2. Install: unzip -o pdca-framework.skill -d ~/.claude/skills/pdca-framework/"
 echo "3. Commit changes if everything looks good"
 echo ""
-echo -e "${YELLOW}Per-project beads .gitignore setup (add to each project using beads):${NC}"
-echo "  .beads/*"
-echo "  !.beads/issues.jsonl"
-echo "  !.beads/config.yaml"
-echo ""
-echo "  (Use .beads/* not .beads/ — git negation rules require the wildcard form)"
+echo -e "${YELLOW}Per-project beads setup reminder:${NC}"
+echo "  Choose a .beads/ sharing strategy (see references/beads-setup.md):"
+echo "  Option A (git-native): commit issues.jsonl + interactions.jsonl, exclude embeddeddolt/"
+echo "  Option B (Dolt-native): exclude .beads/ from git, share via 'bd dolt push'"
 echo ""

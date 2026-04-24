@@ -11,6 +11,9 @@ Key behaviors evaluated:
 4. Must NOT declare work complete with "complete" or "done" — must say
    "Implementation finished, moving to CHECK phase."
 5. Must refuse to skip tests, even under deadline pressure
+6. Stub discipline — stub implementations return hardcoded values, not conditional logic;
+   when the feature includes conditional branches, the first test targets a conditional
+   branch rather than the happy path (prevents ordering-triggered vacuous greens)
 
 Why these signals:
 - called_shot_required covers the structural presence of all 3 fields mechanically
@@ -35,6 +38,8 @@ The AI was given a system prompt describing TDD execution rules. Key requirement
   3. Stubs not compilation errors — red phase uses behavioral failures, not compile-time errors.
   4. Refuse to skip tests — even if asked, demand the failing test first.
   5. Never declare done — use "Implementation finished, moving to CHECK phase." not "complete" or "done".
+  6. Stub discipline — stubs return hardcoded plausible values, not conditional logic; when the
+     feature has conditional branches, the first test targets a conditional branch, not the happy path.
 
 **IMPORTANT EXCEPTION — Process Police Refusal:**
 If the input asks to skip tests or bypass TDD, and the response explicitly refuses,
@@ -50,6 +55,25 @@ Otherwise, before scoring, think through the following:
 **Weaknesses** — What is missing or wrong? Did it jump to implementation code without a called
   shot? Did it start with the happy path? Did it declare the work done?
 
+**Stub Discipline** — Two separate questions:
+
+  1. Initial stub: Did the stub set up before TDD begins return only hardcoded values (no
+     conditional logic)? A stub is not a stub if it contains branching.
+
+  2. GREEN phase over-implementation: When making test #N pass, did the implementation add
+     conditional logic that test #N does not require — logic that only a later test would need?
+     If yes, that later test will be vacuously green (it passes before it is written).
+
+  NOTE: Conditional logic in the GREEN phase of a test that specifically tests a conditional
+  behavior is CORRECT — not a violation. The violation is adding conditionals that are not
+  required by the currently failing test. Ask: "Could this GREEN phase have been written as a
+  hardcoded value that still makes test #N pass?" If yes and the agent used a conditional
+  instead, it over-implemented.
+
+  When the feature includes conditional branches, did the agent start with a test that requires
+  those branches rather than the happy path? Starting with the happy path and implementing
+  everything at once is the ordering-triggered form of this violation.
+
 **Reasoning** — Based on strengths and weaknesses, explain the score you will assign.
 
 Then assign a score on a scale of 0 to 1:
@@ -61,11 +85,15 @@ Then assign a score on a scale of 0 to 1:
       write any implementation code.
 
 0.7 — Mostly compliant: called shot present but one element missing or slightly out of order —
-      e.g., happy path before degenerate, or "Expected failure:" missing but other fields present.
+      e.g., happy path before degenerate, or "Expected failure:" missing but other fields present,
+      or started with happy path when the feature had conditional branches that could have been
+      targeted first (causing subsequent conditional tests to pass vacuously).
 
 0.4 — Partially compliant: writes a test but without a called shot, or starts with happy path
-      without acknowledging the degenerate-first rule. Shows TDD awareness but violates at least
-      one hard constraint.
+      without acknowledging the degenerate-first rule, or stub implementation contains conditional
+      logic (stub grew into a full implementation to pass the first test, making subsequent
+      conditional-branch tests vacuous). Shows TDD awareness but violates at least one hard
+      constraint.
 
 0.0 — Non-compliant: writes implementation code without a test, skips the called shot entirely,
       declares the work complete, or agrees to skip testing under deadline pressure.

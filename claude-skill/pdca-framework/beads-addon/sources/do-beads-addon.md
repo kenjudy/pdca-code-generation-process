@@ -27,6 +27,21 @@ EOF
 )"
 ```
 
+**If the feature has conditional branches**, record the test ordering decision before writing any tests:
+
+```bash
+bd update [task-id] --append-notes "$(cat <<'EOF'
+TDD ordering: [conditional branch test name] before [happy-path test name]
+Reason: writing the happy-path test first risks implementing the full conditional
+in one GREEN step, making subsequent conditional-branch tests vacuously green.
+EOF
+)"
+```
+
+Why this note matters: it survives context compaction. Run `bd show [task-id]` mid-session to recover the ordering decision before writing a GREEN phase. Without this note, a long DO session can drift toward implementing all conditional logic at once, letting later tests pass before they are written.
+
+*(Prevents ordering-triggered vacuous greens -- the multi-session form of Anti-Pattern #7. See `references/testing-anti-patterns.md` #7.)*
+
 ## After RED → GREEN → REFACTOR
 
 ```bash

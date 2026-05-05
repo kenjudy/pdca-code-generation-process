@@ -34,7 +34,14 @@ The confirmation gate after Layer 5 is mandatory before generating anything.
 
 The generated skill goes in `[domain]-pdca/` in the user's current project directory.
 It is committed to the project repo and version-controlled alongside the work it governs.
-To validate or optimize the generated skill, use `/skill-creator`.
+
+Before using the skill in production, validate it with `/skill-creator`:
+- Verifies SKILL.md format and that the description triggers correctly
+- Runs with-skill vs. without-skill eval comparisons to confirm behavioral effectiveness
+- Surfaces improvements before the first real cycle
+
+A generated skill that hasn't been through eval is an untested assumption.
+`/skill-creator` is the quality gate between generation and production use.
 
 ## Reference Files
 

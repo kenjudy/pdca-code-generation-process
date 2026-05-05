@@ -31,6 +31,11 @@ and version-controls it alongside their work.
 
 Fill in ALL bracketed placeholders from the confirmed discovery summary. Do not leave placeholders.
 
+**Structural requirement — verify before continuing:** The first line of SKILL.md must be `---`.
+This opens the YAML frontmatter block that skill-creator requires to install and trigger the skill.
+If SKILL.md starts with `#` or any other character, the skill cannot be installed or triggered.
+After generating SKILL.md, confirm line 1 is `---` before generating any other file.
+
 ```markdown
 ---
 name: [domain]-pdca
@@ -315,13 +320,20 @@ I've generated the [domain]-pdca skill in `[domain]-pdca/`. Next steps:
 3. Install it:
    cp -r [domain]-pdca/ ~/.claude/skills/
 
-4. Use it. Invoke /[domain]-pdca at the start of each cycle.
+4. Validate with /skill-creator before using in production:
+   Run /skill-creator on the `[domain]-pdca/` directory. It will:
+   - Verify the SKILL.md format and that the description triggers correctly
+   - Run with-skill vs. without-skill eval comparisons to confirm the skill
+     produces better outcomes than improvised alternatives
+   - Surface improvements to sharpen the skill before your first real cycle
 
-5. At the end of each ACT phase, the skill will propose refinements.
+   This is how you know the skill is behaviorally effective, not just structurally valid.
+   A skill that hasn't been through eval is an untested assumption.
+
+5. Use it. Invoke /[domain]-pdca at the start of each cycle.
+
+6. At the end of each ACT phase, the skill will propose refinements.
    Approve and commit them. The skill improves with each cycle.
-
-To validate the skill structure or optimize the description for better triggering,
-use /skill-creator.
 ```
 
 ---

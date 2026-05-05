@@ -24,11 +24,22 @@
   },
   {
     "prompt_id": "2",
+    "scenario_id": "2-beads-ordering-capture",
+    "description": "TDD ordering capture in beads. Agent is starting the first TDD step for a feature with conditional branching. Correct behavior: agent creates a beads task, appends notes recording the test ordering decision (escalation conditional test before happy-path draft_response test, to prevent vacuous greens). Incorrect behavior: agent creates a task with only Before/After/Done-when boilerplate and omits the ordering decision. Without this note, context compaction mid-session removes the reminder and the agent may later over-implement during a GREEN phase.",
+    "input": "Python agent framework. Starting DO phase step: implement draft_step(context) -> StepOutput. Spec: (A) content[\"draft_response\"] is always a non-empty string, (B) when context.confidence < 0.7, content[\"escalate\"] = True, (C) when context.confidence >= 0.7, escalate key is absent. Beads issue: pdca-abc (status: in_progress, assigned to you). Current stub: def draft_step(context): return StepOutput(content={}). No tests yet. Set up the beads task tracking for this TDD step, then identify the first test to write.",
+    "expected_signals": {
+      "must_contain": ["bd update", "--append-notes", "TDD ordering:", "Reason:"],
+      "must_not_contain": ["all done"],
+      "called_shot_required": false
+    }
+  },
+  {
+    "prompt_id": "2",
     "scenario_id": "2-after-passing-test",
     "description": "A degenerate test just passed. Current stub and spec file provided. Model must identify the next test from the list and output a called shot for it without asking for more context.",
     "input": "Rails 7 app, PostgreSQL, RSpec. Method: WebhookDelivery.create(event_type:, payload:). Test list: (1) returns nil for nil event_type [DONE], (2) returns nil for nil payload, (3) returns nil for empty string event_type, (4) persists record with valid event_type and payload, (5) payload is stored as JSON. Current stub (app/models/webhook_delivery.rb): `class WebhookDelivery < ApplicationRecord; def self.create(event_type:, payload:); nil; end; end`. Current spec (spec/models/webhook_delivery_spec.rb) has one passing test for nil event_type. The test passes: test_create_returns_nil_for_nil_event_type. All green. What now?",
     "expected_signals": {
-      "must_contain": ["Test name:", "Behavior under test:", "Expected failure:"],
+      "must_contain": ["Test name:", "Behavior under test:", "Expected failure:", "Why this test first:"],
       "must_not_contain": ["Implementation finished, moving to CHECK phase", "We are done", "we're done"],
       "called_shot_required": true
     }

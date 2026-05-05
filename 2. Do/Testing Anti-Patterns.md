@@ -64,6 +64,18 @@ A test that passes immediately against the current stub without any production c
 
 *Rule:* Skip to the first test in your sequence that the current stub cannot satisfy — that is your genuine RED. Document the skipped tests as guards to add after real implementation replaces the stub. State the called shot for the test you are actually going to write, not the one you are skipping.
 
+**Sub-case: Ordering-Triggered Vacuous Green**
+
+Starting with the happy-path test can force the stub to grow into a full implementation, making all subsequent conditional-branch tests vacuously green. Symptom: test #2 passes immediately because test #1 already required implementing the conditional logic.
+
+*Ask before choosing the first test:* "If I implemented only the happy path with no conditionals, would this test pass?" If yes, choose a different first test -- one that targets the conditional branch.
+
+*Prevention:* When the feature includes conditional branches, start with the test that isolates the most conditional behavior. The happy-path test written after a genuine RED/GREEN cycle is documentation; written first, it is a trap.
+
+*Persistent context:* In longer DO phase sessions, record the ordering decision in beads task notes at the start so it survives context compaction. `bd show [task-id]` recovers the decision before writing a GREEN phase.
+
+*Attribution: Anti-Pattern #7 (Happy-Path Tunnel Vision) from [afbreilyn/afb-tdd](https://github.com/afbreilyn/afb-tdd) -- "for every happy-path test, ask what are all the ways this can fail and write a test for each answer."*
+
 ---
 
 ## Quick Check Before Committing

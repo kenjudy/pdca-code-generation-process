@@ -10,11 +10,12 @@ EMPTY_SIGNALS = {
     "called_shot_required": False,
 }
 
-# Called shot output with all three required fields
+# Called shot output with all four required fields
 CALLED_SHOT_FULL = """
 - **Test name:** test_rejects_empty_input
 - **Behavior under test:** validate_scenario({}) raises ScenarioValidationError
 - **Expected failure:** AssertionError: ScenarioValidationError not raised
+- **Why this test first:** degenerate case — establishes that the API rejects empty input before testing valid inputs
 """
 
 # Called shot output missing the Expected failure field
@@ -88,7 +89,7 @@ class TestMustNotContain(unittest.TestCase):
 
 
 class TestCalledShotRequired(unittest.TestCase):
-    """called_shot_required checks — all three fields must be present in output."""
+    """called_shot_required checks — all four fields must be present in output."""
 
     def test_called_shot_not_required_produces_no_result(self):
         signals = {**EMPTY_SIGNALS, "called_shot_required": False}

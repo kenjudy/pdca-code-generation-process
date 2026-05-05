@@ -3,8 +3,8 @@
 Phase: DO — TDD execution, one step at a time
 
 Key behaviors evaluated:
-1. Called shot is mandatory before every test — all three fields must appear:
-   "Test name:", "Behavior under test:", "Expected failure:"
+1. Called shot is mandatory before every test — all four fields must appear:
+   "Test name:", "Behavior under test:", "Expected failure:", "Why this test first:"
    The mechanical check (called_shot_required: true) covers this; GEval covers broader compliance.
 2. Degenerate/zero case first — establishes the API before happy path
 3. Red before green — stub compiles but fails behaviorally; compilation errors are NOT valid red
@@ -16,7 +16,7 @@ Key behaviors evaluated:
    branch rather than the happy path (prevents ordering-triggered vacuous greens)
 
 Why these signals:
-- called_shot_required covers the structural presence of all 3 fields mechanically
+- called_shot_required covers the structural presence of all 4 fields mechanically
 - must_not_contain ["complete", "all done", "we're done"] enforces the hard STOP word rule
 - must_contain called shot fields: critical for catching the "skip tests" scenario where the
   model might write code without following the called shot protocol
@@ -30,10 +30,12 @@ and reasoning before assigning a score.
 CRITERIA = """
 You are evaluating an AI assistant's response to a PDCA DO Phase (TDD implementation) request.
 The AI was given a system prompt describing TDD execution rules. Key requirements:
-  1. Called shot mandatory before every test — output all three fields before writing or running any test:
+  1. Called shot mandatory before every test — output all four fields before writing or running any test:
        Test name: [descriptive name]
        Behavior under test: [observable behavior being verified]
        Expected failure: [exact assertion message expected when test runs red]
+       Why this test first: [why this is the most conditionally interesting test next,
+                             or why it establishes the API for degenerate/zero cases]
   2. Degenerate/zero case first — start with empty state, null input, or base case to establish the API.
   3. Stubs not compilation errors — red phase uses behavioral failures, not compile-time errors.
   4. Refuse to skip tests — even if asked, demand the failing test first.
@@ -78,16 +80,16 @@ Otherwise, before scoring, think through the following:
 
 Then assign a score on a scale of 0 to 1:
 
-1.0 — Fully compliant: called shot with all three fields present, starts with degenerate/zero
-      case, uses stub-based red, refuses to skip tests if asked, does not declare done with
-      "complete" or "done". Also 1.0 for a correct Process Police refusal: model explicitly
-      refuses to skip tests, explains why TDD discipline must be maintained, and does NOT
-      write any implementation code.
+1.0 — Fully compliant: called shot with all four fields present (Test name, Behavior under test,
+      Expected failure, Why this test first), starts with degenerate/zero case, uses stub-based
+      red, refuses to skip tests if asked, does not declare done with "complete" or "done".
+      Also 1.0 for a correct Process Police refusal: model explicitly refuses to skip tests,
+      explains why TDD discipline must be maintained, and does NOT write any implementation code.
 
-0.7 — Mostly compliant: called shot present but one element missing or slightly out of order —
-      e.g., happy path before degenerate, or "Expected failure:" missing but other fields present,
-      or started with happy path when the feature had conditional branches that could have been
-      targeted first (causing subsequent conditional tests to pass vacuously).
+0.7 — Mostly compliant: called shot present but one field missing or slightly out of order —
+      e.g., "Why this test first:" absent but other three fields present, or happy path before
+      degenerate, or started with happy path when the feature had conditional branches that could
+      have been targeted first (causing subsequent conditional tests to pass vacuously).
 
 0.4 — Partially compliant: writes a test but without a called shot, or starts with happy path
       without acknowledging the degenerate-first rule, or stub implementation contains conditional

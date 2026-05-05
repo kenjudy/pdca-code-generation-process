@@ -1,10 +1,12 @@
-# PDCA Framework Skill - Setup Guide
+# PDCA Framework Skills - Setup Guide
 
-A Claude skill for human-supervised AI code generation using Plan-Do-Check-Act methodology with strict TDD discipline.
+Two Claude skills for human-supervised AI collaboration using Plan-Do-Check-Act methodology.
 
-## What This Skill Does
+---
 
-This skill provides a disciplined framework for AI-assisted code generation that:
+## pdca-framework — AI-Assisted Code Generation
+
+A disciplined framework for AI-assisted code generation with strict TDD:
 - Maintains code quality through structured TDD practices
 - Reduces technical debt by enforcing architecture pattern discovery
 - Keeps humans actively engaged and accountable
@@ -14,17 +16,32 @@ This skill provides a disciplined framework for AI-assisted code generation that
 
 ---
 
-## 📦 One Unified Package
+## pdca-scaffold — Generalized PDCA Skill Generator
 
-`pdca-framework.skill` includes everything:
+A tool for creating domain-specific PDCA skills for any complex repeatable human task:
+- Socratic discovery across 5 layers to understand your task, human-AI role division, quality signals, and intervention points
+- Generates a valid installable Claude skill tailored to your domain
+- Built-in active learning loop: after each ACT phase, proposes specific diffs back to the skill's own reference files; the human approves and commits; the skill sharpens over cycles
 
+Use `/pdca-scaffold` when you want to systematize a repeatable task outside of software development — content pipelines, research cycles, data analysis, legal review, client reporting, product design, or any other domain where human-AI collaboration benefits from structure.
+
+---
+
+## 📦 Skill Packages
+
+**pdca-framework.skill** includes:
 - ✅ Core PDCA framework (Plan→Do→Check→Act)
 - ✅ Strict TDD discipline and working agreements
-- ✅ Works out of the box, no additional setup
-- ✅ Beads integration files included (optional — only load them if beads is installed)
-- 📦 **Size**: 20K
+- ✅ Beads integration files included (optional)
+- 📦 **Size**: ~20K
 
-**Beads** (by [Steve Yegge](https://github.com/steveyegge)) adds persistent task tracking across sessions (multi-day features, searchable retrospectives). It's built in and optional — see [Beads Integration](#beads-integration) if you want it.
+**pdca-scaffold.skill** includes:
+- ✅ 5-layer Socratic discovery framework
+- ✅ Domain PDCA generation templates
+- ✅ Active learning loop / refinement protocol
+- 📦 **Size**: ~12K
+
+**Beads** (by [Steve Yegge](https://github.com/steveyegge)) adds persistent task tracking across sessions. Optional — see [Beads Integration](#beads-integration) if you want it.
 
 ---
 
@@ -32,19 +49,25 @@ This skill provides a disciplined framework for AI-assisted code generation that
 
 **Required before installation.** The `.skill` files are not included in the repository and must be built locally first.
 
-**macOS/Linux:**
+**pdca-framework:**
 ```bash
 cd claude-skill
 ./build-skill.sh
 ```
 
-**Windows:**
+**pdca-scaffold:**
+```bash
+cd claude-skill
+./build-scaffold.sh
+```
+
+**Windows (pdca-framework only):**
 ```powershell
 cd claude-skill
 .\build-skill.ps1
 ```
 
-This generates `pdca-framework.skill` from the source prompts. See [BUILD.md](BUILD.md) for full details, including troubleshooting and CI/CD automation.
+See [BUILD.md](BUILD.md) for full details, including troubleshooting and CI/CD automation.
 
 ## Installation
 
@@ -106,11 +129,17 @@ Use the installation script for automatic setup:
 .\install-skill.ps1 project    # Install to current project's .claude/skills/
 ```
 
-#### Manual Install - Personal Skill (Available Across All Projects)
+#### Manual Install - Personal Skills (Available Across All Projects)
 
 ```bash
 # Create the parent directory
 mkdir -p ~/.claude/skills
+
+# Install pdca-framework
+unzip pdca-framework.skill -d ~/.claude/skills
+
+# Install pdca-scaffold (optional — for generating domain-specific PDCA skills)
+unzip pdca-scaffold.skill -d ~/.claude/skills
 
 # Extract the skill package (zip contains pdca-framework/ at root)
 unzip pdca-framework.skill -d ~/.claude/skills

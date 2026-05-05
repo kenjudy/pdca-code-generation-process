@@ -57,6 +57,18 @@ Before behavioral steps begin, identify any structural cleanup required to make 
 - Complexity check: If a step feels too large to test atomically, split it
 - Model match verification: Is the tagged model appropriate for actual complexity encountered?
 
+**Full Cycle Scope:**
+
+When the plan introduces a new skill, build script, command, or other artifact, the plan
+must include explicit tasks — not implied — for each of the following:
+
+- [ ] Build system: build script exists, is executable, produces correct output, command documented in CLAUDE.md
+- [ ] Documentation: README updated, CLAUDE.md commands table updated
+- [ ] CHECK: state what will be verified and against what criteria for this specific feature
+- [ ] ACT: retrospective, working agreement updates proposed, issues closed
+
+These are not cleanup items. Name them in the plan so CHECK can verify them like any other step.
+
 ```
 
 _Plan is verbose and I don't add it to any tracking_

@@ -130,6 +130,12 @@ Work is **not complete** until `git push` succeeds and the human has signed off 
 
 **NEVER** say "ready to push when you are" — push yourself. If push fails, resolve and retry.
 
+## Planning Discipline
+
+When planning any new skill or build artifact, the implementation plan must include
+explicit tasks for build system, documentation, CHECK criteria, and ACT retrospective.
+Don't assume them — name them in the plan. See the 1b prompt for the full checklist.
+
 ## Human Supervision (Non-Negotiable)
 
 See `claude-skill/Agent.md` for the full protocol. Key rules:

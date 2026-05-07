@@ -10,7 +10,19 @@
 
 ## Output Structure
 
-Generate the following files in `[domain]-pdca/` within the user's current project directory.
+Before generating any files, ask:
+
+```
+Where would you like the skill generated?
+The skill directory will be named `[domain]-pdca/`.
+Provide a path relative to the current directory, or press Enter to use the current directory.
+(Example: `scaffolded/` → generates at `scaffolded/[domain]-pdca/`)
+```
+
+Wait for the answer. Use the provided path as the base. If the user presses Enter or provides no path,
+generate directly in the current project directory.
+
+Generate the following files at `[base-path]/[domain]-pdca/`:
 Use the domain name from the task description (slugified, lowercase, hyphens).
 
 ```
@@ -22,7 +34,7 @@ Use the domain name from the task description (slugified, lowercase, hyphens).
     └── quality-gates.md
 ```
 
-Never generate files outside this directory. The user places this in their project repo
+Never generate files outside the confirmed path. The user places this in their project repo
 and version-controls it alongside their work.
 
 ---

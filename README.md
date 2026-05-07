@@ -479,4 +479,17 @@ This setup guide is part of the Human-AI PDCA Collaboration Process framework, l
 
 ---
 
+## Acknowledgments
+
+The TDD content in this framework draws from several foundational sources:
+
+- **[afbreilyn/afb-tdd](https://github.com/afbreilyn/afb-tdd)** (AFB Breilyn) -- stub design principle ("hardcode if possible, don't make it handle future scenarios"), Anti-Pattern #7 (Happy-Path Tunnel Vision), and the called-shot discipline of predicting the exact failure before running a test
+- **[obra/superpowers](https://github.com/obra/superpowers/tree/main/skills/test-driven-development)** (Jesse Vincent) -- Testing Anti-Patterns reference, adapted and extended for this framework
+- **Kent Beck** -- *TDD by Example* (2002), "Canon TDD" (2023), *Tidy First?* (2023), *Refactoring* (1999), and "Test Desiderata": foundational TDD sequencing (Fake It / Obvious Implementation / Triangulate), the Starter Test principle, Two Hats doctrine, and the behavioral definition of unit tests
+- **James Grenning** -- ZOMBIES test ordering (Zero/One/Many first), informing degenerate-case-first sequencing
+
+obra/superpowers and afb-tdd are MIT licensed; content adapted from them is used with attribution as required. Beck and Grenning are cited as intellectual influences; no copyrighted text is reproduced from their published works.
+
+---
+
 *Last Updated: 2026*
